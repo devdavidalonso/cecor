@@ -1,0 +1,24 @@
+/* styles/Responsive.css */
+@media (max-width: 576px) {
+  .form-section {
+    padding: 20px 15px;
+  }
+  
+  .confirmation-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .confirmation-actions button {
+    width: 100%;
+  }
+  
+  .course-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .radio-group.horizontal {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

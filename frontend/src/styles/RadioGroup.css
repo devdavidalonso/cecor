@@ -1,0 +1,71 @@
+/* styles/RadioGroup.css */
+.radio-group {
+  margin-bottom: 20px;
+}
+
+.radio-group.vertical .radio-option {
+  margin-bottom: 10px;
+}
+
+.radio-group.horizontal {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+}
+
+.radio-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-option label {
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1rem;
+}
+
+.radio-option label:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  background: white;
+}
+
+.radio-option input[type="radio"]:checked + label:before {
+  border-color: var(--primary-color);
+}
+
+.radio-option input[type="radio"]:checked + label:after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 7px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+
+.radio-option input[type="radio"]:focus + label:before {
+  box-shadow: 0 0 0 3px rgba(0, 68, 255, 0.2);
+}
+
+.option-info {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-left: 5px;
+}

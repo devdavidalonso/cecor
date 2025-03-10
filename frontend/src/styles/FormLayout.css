@@ -1,0 +1,67 @@
+/* styles/FormLayout.css */
+.form-layout {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.form-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.logo-img {
+  width: 180px;
+  height: auto;
+  margin-bottom: 15px;
+}
+
+.form-section {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  padding: 30px;
+  margin-bottom: 30px;
+  flex: 1;
+}
+
+.form-section h2 {
+  color: var(--primary-color);
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.form-content {
+  margin-bottom: 30px;
+}
+
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.form-footer {
+  text-align: center;
+  color: var(--text-light);
+  margin-top: 20px;
+  font-size: 0.9rem;
+  padding: 15px 0;
+}
+
+.footer-links {
+  margin-top: 10px;
+}
+
+.footer-links a {
+  color: var(--text-light);
+  margin: 0 5px;
+}

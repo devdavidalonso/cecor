@@ -1,0 +1,25 @@
+/* styles/AdditionalInfo.css */
+.additional-info-form {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .section-header {
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    padding: 10px 15px;
+    background-color: rgba(0, 68, 255, 0.1);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  
+  .form-group {
+    margin-bottom: 25px;
+  }
+  
+  .question-label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }

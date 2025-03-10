@@ -1,0 +1,81 @@
+/* styles/CourseCard.css */
+.course-card {
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 15px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.course-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.course-card.selected {
+  border: 2px solid var(--primary-color);
+  background-color: rgba(0, 68, 255, 0.05);
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.course-header h3 {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--text-dark);
+  flex: 1;
+}
+
+.age-requirement {
+  background-color: var(--secondary-color);
+  color: var(--text-dark);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.course-info {
+  margin-bottom: 15px;
+}
+
+.info-item {
+  display: flex;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.info-label {
+  color: var(--text-light);
+  margin-right: 5px;
+  min-width: 75px;
+}
+
+.info-value {
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.selection-indicator {
+  text-align: center;
+  padding: 5px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.selected .selection-indicator {
+  color: var(--primary-color);
+  font-weight: bold;
+}

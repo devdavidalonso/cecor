@@ -1,0 +1,24 @@
+/* styles/index.css */
+/* Arquivo de importação para todos os estilos do projeto */
+
+/* Estilos base */
+@import './App.css';
+@import './FormLayout.css';
+@import './ProgressBar.css';
+
+/* Componentes */
+@import './TextInput.css';
+@import './RadioGroup.css';
+@import './CourseCard.css';
+
+/* Páginas */
+@import './Welcome.css';
+@import './CourseSelection.css';
+@import './PersonalInfo.css';
+@import './FamilyInfo.css';
+@import './AdditionalInfo.css';
+@import './Confirmation.css';
+@import './Success.css';
+
+/* Responsividade */
+@import './Responsive.css';

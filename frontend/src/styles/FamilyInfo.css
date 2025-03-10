@@ -1,0 +1,16 @@
+/* styles/FamilyInfo.css */
+.family-info-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.relationship-section {
+  margin-top: 30px;
+}
+
+.section-label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+  font-size: 1.05rem;
+}

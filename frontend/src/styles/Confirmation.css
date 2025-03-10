@@ -1,0 +1,56 @@
+/* styles/Confirmation.css */
+.confirmation-page {
+  width: 100%;
+}
+
+.confirmation-card {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.confirmation-section {
+  margin-bottom: 30px;
+}
+
+.confirmation-section h4 {
+  color: var(--text-dark);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 15px;
+}
+
+.confirmation-list {
+  list-style: none;
+}
+
+.confirmation-list li {
+  margin-bottom: 10px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.confirmation-list li:before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+}
+
+.confirmation-list li strong {
+  margin-right: 5px;
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}

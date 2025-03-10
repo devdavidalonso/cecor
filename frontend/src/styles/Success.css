@@ -1,0 +1,40 @@
+/* styles/Success.css */
+.success-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: var(--background-color);
+}
+
+.success-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.success-logo {
+  width: 180px;
+  margin-bottom: 30px;
+}
+
+.success-card h1 {
+  color: var(--success-color);
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.success-message {
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.success-actions {
+  margin-top: 30px;
+}
