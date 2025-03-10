@@ -1,164 +1,104 @@
-// pages/CourseSelection.js
-import React, { useState } from 'react';
-import FormLayout from '../components/FormLayout';
-import CourseCard from '../components/CourseCard';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from '../contexts/FormContext';
-import '../styles/CourseSelection.css';
-
-// Lista de cursos por horário
-const courses = {
-  morning10h: [
-    { id: 'admin', title: 'Auxiliar administrativo', ageRequirement: '14 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'elderly', title: 'Cuidador de idoso', ageRequirement: '18 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'culinary', title: 'Culinária', ageRequirement: '12 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'it', title: 'Informática Básica', ageRequirement: 'livre', schedule: 'Sábados 10h', hasCertificate: false, period: 'por módulo' },
-    { id: 'dev', title: 'Desenvolvimento de Sistemas', ageRequirement: '12 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'arduino', title: 'Arduino', ageRequirement: '15 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'english-kids', title: 'Inglês infantil', ageRequirement: 'livre', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'english-1', title: 'Inglês Básico 1', ageRequirement: '12 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'english-2', title: 'Inglês Básico 2', ageRequirement: '12 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'english-int', title: 'Inglês Intermediário 1', ageRequirement: '12 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'crochet', title: 'Tricô, crochê e bordado', ageRequirement: '11 anos', schedule: 'Sábados 10h', hasCertificate: true, period: 'anual' },
-    { id: 'piano', title: 'Piano', ageRequirement: 'livre', schedule: 'Sábados 10h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'jiujitsu-10', title: 'Jiu-jitsu', ageRequirement: 'livre', schedule: 'Sábados 10h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'capoeira-10', title: 'Capoeira', ageRequirement: 'livre', schedule: 'Sábados 10h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'sewing', title: 'Corte e costura pequenos ajustes', ageRequirement: '12 anos', schedule: 'Sábados 10h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'woodwork', title: 'Marcenaria', ageRequirement: 'a confirmar', schedule: 'Sábados 10h', hasCertificate: false, period: 'a confirmar' }
-  ],
-  morning9h: [
-    { id: 'citizenship', title: 'Cidadania', ageRequirement: 'livre', schedule: 'Sábados 9h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'piano-9', title: 'Piano', ageRequirement: 'livre', schedule: 'Sábados 9h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'guitar', title: 'Violão', ageRequirement: 'livre', schedule: 'Sábados 9h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'jiujitsu-9', title: 'Jiu-jitsu', ageRequirement: 'livre', schedule: 'Sábados 9h', hasCertificate: false, period: 'sem certificado' },
-    { id: 'capoeira-9', title: 'Capoeira', ageRequirement: 'livre', schedule: 'Sábados 9h', hasCertificate: false, period: 'sem certificado' }
-  ],
-  afternoon: [
-    { id: 'jiujitsu-afternoon', title: 'Jiu-jitsu', ageRequirement: 'livre', schedule: 'Sábados 14h', hasCertificate: false, period: 'sem certificado' }
-  ],
-  friday: [
-    { id: 'painting', title: 'Pintura em tecido e Artesanato', ageRequirement: 'livre', schedule: 'Sexta 13h30 às 16h30', hasCertificate: false, period: 'sem certificado' }
-  ],
-  saturday: [
-    { id: 'sewing-basic', title: 'Corte e Costura Básico', ageRequirement: '12 anos', schedule: '3ª feira 13h às 16h', hasCertificate: true, period: 'anual' }
-  ]
-};
+import CourseCard from '../components/CourseCard';
+import ProgressBar from '../components/ProgressBar';
 
 const CourseSelection = () => {
-  const { formData, updateFormData } = useForm();
-  const [errors, setErrors] = useState({});
-  
-  const handleSelectCourse = (timeSlot, courseId) => {
-    const fieldName = {
-      'morning10h': 'coursesMorning10h',
-      'morning9h': 'coursesMorning9h',
-      'afternoon': 'coursesAfternoon',
-      'friday': 'coursesFriday',
-      'saturday': 'coursesSaturday'
-    }[timeSlot];
+  const { formData, updateFormData, nextStep } = useForm();
+  const navigate = useNavigate();
+  const [cursos, setCursos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Carregar cursos da API
+  useEffect(() => {
+    const fetchCursos = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:8080/api/cursos');
+        
+        if (!response.ok) {
+          throw new Error('Erro ao buscar cursos');
+        }
+        
+        const data = await response.json();
+        setCursos(data);
+      } catch (error) {
+        console.error('Erro ao carregar cursos:', error);
+        setError('Não foi possível carregar os cursos. Por favor, tente novamente mais tarde.');
+        
+        // Fallback com dados simulados para desenvolvimento
+        setCursos([
+          { id: 1, nome: 'Corte e Costura', descricao: 'Aprenda técnicas de corte e costura.', dia_semana: 'Segunda-feira', horario_inicio: '14:00', horario_fim: '16:00' },
+          { id: 2, nome: 'Pintura', descricao: 'Técnicas de pintura em tela.', dia_semana: 'Quarta-feira', horario_inicio: '09:00', horario_fim: '11:00' },
+          { id: 3, nome: 'Jiu-jitsu', descricao: 'Aulas de jiu-jitsu para iniciantes.', dia_semana: 'Sábado', horario_inicio: '15:00', horario_fim: '17:00' }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    updateFormData({
-      [fieldName]: formData[fieldName] === courseId ? null : courseId
-    });
+    fetchCursos();
+  }, []);
+
+  const handleCourseSelect = (cursoId) => {
+    updateFormData({ cursoSelecionado: cursoId });
+    nextStep();
   };
-  
-  const validateForm = () => {
-    const atLeastOneCourse = 
-      formData.coursesMorning10h || 
-      formData.coursesMorning9h || 
-      formData.coursesAfternoon || 
-      formData.coursesFriday || 
-      formData.coursesSaturday;
-      
-    if (!atLeastOneCourse) {
-      setErrors({ general: 'Por favor, selecione pelo menos um curso de interesse.' });
-      return false;
-    }
-    
-    setErrors({});
-    return true;
+
+  const handleSkip = () => {
+    updateFormData({ cursoSelecionado: null });
+    nextStep();
   };
-  
+
   return (
-    <FormLayout 
-      title="Seleção de Cursos"
-      previousPage="/"
-      nextPage="/personal-info"
-      validateForm={validateForm}
-    >
-      <div className="course-selection">
-        {errors.general && <div className="error-message general-error">{errors.general}</div>}
-        
-        <section className="course-section">
-          <h3>Qual curso do CECOR você tem interesse em realizar aos sábados (10h)?</h3>
-          <div className="course-grid">
-            {courses.morning10h.map(course => (
-              <CourseCard 
-                key={course.id}
-                course={course}
-                selected={formData.coursesMorning10h === course.id}
-                onSelect={() => handleSelectCourse('morning10h', course.id)}
-              />
-            ))}
-          </div>
-        </section>
-        
-        <section className="course-section">
-          <h3>Qual curso do CECOR você tem interesse em realizar aos sábados (9h)?</h3>
-          <div className="course-grid">
-            {courses.morning9h.map(course => (
-              <CourseCard 
-                key={course.id}
-                course={course}
-                selected={formData.coursesMorning9h === course.id}
-                onSelect={() => handleSelectCourse('morning9h', course.id)}
-              />
-            ))}
-          </div>
-        </section>
-        
-        <section className="course-section">
-          <h3>Qual curso do CECOR você tem interesse em realizar aos sábados de tarde (14h)?</h3>
-          <div className="course-grid">
-            {courses.afternoon.map(course => (
-              <CourseCard 
-                key={course.id}
-                course={course}
-                selected={formData.coursesAfternoon === course.id}
-                onSelect={() => handleSelectCourse('afternoon', course.id)}
-              />
-            ))}
-          </div>
-        </section>
-        
-        <section className="course-section">
-          <h3>Qual curso do CECOR você tem interesse em realizar na 5ª feira (13h30 às 16h30)?</h3>
-          <div className="course-grid">
-            {courses.friday.map(course => (
-              <CourseCard 
-                key={course.id}
-                course={course}
-                selected={formData.coursesFriday === course.id}
-                onSelect={() => handleSelectCourse('friday', course.id)}
-              />
-            ))}
-          </div>
-        </section>
-        
-        <section className="course-section">
-          <h3>Qual curso do CECOR você tem interesse em realizar às 3ª feira (13h às 16h)?</h3>
-          <div className="course-grid">
-            {courses.saturday.map(course => (
-              <CourseCard 
-                key={course.id}
-                course={course}
-                selected={formData.coursesSaturday === course.id}
-                onSelect={() => handleSelectCourse('saturday', course.id)}
-              />
-            ))}
-          </div>
-        </section>
+    <div className="container mx-auto px-4 py-8">
+      <ProgressBar currentStep={3} totalSteps={5} />
+      
+      <h1 className="text-2xl font-bold text-center mb-6">Escolha um Curso</h1>
+      
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+          <p>{error}</p>
+        </div>
+      )}
+      
+      {loading ? (
+        <div className="text-center">
+          <p>Carregando cursos...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cursos.map(curso => (
+            <CourseCard
+              key={curso.id}
+              id={curso.id}
+              title={curso.nome}
+              description={curso.descricao}
+              schedule={`${curso.dia_semana || 'Não definido'} | ${curso.horario_inicio || ''} - ${curso.horario_fim || ''}`}
+              isSelected={formData.cursoSelecionado === curso.id}
+              onSelect={() => handleCourseSelect(curso.id)}
+            />
+          ))}
+        </div>
+      )}
+      
+      <div className="flex justify-center mt-8">
+        <button 
+          onClick={() => navigate(-1)}
+          className="mr-4 px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+        >
+          Voltar
+        </button>
+        <button 
+          onClick={handleSkip}
+          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        >
+          Pular esta etapa
+        </button>
       </div>
-    </FormLayout>
+    </div>
   );
 };
 

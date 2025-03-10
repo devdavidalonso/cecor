@@ -1,117 +1,164 @@
-// contexts/FormContext.js
 import React, { createContext, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+// Criar o contexto
 const FormContext = createContext();
 
-export const useForm = () => useContext(FormContext);
-
+// Provedor do contexto
 export const FormProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    // Seleção de cursos
-    coursesMorning10h: null,
-    coursesMorning9h: null,
-    coursesAfternoon: null,
-    coursesFriday: null,
-    coursesSaturday: null,
-    
     // Dados pessoais
-    fullName: '',
-    birthDate: '',
-    cpf: '',
-    phone: '',
-    alternativePhone: '',
-    email: '',
-    cep: '',
-    address: '',
+    nomeAluno: '',
+    dataNascimento: '',
+    endereco: '',
     
-    // Dados familiares
-    responsibleName: '',
-    relationship: '',
-    otherRelationship: '',
+    // Contato
+    telefone: '',
+    email: '',
+    
+    // Responsável
+    nomeResponsavel: '',
+    parentesco: '',
+    telefoneResponsavel: '',
+    
+    // Curso
+    cursoSelecionado: null,
     
     // Informações adicionais
-    isWorking: null,
-    profession: '',
-    isStudying: null,
-    studyPeriod: '',
-    studyLevel: '',
-    previousCourses: null,
-    previousCoursesDetails: '',
-    coursesSuggestion: '',
-    expectations: ''
+    observacoes: ''
   });
 
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 6;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
+  // Atualizar os dados do formulário
   const updateFormData = (newData) => {
-    setFormData(prev => ({
-      ...prev,
+    setFormData(prevData => ({
+      ...prevData,
       ...newData
     }));
   };
 
+  // Avançar para a próxima etapa
   const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(prev => prev + 1);
-    }
+    setCurrentStep(prevStep => prevStep + 1);
   };
 
+  // Voltar para a etapa anterior
   const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
-    }
+    setCurrentStep(prevStep => prevStep - 1);
   };
 
-  const goToStep = (step) => {
-    if (step >= 1 && step <= totalSteps) {
-      setCurrentStep(step);
-    }
-  };
-
+  // Resetar o formulário
   const resetForm = () => {
     setFormData({
-      coursesMorning10h: null,
-      coursesMorning9h: null,
-      coursesAfternoon: null,
-      coursesFriday: null,
-      coursesSaturday: null,
-      fullName: '',
-      birthDate: '',
-      cpf: '',
-      phone: '',
-      alternativePhone: '',
+      nomeAluno: '',
+      dataNascimento: '',
+      endereco: '',
+      telefone: '',
       email: '',
-      cep: '',
-      address: '',
-      responsibleName: '',
-      relationship: '',
-      otherRelationship: '',
-      isWorking: null,
-      profession: '',
-      isStudying: null,
-      studyPeriod: '',
-      studyLevel: '',
-      previousCourses: null,
-      previousCoursesDetails: '',
-      coursesSuggestion: '',
-      expectations: ''
+      nomeResponsavel: '',
+      parentesco: '',
+      telefoneResponsavel: '',
+      cursoSelecionado: null,
+      observacoes: ''
     });
     setCurrentStep(1);
   };
 
+  // Enviar dados para a API
+  const submitForm = async () => {
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      // Preparar os dados no formato esperado pelo backend
+      const alunoData = {
+        nome: formData.nomeAluno,
+        data_nascimento: formData.dataNascimento,
+        endereco: formData.endereco,
+        telefone: formData.telefone,
+        email: formData.email,
+        responsavel: formData.nomeResponsavel,
+        parentesco: formData.parentesco,
+        telefone_responsavel: formData.telefoneResponsavel,
+        observacoes: formData.observacoes
+      };
+
+      // Enviar dados do aluno para a API
+      const alunoResponse = await fetch('http://localhost:8080/api/alunos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(alunoData),
+      });
+
+      if (!alunoResponse.ok) {
+        throw new Error('Erro ao cadastrar aluno');
+      }
+
+      const alunoResult = await alunoResponse.json();
+      
+      // Se um curso foi selecionado, criar matrícula
+      if (formData.cursoSelecionado) {
+        const matriculaData = {
+          aluno_id: alunoResult.id,
+          curso_id: formData.cursoSelecionado,
+          data_matricula: new Date().toISOString().split('T')[0],
+          status: 'em_curso'
+        };
+
+        const matriculaResponse = await fetch('http://localhost:8080/api/matriculas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(matriculaData),
+        });
+
+        if (!matriculaResponse.ok) {
+          throw new Error('Erro ao realizar matrícula');
+        }
+      }
+
+      // Se tudo ocorreu bem, navegar para a página de sucesso
+      navigate('/success');
+    } catch (error) {
+      console.error('Erro ao enviar dados:', error);
+      setError(error.message || 'Ocorreu um erro ao enviar os dados. Por favor, tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Valores disponibilizados pelo contexto
+  const contextValue = {
+    formData,
+    updateFormData,
+    currentStep,
+    nextStep,
+    prevStep,
+    resetForm,
+    submitForm,
+    isSubmitting,
+    error
+  };
+
   return (
-    <FormContext.Provider value={{
-      formData,
-      updateFormData,
-      currentStep,
-      totalSteps,
-      nextStep,
-      prevStep,
-      goToStep,
-      resetForm
-    }}>
+    <FormContext.Provider value={contextValue}>
       {children}
     </FormContext.Provider>
   );
+};
+
+// Hook personalizado para acessar o contexto
+export const useForm = () => {
+  const context = useContext(FormContext);
+  if (!context) {
+    throw new Error('useForm deve ser usado dentro de um FormProvider');
+  }
+  return context;
 };
