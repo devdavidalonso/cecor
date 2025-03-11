@@ -1,4 +1,8 @@
 /* styles/Success.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .success-container {
   display: flex;
   justify-content: center;
@@ -38,3 +42,4 @@
 .success-actions {
   margin-top: 30px;
 }
+

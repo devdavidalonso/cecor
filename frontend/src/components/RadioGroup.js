@@ -1,6 +1,5 @@
 // components/RadioGroup.js
 import React from 'react';
-import '../styles/RadioGroup.css';
 
 const RadioGroup = ({ 
   name, 
@@ -11,9 +10,9 @@ const RadioGroup = ({
   orientation = 'vertical' 
 }) => {
   return (
-    <div className={`radio-group ${orientation}`}>
+    <div className={`space-y-3 ${orientation === 'horizontal' ? 'sm:space-y-0 sm:flex sm:space-x-6' : ''}`}>
       {options.map((option) => (
-        <div key={option.value} className="radio-option">
+        <div key={option.value} className="flex items-start">
           <input
             type="radio"
             id={`${name}-${option.value}`}
@@ -22,10 +21,16 @@ const RadioGroup = ({
             checked={value === option.value}
             onChange={() => onChange(option.value)}
             required={required}
+            className="mt-1 h-4 w-4 text-primary border-gray-300 focus:ring-primary"
           />
-          <label htmlFor={`${name}-${option.value}`}>
+          <label 
+            htmlFor={`${name}-${option.value}`}
+            className="ml-2 block text-gray-700 cursor-pointer"
+          >
             {option.label}
-            {option.info && <span className="option-info">{option.info}</span>}
+            {option.info && (
+              <span className="block text-sm text-gray-500 mt-1">{option.info}</span>
+            )}
           </label>
         </div>
       ))}

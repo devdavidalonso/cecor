@@ -1,369 +1,238 @@
 package database
 
 import (
-	"database/sql"
-	"fmt"
-	"time"
-
-	"github.com/devdavidalonso/cecor/backend/internal/models"
+	"github.com/devdavidalonso/cecor/internal/models"
+	"github.com/jinzhu/gorm"
 )
 
-// Repository define a interface para operações com o banco de dados
-type Repository struct {
-	DB *sql.DB
+// AlunoRepository implementa as operações de banco de dados para Alunos
+type AlunoRepository struct {
+	db *gorm.DB
 }
 
-// NewRepository cria um novo repositório
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{DB: db}
+// NewAlunoRepository cria uma nova instância de AlunoRepository
+func NewAlunoRepository(db *gorm.DB) *AlunoRepository {
+	return &AlunoRepository{db}
 }
 
-// GetAlunos retorna todos os alunos
-func (r *Repository) GetAlunos() ([]models.Aluno, error) {
-	query := `SELECT id, nome, data_nascimento, endereco, telefone, email, 
-              responsavel, parentesco, telefone_responsavel, data_criacao 
-              FROM alunos WHERE ativo = TRUE ORDER BY nome`
-	
-	rows, err := r.DB.Query(query)
-	if err != nil {
+// FindAll retorna todos os alunos ativos
+func (r *AlunoRepository) FindAll() ([]models.Aluno, error) {
+	var alunos []models.Aluno
+	if err := r.db.Where("ativo = ?", true).Find(&alunos).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	var alunos []models.Aluno
-	for rows.Next() {
-		var aluno models.Aluno
-		var endereco, telefone, email, responsavel, parentesco, telefoneResp sql.NullString
-
-		err := rows.Scan(
-			&aluno.ID, 
-			&aluno.Nome, 
-			&aluno.DataNascimento,
-			&endereco,
-			&telefone,
-			&email,
-			&responsavel,
-			&parentesco,
-			&telefoneResp,
-			&aluno.DataCriacao,
-		)
-		if err != nil {
-			continue
-		}
-
-		if endereco.Valid {
-			aluno.Endereco = endereco.String
-		}
-		if telefone.Valid {
-			aluno.Telefone = telefone.String
-		}
-		if email.Valid {
-			aluno.Email = email.String
-		}
-		if responsavel.Valid {
-			aluno.Responsavel = responsavel.String
-		}
-		if parentesco.Valid {
-			aluno.Parentesco = parentesco.String
-		}
-		if telefoneResp.Valid {
-			aluno.TelefoneResp = telefoneResp.String
-		}
-
-		alunos = append(alunos, aluno)
-	}
-
 	return alunos, nil
 }
 
-// GetAluno retorna um aluno pelo ID
-func (r *Repository) GetAluno(id int) (models.Aluno, error) {
+// FindByID retorna um aluno pelo ID
+func (r *AlunoRepository) FindByID(id uint) (models.Aluno, error) {
 	var aluno models.Aluno
-	var endereco, telefone, email, responsavel, parentesco, telefoneResp sql.NullString
-
-	query := `SELECT id, nome, data_nascimento, endereco, telefone, email, 
-              responsavel, parentesco, telefone_responsavel, data_criacao 
-              FROM alunos WHERE id = ? AND ativo = TRUE`
-	
-	err := r.DB.QueryRow(query, id).Scan(
-		&aluno.ID, 
-		&aluno.Nome, 
-		&aluno.DataNascimento,
-		&endereco,
-		&telefone,
-		&email,
-		&responsavel,
-		&parentesco,
-		&telefoneResp,
-		&aluno.DataCriacao,
-	)
-	
-	if err != nil {
+	if err := r.db.Where("id = ? AND ativo = ?", id, true).First(&aluno).Error; err != nil {
 		return aluno, err
 	}
-
-	if endereco.Valid {
-		aluno.Endereco = endereco.String
-	}
-	if telefone.Valid {
-		aluno.Telefone = telefone.String
-	}
-	if email.Valid {
-		aluno.Email = email.String
-	}
-	if responsavel.Valid {
-		aluno.Responsavel = responsavel.String
-	}
-	if parentesco.Valid {
-		aluno.Parentesco = parentesco.String
-	}
-	if telefoneResp.Valid {
-		aluno.TelefoneResp = telefoneResp.String
-	}
-
 	return aluno, nil
 }
 
-// CreateAluno cria um novo aluno
-func (r *Repository) CreateAluno(aluno models.Aluno) (int, error) {
-	query := `INSERT INTO alunos (nome, data_nascimento, endereco, telefone, email, 
-              responsavel, parentesco, telefone_responsavel) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	
-	result, err := r.DB.Exec(
-		query,
-		aluno.Nome,
-		aluno.DataNascimento,
-		nullIfEmpty(aluno.Endereco),
-		nullIfEmpty(aluno.Telefone),
-		nullIfEmpty(aluno.Email),
-		nullIfEmpty(aluno.Responsavel),
-		nullIfEmpty(aluno.Parentesco),
-		nullIfEmpty(aluno.TelefoneResp),
-	)
-	
-	if err != nil {
-		return 0, err
+// Create cria um novo aluno
+func (r *AlunoRepository) Create(aluno models.Aluno) (models.Aluno, error) {
+	if err := r.db.Create(&aluno).Error; err != nil {
+		return aluno, err
 	}
-	
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-	
-	return int(id), nil
+	return aluno, nil
 }
 
-// GetCursos retorna todos os cursos
-func (r *Repository) GetCursos() ([]models.Curso, error) {
-	query := `SELECT id, nome, descricao, dia_semana, horario_inicio, horario_fim
-              FROM cursos WHERE ativo = TRUE ORDER BY nome`
-	
-	rows, err := r.DB.Query(query)
-	if err != nil {
+// Update atualiza um aluno
+func (r *AlunoRepository) Update(aluno models.Aluno) (models.Aluno, error) {
+	if err := r.db.Save(&aluno).Error; err != nil {
+		return aluno, err
+	}
+	return aluno, nil
+}
+
+// Delete marca um aluno como inativo (soft delete)
+func (r *AlunoRepository) Delete(id uint) error {
+	return r.db.Model(&models.Aluno{}).Where("id = ?", id).Update("ativo", false).Error
+}
+
+// FindWithResponsaveis retorna um aluno com seus responsáveis
+func (r *AlunoRepository) FindWithResponsaveis(id uint) (models.Aluno, error) {
+	var aluno models.Aluno
+	if err := r.db.Where("id = ? AND ativo = ?", id, true).Preload("Responsaveis").First(&aluno).Error; err != nil {
+		return aluno, err
+	}
+	return aluno, nil
+}
+
+// CursoRepository implementa as operações de banco de dados para Cursos
+type CursoRepository struct {
+	db *gorm.DB
+}
+
+// NewCursoRepository cria uma nova instância de CursoRepository
+func NewCursoRepository(db *gorm.DB) *CursoRepository {
+	return &CursoRepository{db}
+}
+
+// FindAll retorna todos os cursos ativos
+func (r *CursoRepository) FindAll() ([]models.Curso, error) {
+	var cursos []models.Curso
+	if err := r.db.Where("ativo = ?", true).Find(&cursos).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	var cursos []models.Curso
-	for rows.Next() {
-		var curso models.Curso
-		var descricao, diaSemana, horarioInicio, horarioFim sql.NullString
-
-		err := rows.Scan(
-			&curso.ID, 
-			&curso.Nome,
-			&descricao,
-			&diaSemana,
-			&horarioInicio,
-			&horarioFim,
-		)
-		if err != nil {
-			continue
-		}
-
-		if descricao.Valid {
-			curso.Descricao = descricao.String
-		}
-		if diaSemana.Valid {
-			curso.DiaSemana = diaSemana.String
-		}
-		if horarioInicio.Valid {
-			curso.HorarioInicio = horarioInicio.String
-		}
-		if horarioFim.Valid {
-			curso.HorarioFim = horarioFim.String
-		}
-
-		cursos = append(cursos, curso)
-	}
-
 	return cursos, nil
 }
 
-// GetCurso retorna um curso pelo ID
-func (r *Repository) GetCurso(id int) (models.Curso, error) {
+// FindByID retorna um curso pelo ID
+func (r *CursoRepository) FindByID(id uint) (models.Curso, error) {
 	var curso models.Curso
-	var descricao, diaSemana, horarioInicio, horarioFim sql.NullString
-
-	query := `SELECT id, nome, descricao, dia_semana, horario_inicio, horario_fim
-              FROM cursos WHERE id = ? AND ativo = TRUE`
-	
-	err := r.DB.QueryRow(query, id).Scan(
-		&curso.ID, 
-		&curso.Nome,
-		&descricao,
-		&diaSemana,
-		&horarioInicio,
-		&horarioFim,
-	)
-	
-	if err != nil {
+	if err := r.db.Where("id = ? AND ativo = ?", id, true).First(&curso).Error; err != nil {
 		return curso, err
 	}
-
-	if descricao.Valid {
-		curso.Descricao = descricao.String
-	}
-	if diaSemana.Valid {
-		curso.DiaSemana = diaSemana.String
-	}
-	if horarioInicio.Valid {
-		curso.HorarioInicio = horarioInicio.String
-	}
-	if horarioFim.Valid {
-		curso.HorarioFim = horarioFim.String
-	}
-
 	return curso, nil
 }
 
-// CreateMatricula cria uma nova matrícula
-func (r *Repository) CreateMatricula(matricula models.Matricula) (int, string, error) {
-	// Gerar número de matrícula
-	timestamp := time.Now().Format("20060102")
-	numeroMatricula := fmt.Sprintf("MAT%s%d%d", timestamp, matricula.AlunoID, matricula.CursoID)
-	
-	query := `INSERT INTO matriculas (aluno_id, curso_id, data_matricula, numero_matricula, status)
-              VALUES (?, ?, ?, ?, ?)`
-	
-	result, err := r.DB.Exec(
-		query,
-		matricula.AlunoID,
-		matricula.CursoID,
-		matricula.DataMatricula,
-		numeroMatricula,
-		matricula.Status,
-	)
-	
-	if err != nil {
-		return 0, "", err
+// Create cria um novo curso
+func (r *CursoRepository) Create(curso models.Curso) (models.Curso, error) {
+	if err := r.db.Create(&curso).Error; err != nil {
+		return curso, err
 	}
-	
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, numeroMatricula, err
-	}
-	
-	return int(id), numeroMatricula, nil
+	return curso, nil
 }
 
-// GetMatriculasByCurso retorna matrículas de um curso específico
-func (r *Repository) GetMatriculasByCurso(cursoID int) ([]models.Matricula, error) {
-	query := `SELECT m.id, m.aluno_id, m.curso_id, m.data_matricula, m.numero_matricula,
-              m.status, a.nome as aluno_nome
-              FROM matriculas m
-              JOIN alunos a ON m.aluno_id = a.id
-              WHERE m.curso_id = ? AND m.status = 'em_curso'
-              ORDER BY a.nome`
-	
-	rows, err := r.DB.Query(query, cursoID)
-	if err != nil {
+// Update atualiza um curso
+func (r *CursoRepository) Update(curso models.Curso) (models.Curso, error) {
+	if err := r.db.Save(&curso).Error; err != nil {
+		return curso, err
+	}
+	return curso, nil
+}
+
+// Delete marca um curso como inativo (soft delete)
+func (r *CursoRepository) Delete(id uint) error {
+	return r.db.Model(&models.Curso{}).Where("id = ?", id).Update("ativo", false).Error
+}
+
+// MatriculaRepository implementa as operações de banco de dados para Matrículas
+type MatriculaRepository struct {
+	db *gorm.DB
+}
+
+// NewMatriculaRepository cria uma nova instância de MatriculaRepository
+func NewMatriculaRepository(db *gorm.DB) *MatriculaRepository {
+	return &MatriculaRepository{db}
+}
+
+// FindAll retorna todas as matrículas
+func (r *MatriculaRepository) FindAll() ([]models.Matricula, error) {
+	var matriculas []models.Matricula
+	if err := r.db.Find(&matriculas).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	var matriculas []models.Matricula
-	for rows.Next() {
-		var m models.Matricula
-		var status sql.NullString
-
-		err := rows.Scan(
-			&m.ID, 
-			&m.AlunoID,
-			&m.CursoID,
-			&m.DataMatricula,
-			&m.NumeroMatricula,
-			&status,
-			&m.AlunoNome,
-		)
-		if err != nil {
-			continue
-		}
-
-		if status.Valid {
-			m.Status = status.String
-		}
-
-		matriculas = append(matriculas, m)
-	}
-
 	return matriculas, nil
 }
 
-// SavePresenca salva um registro de presença
-func (r *Repository) SavePresenca(presenca models.PresencaRequest) error {
-	query := `INSERT INTO presencas (matricula_id, data_aula, presente)
-              VALUES (?, ?, ?)
-              ON DUPLICATE KEY UPDATE presente = VALUES(presente)`
-	
-	_, err := r.DB.Exec(
-		query,
-		presenca.MatriculaID,
-		presenca.DataAula,
-		presenca.Presente,
-	)
-	
-	return err
+// FindByID retorna uma matrícula pelo ID
+func (r *MatriculaRepository) FindByID(id uint) (models.Matricula, error) {
+	var matricula models.Matricula
+	if err := r.db.First(&matricula, id).Error; err != nil {
+		return matricula, err
+	}
+	return matricula, nil
 }
 
-// GetPresencasByMatriculaAndPeriodo retorna registros de presença para uma matrícula em um período
-func (r *Repository) GetPresencasByMatriculaAndPeriodo(matriculaID int, mes int, ano int) (map[string]bool, error) {
-	// Constrói datas de início e fim do mês
-	dataInicio := fmt.Sprintf("%04d-%02d-01", ano, mes)
-	var dataFim string
-	if mes == 12 {
-		dataFim = fmt.Sprintf("%04d-01-01", ano+1)
-	} else {
-		dataFim = fmt.Sprintf("%04d-%02d-01", ano, mes+1)
+// Create cria uma nova matrícula
+func (r *MatriculaRepository) Create(matricula models.Matricula) (models.Matricula, error) {
+	if err := r.db.Create(&matricula).Error; err != nil {
+		return matricula, err
 	}
-	
-	query := `SELECT data_aula, presente FROM presencas 
-              WHERE matricula_id = ? AND data_aula >= ? AND data_aula < ?`
-	
-	rows, err := r.DB.Query(query, matriculaID, dataInicio, dataFim)
-	if err != nil {
+	return matricula, nil
+}
+
+// Update atualiza uma matrícula
+func (r *MatriculaRepository) Update(matricula models.Matricula) (models.Matricula, error) {
+	if err := r.db.Save(&matricula).Error; err != nil {
+		return matricula, err
+	}
+	return matricula, nil
+}
+
+// Delete remove uma matrícula
+func (r *MatriculaRepository) Delete(id uint) error {
+	return r.db.Delete(&models.Matricula{}, id).Error
+}
+
+// FindByCurso retorna todas as matrículas de um curso
+func (r *MatriculaRepository) FindByCurso(cursoID uint) ([]models.Matricula, error) {
+	var matriculas []models.Matricula
+	if err := r.db.Where("curso_id = ?", cursoID).Preload("Aluno").Find(&matriculas).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	presencas := make(map[string]bool)
-	for rows.Next() {
-		var dataAula string
-		var presente bool
-		if err := rows.Scan(&dataAula, &presente); err != nil {
-			continue
-		}
-		presencas[dataAula] = presente
-	}
-
-	return presencas, nil
+	return matriculas, nil
 }
 
-// Auxiliar para converter strings vazias em NULL para o banco
-func nullIfEmpty(s string) interface{} {
-	if s == "" {
-		return nil
+// FindByAluno retorna todas as matrículas de um aluno
+func (r *MatriculaRepository) FindByAluno(alunoID uint) ([]models.Matricula, error) {
+	var matriculas []models.Matricula
+	if err := r.db.Where("aluno_id = ?", alunoID).Preload("Curso").Find(&matriculas).Error; err != nil {
+		return nil, err
 	}
-	return s
+	return matriculas, nil
+}
+
+// ResponsavelRepository implementa as operações de banco de dados para Responsáveis
+type ResponsavelRepository struct {
+	db *gorm.DB
+}
+
+// NewResponsavelRepository cria uma nova instância de ResponsavelRepository
+func NewResponsavelRepository(db *gorm.DB) *ResponsavelRepository {
+	return &ResponsavelRepository{db}
+}
+
+// FindAll retorna todos os responsáveis
+func (r *ResponsavelRepository) FindAll() ([]models.Responsavel, error) {
+	var responsaveis []models.Responsavel
+	if err := r.db.Find(&responsaveis).Error; err != nil {
+		return nil, err
+	}
+	return responsaveis, nil
+}
+
+// FindByID retorna um responsável pelo ID
+func (r *ResponsavelRepository) FindByID(id uint) (models.Responsavel, error) {
+	var responsavel models.Responsavel
+	if err := r.db.First(&responsavel, id).Error; err != nil {
+		return responsavel, err
+	}
+	return responsavel, nil
+}
+
+// Create cria um novo responsável
+func (r *ResponsavelRepository) Create(responsavel models.Responsavel) (models.Responsavel, error) {
+	if err := r.db.Create(&responsavel).Error; err != nil {
+		return responsavel, err
+	}
+	return responsavel, nil
+}
+
+// Update atualiza um responsável
+func (r *ResponsavelRepository) Update(responsavel models.Responsavel) (models.Responsavel, error) {
+	if err := r.db.Save(&responsavel).Error; err != nil {
+		return responsavel, err
+	}
+	return responsavel, nil
+}
+
+// Delete remove um responsável
+func (r *ResponsavelRepository) Delete(id uint) error {
+	return r.db.Delete(&models.Responsavel{}, id).Error
+}
+
+// FindByAluno retorna todos os responsáveis de um aluno
+func (r *ResponsavelRepository) FindByAluno(alunoID uint) ([]models.Responsavel, error) {
+	var responsaveis []models.Responsavel
+	if err := r.db.Where("aluno_id = ?", alunoID).Find(&responsaveis).Error; err != nil {
+		return nil, err
+	}
+	return responsaveis, nil
 }

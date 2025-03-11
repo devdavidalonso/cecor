@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # Serviço do banco de dados MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: cecor-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: cecor_db
+      MYSQL_USER: cecor_user
+      MYSQL_PASSWORD: cecor_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-init/01-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cecor-network
+
+  # Serviço da API backend
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cecor-backend
+    restart: always
+    environment:
+      DB_DSN: root:password@tcp(mysql:3306)/cecor_db?charset=utf8mb4&parseTime=True&loc=Local
+      GIN_MODE: debug  # Mudar para 'release' em produção
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - cecor-network
+
+  # Serviço do frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cecor-frontend
+    restart: always
+    volumes:
+      - ./frontend:/app           # Monte o código-fonte local
+      - /app/node_modules         # Preserve os node_modules do contêiner
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - cecor-network
+
+networks:
+  cecor-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

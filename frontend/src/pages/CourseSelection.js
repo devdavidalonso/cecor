@@ -13,21 +13,40 @@ const CourseSelection = () => {
 
   // Carregar cursos da API
   useEffect(() => {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
     const fetchCursos = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:8080/api/cursos');
-        
+        const response = await fetch(`${API_URL}/api/cursos/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': window.location.origin, // Adicione o origin explicitamente
+          },
+          credentials: 'include', // Importante para CORS
+          mode: 'cors' // Adicione este modo explicitamente
+        });
+
+        console.log('Resposta recebida:', response);
+
         if (!response.ok) {
-          throw new Error('Erro ao buscar cursos');
-        }
-        
-        const data = await response.json();
-        setCursos(data);
+          const errorText = await response.text();
+          console.error('Erro na resposta:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Dados recebidos:', data);
+      setCursos(data);       
+
       } catch (error) {
+        console.log('Erro de CROs', error)
         console.error('Erro ao carregar cursos:', error);
+        console.error('Erro completo ao buscar cursos:', error);
+        console.error('Tipo de erro:', error.name);
+        console.error('Mensagem de erro:', error.message);
         setError('Não foi possível carregar os cursos. Por favor, tente novamente mais tarde.');
-        
+
         // Fallback com dados simulados para desenvolvimento
         setCursos([
           { id: 1, nome: 'Corte e Costura', descricao: 'Aprenda técnicas de corte e costura.', dia_semana: 'Segunda-feira', horario_inicio: '14:00', horario_fim: '16:00' },
@@ -38,6 +57,8 @@ const CourseSelection = () => {
         setLoading(false);
       }
     };
+
+    
     
     fetchCursos();
   }, []);
@@ -70,17 +91,26 @@ const CourseSelection = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cursos.map(curso => (
-            <CourseCard
-              key={curso.id}
-              id={curso.id}
-              title={curso.nome}
-              description={curso.descricao}
-              schedule={`${curso.dia_semana || 'Não definido'} | ${curso.horario_inicio || ''} - ${curso.horario_fim || ''}`}
-              isSelected={formData.cursoSelecionado === curso.id}
-              onSelect={() => handleCourseSelect(curso.id)}
-            />
-          ))}
+          {cursos.map(curso => {
+            // Transformar o curso da API em um objeto com a estrutura esperada pelo CourseCard
+            const courseObject = {
+              id: curso.id,
+              title: curso.nome,
+              description: curso.descricao,
+              schedule: `${curso.dia_semana || 'Não definido'} | ${curso.horario_inicio || ''} - ${curso.horario_fim || ''}`,
+              period: curso.periodo || 'Semestral', // Valor padrão
+              hasCertificate: curso.certificado || false // Valor padrão
+            };
+
+            return (
+              <CourseCard
+                key={curso.id}
+                course={courseObject}
+                selected={formData.cursoSelecionado === curso.id}
+                onSelect={handleCourseSelect}
+              />
+            );
+          })}
         </div>
       )}
       

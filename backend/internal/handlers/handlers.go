@@ -5,45 +5,48 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/devdavidalonso/cecor/backend/internal/database"
-	"github.com/devdavidalonso/cecor/backend/internal/models"
+	"github.com/devdavidalonso/cecor/internal/database"
+	"github.com/devdavidalonso/cecor/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
-// Handler gerencia os manipuladores de requisições HTTP
-type Handler struct {
-	repo *database.Repository
+// AlunoHandler manipula as requisições HTTP relacionadas a alunos
+type AlunoHandler struct {
+	repo *database.AlunoRepository
 }
 
-// NewHandler cria um novo Handler
-func NewHandler(repo *database.Repository) *Handler {
-	return &Handler{
-		repo: repo,
-	}
+// NewAlunoHandler cria uma nova instância de AlunoHandler
+func NewAlunoHandler(repo *database.AlunoRepository) *AlunoHandler {
+	return &AlunoHandler{repo}
 }
 
 // GetAlunos retorna todos os alunos
-func (h *Handler) GetAlunos(c *gin.Context) {
-	alunos, err := h.repo.GetAlunos()
+func (h *AlunoHandler) GetAlunos(c *gin.Context) {
+	alunos, err := h.repo.FindAll()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar alunos"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
-
 	c.JSON(http.StatusOK, alunos)
 }
 
 // GetAluno retorna um aluno pelo ID
-func (h *Handler) GetAluno(c *gin.Context) {
+func (h *AlunoHandler) GetAluno(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
 		return
 	}
 
-	aluno, err := h.repo.GetAluno(id)
+	aluno, err := h.repo.FindByID(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Aluno não encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Aluno não encontrado",
+		})
 		return
 	}
 
@@ -51,216 +54,433 @@ func (h *Handler) GetAluno(c *gin.Context) {
 }
 
 // CreateAluno cria um novo aluno
-func (h *Handler) CreateAluno(c *gin.Context) {
+func (h *AlunoHandler) CreateAluno(c *gin.Context) {
 	var aluno models.Aluno
 	if err := c.ShouldBindJSON(&aluno); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	id, err := h.repo.CreateAluno(aluno)
+	aluno.DataCriacao = time.Now()
+	aluno.Ativo = true
+
+	createdAluno, err := h.repo.Create(aluno)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar aluno"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"id": id,
-		"message": "Aluno criado com sucesso",
+	c.JSON(http.StatusCreated, createdAluno)
+}
+
+// UpdateAluno atualiza um aluno
+func (h *AlunoHandler) UpdateAluno(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
+	}
+
+	var aluno models.Aluno
+	if err := c.ShouldBindJSON(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	aluno.ID = uint(id)
+	updatedAluno, err := h.repo.Update(aluno)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedAluno)
+}
+
+// DeleteAluno marca um aluno como inativo
+func (h *AlunoHandler) DeleteAluno(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
+	}
+
+	if err := h.repo.Delete(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Aluno desativado com sucesso",
 	})
 }
 
+// CursoHandler manipula as requisições HTTP relacionadas a cursos
+type CursoHandler struct {
+	repo *database.CursoRepository
+}
+
+// NewCursoHandler cria uma nova instância de CursoHandler
+func NewCursoHandler(repo *database.CursoRepository) *CursoHandler {
+	return &CursoHandler{repo}
+}
+
 // GetCursos retorna todos os cursos
-func (h *Handler) GetCursos(c *gin.Context) {
-	cursos, err := h.repo.GetCursos()
+func (h *CursoHandler) GetCursos(c *gin.Context) {
+	cursos, err := h.repo.FindAll()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar cursos"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
-
 	c.JSON(http.StatusOK, cursos)
 }
 
 // GetCurso retorna um curso pelo ID
-func (h *Handler) GetCurso(c *gin.Context) {
+func (h *CursoHandler) GetCurso(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
 		return
 	}
 
-	curso, err := h.repo.GetCurso(id)
+	curso, err := h.repo.FindByID(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Curso não encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Curso não encontrado",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, curso)
 }
 
-// CreateMatricula cria uma nova matrícula
-func (h *Handler) CreateMatricula(c *gin.Context) {
-	var matricula models.Matricula
-	if err := c.ShouldBindJSON(&matricula); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// CreateCurso cria um novo curso
+func (h *CursoHandler) CreateCurso(c *gin.Context) {
+	var curso models.Curso
+	if err := c.ShouldBindJSON(&curso); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	// Se não especificado, usar data atual
-	if matricula.DataMatricula == "" {
-		matricula.DataMatricula = time.Now().Format("2006-01-02")
-	}
-	
-	// Se não especificado, usar status padrão
-	if matricula.Status == "" {
-		matricula.Status = "em_curso"
-	}
+	curso.DataCriacao = time.Now()
+	curso.Ativo = true
 
-	id, numeroMatricula, err := h.repo.CreateMatricula(matricula)
+	createdCurso, err := h.repo.Create(curso)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar matrícula"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	// Buscar dados adicionais para a resposta
-	aluno, _ := h.repo.GetAluno(matricula.AlunoID)
-	curso, _ := h.repo.GetCurso(matricula.CursoID)
-
-	c.JSON(http.StatusCreated, gin.H{
-		"id": id,
-		"numero_matricula": numeroMatricula,
-		"message": "Matrícula realizada com sucesso",
-		"aluno": aluno.Nome,
-		"curso": curso.Nome,
-	})
+	c.JSON(http.StatusCreated, createdCurso)
 }
 
-// GetMatriculas retorna todas as matrículas
-func (h *Handler) GetMatriculas(c *gin.Context) {
-	// Implementação simplificada - em um sistema real precisaríamos de paginação
-	c.JSON(http.StatusOK, gin.H{"message": "Endpoint não implementado"})
-}
-
-// GetMatriculasByCurso retorna matrículas de um curso específico
-func (h *Handler) GetMatriculasByCurso(c *gin.Context) {
+// UpdateCurso atualiza um curso
+func (h *CursoHandler) UpdateCurso(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de curso inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
 		return
 	}
 
-	matriculas, err := h.repo.GetMatriculasByCurso(id)
+	var curso models.Curso
+	if err := c.ShouldBindJSON(&curso); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	curso.ID = uint(id)
+	updatedCurso, err := h.repo.Update(curso)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar matrículas"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, matriculas)
+	c.JSON(http.StatusOK, updatedCurso)
 }
 
-// UpdatePresencas atualiza ou cria registros de presença
-func (h *Handler) UpdatePresencas(c *gin.Context) {
-	var req models.PresencaRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// DeleteCurso marca um curso como inativo
+func (h *CursoHandler) DeleteCurso(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
 		return
 	}
 
-	err := h.repo.SavePresenca(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar presença"})
+	if err := h.repo.Delete(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Presença registrada com sucesso",
+		"message": "Curso desativado com sucesso",
 	})
 }
 
-// GetPresencasByCursoMes retorna presença para um curso em um mês específico
-func (h *Handler) GetPresencasByCursoMes(c *gin.Context) {
-	cursoID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de curso inválido"})
-		return
-	}
-
-	// Formato esperado: AAAA-MM ou "atual"
-	mesParam := c.Param("mes")
-	var mes, ano int
-	
-	if mesParam == "atual" {
-		now := time.Now()
-		mes = int(now.Month())
-		ano = now.Year()
-	} else {
-		t, err := time.Parse("2006-01", mesParam)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de mês inválido"})
-			return
-		}
-		mes = int(t.Month())
-		ano = t.Year()
-	}
-
-	// Buscar matrícula para o curso
-	matriculas, err := h.repo.GetMatriculasByCurso(cursoID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar matrículas"})
-		return
-	}
-
-	// Gerar todos os dias do mês
-	diasDoMes := getDiasMes(mes, ano)
-	
-	// Buscar presenças para cada matrícula
-	for i := range matriculas {
-		presencas, err := h.repo.GetPresencasByMatriculaAndPeriodo(matriculas[i].ID, mes, ano)
-		if err != nil {
-			continue
-		}
-		
-		// Adicionar as presenças ao objeto (não mostrado aqui, seria necessário uma estrutura adicional)
-		_ = presencas // Placeholder
-	}
-
-	// Montar resposta completa
-	resposta := models.PeriodoPresenca{
-		CursoID:    cursoID,
-		Mes:        mes,
-		Ano:        ano,
-		DiasDoMes:  diasDoMes,
-		Matriculas: matriculas,
-	}
-
-	c.JSON(http.StatusOK, resposta)
+// MatriculaHandler manipula as requisições HTTP relacionadas a matrículas
+type MatriculaHandler struct {
+	repo *database.MatriculaRepository
 }
 
-// getDiasMes retorna todos os dias de um determinado mês
-func getDiasMes(mes, ano int) []string {
-	dias := []string{}
-	
-	// Determinar o último dia do mês
-	var ultimoDia int
-	switch mes {
-	case 2:
-		// Fevereiro - verificar ano bissexto
-		if ano%4 == 0 && (ano%100 != 0 || ano%400 == 0) {
-			ultimoDia = 29
-		} else {
-			ultimoDia = 28
-		}
-	case 4, 6, 9, 11:
-		ultimoDia = 30
-	default:
-		ultimoDia = 31
+// NewMatriculaHandler cria uma nova instância de MatriculaHandler
+func NewMatriculaHandler(repo *database.MatriculaRepository) *MatriculaHandler {
+	return &MatriculaHandler{repo}
+}
+
+// GetMatriculas retorna todas as matrículas
+func (h *MatriculaHandler) GetMatriculas(c *gin.Context) {
+	matriculas, err := h.repo.FindAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
-	
-	// Gerar array de datas
-	for dia := 1; dia <= ultimoDia; dia++ {
-		data := time.Date(ano, time.Month(mes), dia, 0, 0, 0, 0, time.UTC)
-		dias = append(dias, data.Format("2006-01-02"))
+	c.JSON(http.StatusOK, matriculas)
+}
+
+// GetMatricula retorna uma matrícula pelo ID
+func (h *MatriculaHandler) GetMatricula(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
 	}
-	
-	return dias
+
+	matricula, err := h.repo.FindByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Matrícula não encontrada",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, matricula)
+}
+
+// CreateMatricula cria uma nova matrícula
+func (h *MatriculaHandler) CreateMatricula(c *gin.Context) {
+	var matricula models.Matricula
+	if err := c.ShouldBindJSON(&matricula); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	matricula.DataCriacao = time.Now()
+	matricula.DataMatricula = time.Now()
+
+	createdMatricula, err := h.repo.Create(matricula)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, createdMatricula)
+}
+
+// UpdateMatricula atualiza uma matrícula
+func (h *MatriculaHandler) UpdateMatricula(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
+	}
+
+	var matricula models.Matricula
+	if err := c.ShouldBindJSON(&matricula); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	matricula.ID = uint(id)
+	updatedMatricula, err := h.repo.Update(matricula)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedMatricula)
+}
+
+// DeleteMatricula remove uma matrícula
+func (h *MatriculaHandler) DeleteMatricula(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
+	}
+
+	if err := h.repo.Delete(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Matrícula removida com sucesso",
+	})
+}
+
+// ResponsavelHandler manipula as requisições HTTP relacionadas a responsáveis
+type ResponsavelHandler struct {
+	repo *database.ResponsavelRepository
+}
+
+// NewResponsavelHandler cria uma nova instância de ResponsavelHandler
+func NewResponsavelHandler(repo *database.ResponsavelRepository) *ResponsavelHandler {
+	return &ResponsavelHandler{repo}
+}
+
+// GetResponsaveis retorna todos os responsáveis
+func (h *ResponsavelHandler) GetResponsaveis(c *gin.Context) {
+	responsaveis, err := h.repo.FindAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, responsaveis)
+}
+
+// GetResponsavel retorna um responsável pelo ID
+func (h *ResponsavelHandler) GetResponsavel(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
+	}
+
+	responsavel, err := h.repo.FindByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Responsável não encontrado",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responsavel)
+}
+
+// CreateResponsavel cria um novo responsável
+func (h *ResponsavelHandler) CreateResponsavel(c *gin.Context) {
+	var responsavel models.Responsavel
+	if err := c.ShouldBindJSON(&responsavel); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	responsavel.DataCriacao = time.Now()
+
+	createdResponsavel, err := h.repo.Create(responsavel)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, createdResponsavel)
+}
+
+// UpdateResponsavel atualiza um responsável
+func (h *ResponsavelHandler) UpdateResponsavel(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
+	}
+
+	var responsavel models.Responsavel
+	if err := c.ShouldBindJSON(&responsavel); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	responsavel.ID = uint(id)
+	updatedResponsavel, err := h.repo.Update(responsavel)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedResponsavel)
+}
+
+// DeleteResponsavel remove um responsável
+func (h *ResponsavelHandler) DeleteResponsavel(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID inválido",
+		})
+		return
+	}
+
+	if err := h.repo.Delete(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Responsável removido com sucesso",
+	})
 }

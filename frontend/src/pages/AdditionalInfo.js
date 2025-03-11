@@ -4,7 +4,6 @@ import FormLayout from '../components/FormLayout';
 import TextInput from '../components/TextInput';
 import RadioGroup from '../components/RadioGroup';
 import { useForm } from '../contexts/FormContext';
-import '../styles/AdditionalInfo.css';
 
 const AdditionalInfo = () => {
   const { formData, updateFormData } = useForm();
@@ -84,23 +83,29 @@ const AdditionalInfo = () => {
       nextPage="/confirmation"
       validateForm={validateForm}
     >
-      <div className="additional-info-form">
-        <h3 className="section-header">Gostaríamos de conhecer um pouco mais dos nossos alunos!</h3>
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium text-gray-700 pb-2 border-b border-gray-200">
+          Gostaríamos de conhecer um pouco mais dos nossos alunos!
+        </h3>
         
-        <div className="form-group">
-          <label className="question-label">
-            Você está trabalhando atualmente?
-            {errors.isWorking && <span className="error-message">{errors.isWorking}</span>}
-          </label>
-          
-          <RadioGroup 
-            name="isWorking"
-            options={yesNoOptions}
-            value={formData.isWorking}
-            onChange={(value) => handleChange('isWorking', value)}
-            orientation="horizontal"
-            required
-          />
+        <div className="space-y-2">
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-medium mb-2">
+              Você está trabalhando atualmente?
+              {errors.isWorking && (
+                <span className="text-red-500 text-sm ml-2">{errors.isWorking}</span>
+              )}
+            </label>
+            
+            <RadioGroup 
+              name="isWorking"
+              options={yesNoOptions}
+              value={formData.isWorking}
+              onChange={(value) => handleChange('isWorking', value)}
+              orientation="horizontal"
+              required
+            />
+          </div>
         </div>
         
         {formData.isWorking === 'yes' && (
@@ -114,72 +119,88 @@ const AdditionalInfo = () => {
           />
         )}
         
-        <div className="form-group">
-          <label className="question-label">
-            Você está estudando atualmente?
-            {errors.isStudying && <span className="error-message">{errors.isStudying}</span>}
-          </label>
-          
-          <RadioGroup 
-            name="isStudying"
-            options={yesNoOptions}
-            value={formData.isStudying}
-            onChange={(value) => handleChange('isStudying', value)}
-            orientation="horizontal"
-            required
-          />
+        <div className="space-y-2">
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-medium mb-2">
+              Você está estudando atualmente?
+              {errors.isStudying && (
+                <span className="text-red-500 text-sm ml-2">{errors.isStudying}</span>
+              )}
+            </label>
+            
+            <RadioGroup 
+              name="isStudying"
+              options={yesNoOptions}
+              value={formData.isStudying}
+              onChange={(value) => handleChange('isStudying', value)}
+              orientation="horizontal"
+              required
+            />
+          </div>
         </div>
         
         {formData.isStudying === 'yes' && (
           <>
-            <div className="form-group">
-              <label className="question-label">
-                Se você respondeu "SIM" na pergunta anterior, qual o período?
-                {errors.studyPeriod && <span className="error-message">{errors.studyPeriod}</span>}
-              </label>
-              
-              <RadioGroup 
-                name="studyPeriod"
-                options={periodOptions}
-                value={formData.studyPeriod}
-                onChange={(value) => handleChange('studyPeriod', value)}
-                orientation="horizontal"
-                required={formData.isStudying === 'yes'}
-              />
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <label className="text-gray-700 font-medium mb-2">
+                  Se você respondeu "SIM" na pergunta anterior, qual o período?
+                  {errors.studyPeriod && (
+                    <span className="text-red-500 text-sm ml-2">{errors.studyPeriod}</span>
+                  )}
+                </label>
+                
+                <RadioGroup 
+                  name="studyPeriod"
+                  options={periodOptions}
+                  value={formData.studyPeriod}
+                  onChange={(value) => handleChange('studyPeriod', value)}
+                  orientation="horizontal"
+                  required={formData.isStudying === 'yes'}
+                />
+              </div>
             </div>
             
-            <div className="form-group">
-              <label className="question-label">
-                Se você respondeu "SIM" na pergunta anterior, qual o nível do ensino?
-                {errors.studyLevel && <span className="error-message">{errors.studyLevel}</span>}
-              </label>
-              
-              <RadioGroup 
-                name="studyLevel"
-                options={levelOptions}
-                value={formData.studyLevel}
-                onChange={(value) => handleChange('studyLevel', value)}
-                orientation="horizontal"
-                required={formData.isStudying === 'yes'}
-              />
+            <div className="space-y-2">
+              <div className="flex flex-col">
+                <label className="text-gray-700 font-medium mb-2">
+                  Se você respondeu "SIM" na pergunta anterior, qual o nível do ensino?
+                  {errors.studyLevel && (
+                    <span className="text-red-500 text-sm ml-2">{errors.studyLevel}</span>
+                  )}
+                </label>
+                
+                <RadioGroup 
+                  name="studyLevel"
+                  options={levelOptions}
+                  value={formData.studyLevel}
+                  onChange={(value) => handleChange('studyLevel', value)}
+                  orientation="horizontal"
+                  required={formData.isStudying === 'yes'}
+                />
+              </div>
             </div>
           </>
         )}
         
-        <div className="form-group">
-          <label className="question-label">
-            Você já fez cursos/oficinas no CECOR?
-            {errors.previousCourses && <span className="error-message">{errors.previousCourses}</span>}
-          </label>
-          
-          <RadioGroup 
-            name="previousCourses"
-            options={yesNoOptions}
-            value={formData.previousCourses}
-            onChange={(value) => handleChange('previousCourses', value)}
-            orientation="horizontal"
-            required
-          />
+        <div className="space-y-2">
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-medium mb-2">
+              Você já fez cursos/oficinas no CECOR?
+              {errors.previousCourses && (
+                <span className="text-red-500 text-sm ml-2">{errors.previousCourses}</span>
+              )}
+            </label>
+            
+            <RadioGroup 
+              name="previousCourses"
+              options={yesNoOptions}
+              value={formData.previousCourses}
+              onChange={(value) => handleChange('previousCourses', value)}
+              orientation="horizontal"
+              required
+            />
+          </div>
         </div>
         
         {formData.previousCourses === 'yes' && (

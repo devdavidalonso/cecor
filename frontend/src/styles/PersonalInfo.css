@@ -1,5 +1,11 @@
 /* styles/PersonalInfo.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .personal-info-form {
   max-width: 800px;
   margin: 0 auto;
 }
+
+

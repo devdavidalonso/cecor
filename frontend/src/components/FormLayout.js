@@ -3,7 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from '../contexts/FormContext';
 import ProgressBar from './ProgressBar';
-import '../styles/FormLayout.css';
 
 const FormLayout = ({ children, title, previousPage, nextPage, validateForm }) => {
   const { currentStep, totalSteps, nextStep, prevStep } = useForm();
@@ -28,54 +27,60 @@ const FormLayout = ({ children, title, previousPage, nextPage, validateForm }) =
   };
 
   return (
-    <div className="form-layout">
-      <div className="form-header">
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      <div className="bg-white shadow-md py-4 px-6 flex flex-col items-center">
         <img 
-          src="/logo-cecor.png" 
+          src="/logo-cecor.jpeg" 
           alt="CECOR Logo" 
-          className="logo-img"
-          onError={(e) => e.target.src = 'https://via.placeholder.com/180x80?text=CECOR'} 
+          className="h-16 mb-2"
+          onError={(e) => e.target.src = '/logo-cecor.jpeg'} 
         />
-        <h1>CECOR - Formulário de Inscrição 2025</h1>
+        <h1 className="text-2xl font-bold text-primary">CECOR - Formulário de Inscrição 2025</h1>
       </div>
       
       <ProgressBar current={currentStep} total={totalSteps} />
       
-      <div className="form-section">
-        <h2>{title}</h2>
-        <div className="form-content">
-          {children}
-        </div>
-        
-        <div className="form-navigation">
-          {currentStep > 1 && (
+      <div className="flex-1 w-full max-w-4xl mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-4">{title}</h2>
+          <div className="mb-8">
+            {children}
+          </div>
+          
+          <div className="flex justify-between pt-4 border-t">
+            {currentStep > 1 ? (
+              <button 
+                type="button" 
+                className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                onClick={handlePrevious}
+              >
+                Voltar
+              </button>
+            ) : (
+              <div></div> // Espaço vazio para manter o layout
+            )}
+            
             <button 
               type="button" 
-              className="btn btn-secondary" 
-              onClick={handlePrevious}
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+              onClick={handleNext}
             >
-              Voltar
+              {currentStep === totalSteps ? 'Enviar' : 'Próximo'}
             </button>
-          )}
-          
-          <button 
-            type="button" 
-            className="btn btn-primary" 
-            onClick={handleNext}
-          >
-            {currentStep === totalSteps ? 'Enviar' : 'Próximo'}
-          </button>
+          </div>
         </div>
       </div>
       
-      <div className="form-footer">
-        <small>Nunca envie senhas pelo Formulário CECOR.</small>
-        <div className="footer-links">
-          <a href="/terms" target="_blank">Termos de Serviço</a>
-          <span> - </span>
-          <a href="/privacy" target="_blank">Política de Privacidade</a>
+      <footer className="bg-white py-4 px-6 mt-auto border-t">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center">
+          <small className="text-gray-600 mb-2 sm:mb-0">Nunca envie senhas pelo Formulário CECOR.</small>
+          <div className="text-sm text-gray-600">
+            <a href="/terms" target="_blank" className="text-primary hover:underline">Termos de Serviço</a>
+            <span className="mx-2">-</span>
+            <a href="/privacy" target="_blank" className="text-primary hover:underline">Política de Privacidade</a>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };

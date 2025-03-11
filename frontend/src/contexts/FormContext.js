@@ -88,7 +88,7 @@ export const FormProvider = ({ children }) => {
       };
 
       // Enviar dados do aluno para a API
-      const alunoResponse = await fetch('http://localhost:8080/api/alunos', {
+      const alunoResponse = await fetch('http://localhost:8080/api/alunos/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ export const FormProvider = ({ children }) => {
           status: 'em_curso'
         };
 
-        const matriculaResponse = await fetch('http://localhost:8080/api/matriculas', {
+        const matriculaResponse = await fetch('http://localhost:8080/api/matriculas/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

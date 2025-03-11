@@ -1,4 +1,8 @@
 /* styles/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Arquivo de importação para todos os estilos do projeto */
 
 /* Estilos base */
@@ -22,3 +26,4 @@
 
 /* Responsividade */
 @import './Responsive.css';
+

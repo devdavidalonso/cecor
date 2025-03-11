@@ -3,7 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormLayout from '../components/FormLayout';
 import { useForm } from '../contexts/FormContext';
-import '../styles/Confirmation.css';
 
 // Função para buscar o nome do curso pelo ID
 const findCourseName = (courseId, courses) => {
@@ -44,50 +43,82 @@ const Confirmation = () => {
       title="Confirmação de Inscrição"
       previousPage="/additional-info"
     >
-      <div className="confirmation-page">
-        <div className="confirmation-card">
-          <h3>Revise suas informações</h3>
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <h3 className="text-lg font-semibold p-4 bg-gray-50 border-b border-gray-200">
+            Revise suas informações
+          </h3>
           
-          <div className="confirmation-section">
-            <h4>Cursos Selecionados</h4>
-            <ul className="confirmation-list">
-              <li>
-                <strong>Sábados (10h):</strong> {findCourseName(formData.coursesMorning10h, courses)}
+          <div className="p-4 border-b border-gray-200">
+            <h4 className="text-md font-medium text-gray-700 mb-3">Cursos Selecionados</h4>
+            <ul className="space-y-2">
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Sábados (10h):</span> 
+                <span>{findCourseName(formData.coursesMorning10h, courses)}</span>
               </li>
-              <li>
-                <strong>Sábados (9h):</strong> {findCourseName(formData.coursesMorning9h, courses)}
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Sábados (9h):</span> 
+                <span>{findCourseName(formData.coursesMorning9h, courses)}</span>
               </li>
-              <li>
-                <strong>Sábados (14h):</strong> {findCourseName(formData.coursesAfternoon, courses)}
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Sábados (14h):</span> 
+                <span>{findCourseName(formData.coursesAfternoon, courses)}</span>
               </li>
-              <li>
-                <strong>Sexta (13h30-16h30):</strong> {findCourseName(formData.coursesFriday, courses)}
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Sexta (13h30-16h30):</span> 
+                <span>{findCourseName(formData.coursesFriday, courses)}</span>
               </li>
-              <li>
-                <strong>Terça (13h-16h):</strong> {findCourseName(formData.coursesSaturday, courses)}
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Terça (13h-16h):</span> 
+                <span>{findCourseName(formData.coursesSaturday, courses)}</span>
               </li>
             </ul>
           </div>
           
-          <div className="confirmation-section">
-            <h4>Dados Pessoais</h4>
-            <ul className="confirmation-list">
-              <li><strong>Nome:</strong> {formData.fullName}</li>
-              <li><strong>Data de Nascimento:</strong> {formData.birthDate}</li>
-              <li><strong>CPF:</strong> {formData.cpf}</li>
-              <li><strong>Telefone:</strong> {formData.phone}</li>
-              <li><strong>E-mail:</strong> {formData.email || 'Não informado'}</li>
-              <li><strong>CEP:</strong> {formData.cep}</li>
-              <li><strong>Endereço:</strong> {formData.address || 'Não informado'}</li>
+          <div className="p-4 border-b border-gray-200">
+            <h4 className="text-md font-medium text-gray-700 mb-3">Dados Pessoais</h4>
+            <ul className="space-y-2">
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Nome:</span> 
+                <span>{formData.fullName}</span>
+              </li>
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Data de Nascimento:</span> 
+                <span>{formData.birthDate}</span>
+              </li>
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">CPF:</span> 
+                <span>{formData.cpf}</span>
+              </li>
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Telefone:</span> 
+                <span>{formData.phone}</span>
+              </li>
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">E-mail:</span> 
+                <span>{formData.email || 'Não informado'}</span>
+              </li>
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">CEP:</span> 
+                <span>{formData.cep}</span>
+              </li>
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Endereço:</span> 
+                <span>{formData.address || 'Não informado'}</span>
+              </li>
             </ul>
           </div>
           
-          <div className="confirmation-section">
-            <h4>Dados Familiares</h4>
-            <ul className="confirmation-list">
-              <li><strong>Nome do Responsável/Mãe:</strong> {formData.responsibleName}</li>
-              <li>
-                <strong>Parentesco:</strong> {
+          <div className="p-4 border-b border-gray-200">
+            <h4 className="text-md font-medium text-gray-700 mb-3">Dados Familiares</h4>
+            <ul className="space-y-2">
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Nome do Responsável/Mãe:</span> 
+                <span>{formData.responsibleName}</span>
+              </li>
+              <li className="flex">
+                <span className="font-medium w-40 text-gray-600">Parentesco:</span> 
+                <span>{
                   formData.relationship === 'adult' ? 'Tenho maioridade' :
                   formData.relationship === 'mother' ? 'Mãe' :
                   formData.relationship === 'father' ? 'Pai' :
@@ -95,23 +126,25 @@ const Confirmation = () => {
                   formData.relationship === 'grandparent' ? 'Avô/avó' :
                   formData.relationship === 'uncle' ? 'Tio/tia' :
                   formData.relationship === 'other' ? formData.otherRelationship : ''
-                }
+                }</span>
               </li>
             </ul>
           </div>
           
-          <div className="confirmation-section">
-            <h4>Informações Adicionais</h4>
-            <ul className="confirmation-list">
-              <li>
-                <strong>Trabalhando atualmente:</strong> {
+          <div className="p-4 border-b border-gray-200">
+            <h4 className="text-md font-medium text-gray-700 mb-3">Informações Adicionais</h4>
+            <ul className="space-y-2">
+              <li className="flex flex-col sm:flex-row">
+                <span className="font-medium w-40 text-gray-600">Trabalhando atualmente:</span> 
+                <span>{
                   formData.isWorking === 'yes' ? 'Sim' : 
                   formData.isWorking === 'no' ? 'Não' : 'Não informado'
                 }
-                {formData.isWorking === 'yes' && ` - ${formData.profession}`}
+                {formData.isWorking === 'yes' && ` - ${formData.profession}`}</span>
               </li>
-              <li>
-                <strong>Estudando atualmente:</strong> {
+              <li className="flex flex-col sm:flex-row">
+                <span className="font-medium w-40 text-gray-600">Estudando atualmente:</span> 
+                <span>{
                   formData.isStudying === 'yes' ? 'Sim' : 
                   formData.isStudying === 'no' ? 'Não' : 'Não informado'
                 }
@@ -123,29 +156,33 @@ const Confirmation = () => {
                   formData.studyLevel === 'elementary' ? 'Fundamental' :
                   formData.studyLevel === 'highschool' ? 'Médio' :
                   formData.studyLevel === 'college' ? 'Superior' : ''
-                }`}
+                }`}</span>
               </li>
-              <li>
-                <strong>Já fez cursos no CECOR:</strong> {
+              <li className="flex flex-col sm:flex-row">
+                <span className="font-medium w-40 text-gray-600">Já fez cursos no CECOR:</span> 
+                <span>{
                   formData.previousCourses === 'yes' ? 'Sim' : 
                   formData.previousCourses === 'no' ? 'Não' : 'Não informado'
                 }
-                {formData.previousCourses === 'yes' && ` - ${formData.previousCoursesDetails}`}
+                {formData.previousCourses === 'yes' && ` - ${formData.previousCoursesDetails}`}</span>
               </li>
-              <li><strong>Expectativas:</strong> {formData.expectations}</li>
+              <li className="flex flex-col">
+                <span className="font-medium text-gray-600 mb-1">Expectativas:</span> 
+                <span className="text-gray-800">{formData.expectations}</span>
+              </li>
             </ul>
           </div>
           
-          <div className="confirmation-actions">
+          <div className="p-6 bg-gray-50 flex flex-col sm:flex-row justify-end gap-4">
             <button 
-              className="btn btn-lg btn-danger" 
+              className="px-6 py-2 rounded-md border border-red-500 text-red-500 hover:bg-red-50 transition-colors"
               onClick={() => navigate('/personal-info')}
             >
               Editar Informações
             </button>
             
             <button 
-              className="btn btn-lg btn-success" 
+              className="px-6 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors" 
               onClick={handleSubmit}
             >
               Confirmar Inscrição
