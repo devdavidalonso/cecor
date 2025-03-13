@@ -1,63 +1,53 @@
-USE cecor_db;
-
--- Tabela de alunos
-CREATE TABLE alunos (
+-- Users table (students, teachers, admin)
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    data_nascimento DATE NOT NULL,
-    cpf VARCHAR(14),
-    email VARCHAR(100),
-    telefone VARCHAR(20),
-    observacao TEXT,
-    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ativo BOOLEAN DEFAULT TRUE
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    profile VARCHAR(20) NOT NULL, -- 'admin', 'student', 'teacher'
+    birth_date DATE NULL,         -- Alterado para permitir NULL
+    cpf VARCHAR(14) UNIQUE,
+    phone VARCHAR(20),
+    address TEXT,
+    photo_url VARCHAR(255),
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL     -- Campo para soft delete
 );
 
--- Tabela de responsáveis
-CREATE TABLE responsaveis (
+-- Courses table
+CREATE TABLE courses (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20),
-    aluno_id INT NOT NULL,
-    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (aluno_id) REFERENCES alunos(id)
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    workload INTEGER NOT NULL,
+    max_students INTEGER NOT NULL,
+    week_days VARCHAR(50),        -- JSON or string with days
+    start_time TIME,
+    end_time TIME,
+    duration INTEGER,             -- in weeks
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL     -- Campo para soft delete
 );
 
--- Tabela de cursos
-CREATE TABLE cursos (
+-- Enrollments table
+CREATE TABLE enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    descricao TEXT,
-    dia_semana VARCHAR(20),
-    horario_inicio TIME,
-    horario_fim TIME,
-    professor1 VARCHAR(100),
-    professor2 VARCHAR(100),
-    professor3 VARCHAR(100),
-    professor4 VARCHAR(100),
-    professor5 VARCHAR(100),
-    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ativo BOOLEAN DEFAULT TRUE
+    user_id INTEGER NOT NULL,
+    course_id INTEGER NOT NULL,
+    status VARCHAR(20) NOT NULL,  -- 'active', 'completed', 'canceled'
+    start_date DATE,
+    end_date DATE NULL,           -- Pode ser NULL se não finalizado
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,    -- Campo para soft delete
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (course_id) REFERENCES courses(id)
 );
 
--- Tabela de matrículas
-CREATE TABLE matriculas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    curso_id INT NOT NULL,
-    data_matricula DATE NOT NULL,
-    numero_matricula VARCHAR(20) UNIQUE,
-    status ENUM('em_curso', 'trancada', 'concluida', 'cancelada') DEFAULT 'em_curso',
-    tipo_certificado ENUM('conclusao', 'participacao', 'em_curso', 'nenhum') DEFAULT 'nenhum',
-    observacoes TEXT,
-    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (aluno_id) REFERENCES alunos(id),
-    FOREIGN KEY (curso_id) REFERENCES cursos(id)
-);
-
--- Inserir dados de teste
-INSERT INTO cursos (nome, descricao, dia_semana, horario_inicio, horario_fim, professor1) 
-VALUES 
-('Corte e Costura', 'Curso básico de corte e costura', 'Segunda-feira', '14:00', '16:00', 'Maria Silva'),
-('Pintura', 'Técnicas de pintura em tela', 'Quarta-feira', '09:00', '11:00', 'João Santos'),
-('Jiu-jitsu', 'Aulas de jiu-jitsu para iniciantes', 'Sábado', '15:00', '17:00', 'Carlos Oliveira');
+-- Add a default admin user
+INSERT INTO users (name, email, password, profile, active) 
+VALUES ('Administrator', 'admin@sistema.edu', '$2a$10$QZx8Jp2FRtNdqMJ.mQQMxuKY7HcHB3acjQk6wFjTQwAGQdOUmm6Li', 'admin', true);
+-- Senha hash corresponde a 'admin123'

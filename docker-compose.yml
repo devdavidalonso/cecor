@@ -31,6 +31,8 @@ services:
       dockerfile: Dockerfile
     container_name: cecor-backend
     restart: always
+    volumes:
+      - ./backend:/app
     environment:
       DB_DSN: root:password@tcp(mysql:3306)/cecor_db?charset=utf8mb4&parseTime=True&loc=Local
       GIN_MODE: debug  # Mudar para 'release' em produção

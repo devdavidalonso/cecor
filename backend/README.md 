@@ -1,0 +1,13 @@
+# CECOR - Sistema de Gestão Educacional
+
+Sistema para gestão de alunos, cursos, matrículas e presenças.
+
+## Requisitos
+
+- Go 1.16+
+- MySQL 5.7+
+- Node.js 14+ (para o frontend)
+
+## Configuração
+
+1. Clone o repositório:
