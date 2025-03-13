@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Obter a URL da API do ambiente (.env.local)
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://backend:8080/api';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,

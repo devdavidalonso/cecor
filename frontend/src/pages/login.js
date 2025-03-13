@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';  // Adicionado useRef
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -20,17 +20,28 @@ export default function Login() {
   const { login } = useAuth();
   const { success: showSuccess, error: showError } = useAlert();
   const router = useRouter();
-
-  // Verifica se foi redirecionado por sessão expirada
-  const { session } = router.query;
   
-  if (session === 'expired' && typeof window !== 'undefined') {
-    // Limpar o parâmetro da URL para não mostrar a mensagem novamente em refreshes
-    router.replace('/login', undefined, { shallow: true });
+  // Rastrear se já mostramos a mensagem de sessão expirada
+  const sessionMessageShown = useRef(false);
+
+  // Verificar sessão expirada em um useEffect
+  useEffect(() => {
+    // Verificar se foi redirecionado por sessão expirada
+    const { session } = router.query;
     
-    // Mostrar mensagem apenas uma vez
-    showError('Sua sessão expirou. Por favor, faça login novamente.');
-  }
+    // Só exibir a mensagem se ainda não tiver sido mostrada e o parâmetro existir
+    if (session === 'expired' && !sessionMessageShown.current) {
+      sessionMessageShown.current = true; // Marcar como mostrada
+      
+      // Mostrar mensagem apenas uma vez
+      showError('Sua sessão expirou. Por favor, faça login novamente.');
+      
+      // Usar setTimeout para adiar a limpeza da URL
+      setTimeout(() => {
+        router.replace('/login', undefined, { shallow: true });
+      }, 0);
+    }
+  }, [router.query, showError]); // Dependência mais específica - router.query em vez de router
 
   const validateForm = () => {
     const newErrors = {};
@@ -68,14 +79,18 @@ export default function Login() {
     
     try {
       const response = await login(formData);
-      console.log(JSON.stringify(response.user))
-      showSuccess('Login realizado com sucesso! Redirecionando...');
       
-      // Redirecionar com base no perfil
-      if (response.user.profile === 'admin') {
-        router.push('/admin/dashboard');
+      if (response.success) {
+        showSuccess('Login realizado com sucesso! Redirecionando...');
+        
+        // Redirecionar com base no perfil
+        if (response.user.profile === 'admin' || response.user.role === 'admin') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/student/dashboard');
+        }
       } else {
-        router.push('/student/dashboard');
+        showError(response.error || 'Falha no login. Verifique suas credenciais.');
       }
     } catch (error) {
       handleApiError(error, showError, 'Falha no login. Verifique suas credenciais.');
