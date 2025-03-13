@@ -1,0 +1,38 @@
+# Build artifacts
+/bin/
+/obj/
+/*.exe
+/*.out
+/*.exe~
+/*.test
+
+# Dependency directories
+/vendor/
+
+# IDE or editor directories
+.vscode/
+/.idea/
+/*.sublime-workspace
+/*.sublime-project
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Go dependency caching
+.golangci-lint-cache/
+
+# Build and test output
+/testdata/
+
+# env files (can opt-in for committing if needed)
+.env*

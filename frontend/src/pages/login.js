@@ -68,6 +68,7 @@ export default function Login() {
     
     try {
       const response = await login(formData);
+      console.log(JSON.stringify(response.user))
       showSuccess('Login realizado com sucesso! Redirecionando...');
       
       // Redirecionar com base no perfil

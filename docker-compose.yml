@@ -54,7 +54,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev  # Use o Dockerfile de desenvolvimento
     container_name: cecor-frontend
     restart: always
     volumes:
