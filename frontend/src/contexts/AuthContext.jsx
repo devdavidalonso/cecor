@@ -77,47 +77,35 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.login(credentials);
       
-      if (response) {
-        const userData = response.data?.user || response.data || response;
-        setUser(userData);
-        return { 
-          success: true, 
-          user: userData
-        };
-      } else {
-        return { 
-          success: false, 
-          error: 'Resposta da API não contém dados do usuário' 
-        };
+      // Extrair token da resposta
+      const token = response.data?.token || response.data?.accessToken || response.token;
+      
+      // Salvar token no localStorage
+      if (token && typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
       }
+      
+      // Extrair dados do usuário
+      const userData = response.data?.user || response.data || response;
+      setUser(userData);
+      
+      return { 
+        success: true, 
+        user: userData
+      };
     } catch (error) {
       console.error('Erro no login:', error);
       
-      // Em desenvolvimento, podemos usar fallback para testes
-      if (process.env.NODE_ENV !== 'production' && (error.message?.includes('Network Error') || !error.response)) {
-        console.warn('API indisponível. Usando dados mockados para desenvolvimento.');
-        
-        // Simular dados de usuário para desenvolvimento
-        const mockUser = { 
-          id: 1, 
-          name: credentials.email.split('@')[0], 
-          email: credentials.email,
-          profile: credentials.email.includes('admin') ? 'admin' : 'student',
-          role: credentials.email.includes('admin') ? 'admin' : 'user'
-        };
-        
-        // Simular token JWT
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('token', 'mock-token-for-development');
-        }
-        
-        setUser(mockUser);
-        return { success: true, user: mockUser };
-      }
+      // Usar a mensagem amigável do erro melhorado do authService
+      const errorMessage = error.friendlyMessage || 
+                         error.response?.data?.message || 
+                         error.message || 
+                         'Falha na autenticação. Verifique suas credenciais.';
       
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Falha na autenticação. Verifique suas credenciais.'
+        error: errorMessage,
+        status: error.status || error.response?.status
       };
     }
   };
@@ -127,47 +115,35 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.register(userData);
       
-      if (response) {
-        const userInfo = response.data?.user || response.data || response;
-        setUser(userInfo);
-        return { 
-          success: true, 
-          user: userInfo
-        };
-      } else {
-        return { 
-          success: false, 
-          error: 'Resposta da API não contém dados do usuário' 
-        };
+      // Extrair token da resposta
+      const token = response.data?.token || response.data?.accessToken || response.token;
+      
+      // Salvar token no localStorage
+      if (token && typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
       }
+      
+      // Extrair dados do usuário
+      const userInfo = response.data?.user || response.data || response;
+      setUser(userInfo);
+      
+      return { 
+        success: true, 
+        user: userInfo
+      };
     } catch (error) {
       console.error('Erro no registro:', error);
       
-      // Em desenvolvimento, podemos usar fallback para testes
-      if (process.env.NODE_ENV !== 'production' && (error.message?.includes('Network Error') || !error.response)) {
-        console.warn('API indisponível. Usando dados mockados para desenvolvimento.');
-        
-        // Simular dados de usuário para desenvolvimento
-        const mockUser = { 
-          id: Date.now(), 
-          name: userData.name || userData.email.split('@')[0], 
-          email: userData.email,
-          profile: 'student',
-          role: 'user'
-        };
-        
-        // Simular token JWT
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('token', 'mock-token-for-development');
-        }
-        
-        setUser(mockUser);
-        return { success: true, user: mockUser };
-      }
+      // Usar a mensagem amigável do erro
+      const errorMessage = error.friendlyMessage || 
+                         error.response?.data?.message || 
+                         error.message || 
+                         'Falha no registro. Tente novamente.';
       
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Falha no registro. Tente novamente.'
+        error: errorMessage,
+        status: error.status || error.response?.status
       };
     }
   };
@@ -221,9 +197,16 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: updatedUser };
       }
       
+      // Usar a mensagem amigável do erro
+      const errorMessage = error.friendlyMessage || 
+                         error.response?.data?.message || 
+                         error.message || 
+                         'Falha ao atualizar dados. Tente novamente.';
+      
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Falha ao atualizar dados. Tente novamente.'
+        error: errorMessage,
+        status: error.status || error.response?.status
       };
     }
   };

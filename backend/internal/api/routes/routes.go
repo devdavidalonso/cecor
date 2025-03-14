@@ -14,6 +14,11 @@ func SetupRouter() *gin.Engine {
 	// Middleware global para CORS
 	router.Use(middleware.CORSMiddleware())
 	
+    // No seu arquivo de rotas do backend
+    router.GET("/api/health", func(c *gin.Context) {
+	    c.JSON(200, gin.H{"status": "ok"})
+    })
+
 	// Grupo de rotas públicas
 	public := router.Group("/api")
 	{

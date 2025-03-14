@@ -35,4 +35,4 @@ Thumbs.db
 /testdata/
 
 # env files (can opt-in for committing if needed)
-.env*
+/.env

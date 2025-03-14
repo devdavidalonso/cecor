@@ -1,3 +1,4 @@
+// src/lib/api/auth.js
 import { api } from '../axios';
 
 /**
@@ -11,10 +12,44 @@ const authService = {
    */
   login: async (credentials) => {
     try {
-      return await api.post('/login', credentials);
+      // Adicionar log para depuração
+      console.log('Tentando login com:', credentials);
+      
+      const response = await api.post('/login', credentials);
+      console.log('Login bem-sucedido:', response);
+      return response;
     } catch (error) {
       console.error('Erro no login:', error);
-      throw error;
+      
+      // Verificar se error.response existe antes de acessá-lo
+      if (error.response) {
+        // Tratar especificamente erros de autenticação
+        if (error.response.status === 401) {
+          // Transformar em um erro mais amigável
+          const enhancedError = new Error('Credenciais inválidas');
+          enhancedError.status = 401;
+          enhancedError.originalError = error;
+          
+          // Verificar se error.response.data existe antes de acessá-lo
+          if (error.response.data) {
+            enhancedError.responseData = error.response.data;
+            enhancedError.friendlyMessage = error.response.data.error || 
+                                          error.response.data.message || 
+                                          'Credenciais inválidas. Por favor, verifique seu email e senha.';
+          } else {
+            enhancedError.friendlyMessage = 'Credenciais inválidas. Por favor, verifique seu email e senha.';
+          }
+          
+          throw enhancedError;
+        }
+      }
+      
+      // Para outros tipos de erros (rede, servidor indisponível, etc.)
+      const genericError = new Error('Erro ao tentar fazer login');
+      genericError.originalError = error;
+      genericError.friendlyMessage = 'Não foi possível conectar ao servidor. Por favor, verifique sua conexão e tente novamente.';
+      
+      throw genericError;
     }
   },
 

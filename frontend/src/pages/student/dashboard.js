@@ -36,24 +36,32 @@ export default function StudentDashboard() {
     const fetchData = async () => {
       try {
         // Buscar matrículas e cursos em paralelo
-        const [enrollmentsData, coursesData] = await Promise.all([
+        const [enrollmentsResponse, coursesResponse] = await Promise.all([
           enrollmentService.getStudentEnrollments(),
           courseService.getAvailableCourses()
         ]);
         
+        // Garantir que enrollmentsData e coursesData são arrays
+        const enrollmentsData = Array.isArray(enrollmentsResponse) ? enrollmentsResponse : [];
+        const coursesData = Array.isArray(coursesResponse) ? coursesResponse : [];
+        
         setEnrollments(enrollmentsData);
         
         // Filtrar cursos onde o aluno não está matriculado
-        setAvailableCourses(coursesData.filter(course => !course.is_enrolled));
+        const availableCoursesList = coursesData.filter(course => course && !course.is_enrolled);
+        setAvailableCourses(availableCoursesList);
         
         // Calcular estatísticas
-        const activeEnrollments = enrollmentsData.filter(e => e.status === 'ativa').length;
-        const completedEnrollments = enrollmentsData.filter(e => e.status === 'concluida').length;
+        const activeEnrollments = enrollmentsData.filter(e => e && e.status === 'ativa').length;
+        const completedEnrollments = enrollmentsData.filter(e => e && e.status === 'concluida').length;
         
         // Calcular total de horas dos cursos ativos
         const totalHours = enrollmentsData
-          .filter(e => e.status === 'ativa')
-          .reduce((total, enrollment) => total + (enrollment.course?.workload || 0), 0);
+          .filter(e => e && e.status === 'ativa')
+          .reduce((total, enrollment) => {
+            const workload = enrollment.course?.workload || 0;
+            return total + workload;
+          }, 0);
         
         setStats({
           activeEnrollments,
@@ -61,7 +69,15 @@ export default function StudentDashboard() {
           totalHours,
         });
       } catch (error) {
+        // Tratar erro e inicializar com valores padrão
         handleApiError(error, showError, 'Erro ao carregar dados do dashboard');
+        setEnrollments([]);
+        setAvailableCourses([]);
+        setStats({
+          activeEnrollments: 0,
+          completedEnrollments: 0,
+          totalHours: 0,
+        });
       } finally {
         setLoading(false);
       }

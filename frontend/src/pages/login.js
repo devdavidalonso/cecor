@@ -80,20 +80,30 @@ export default function Login() {
     try {
       const response = await login(formData);
       
-      if (response.success) {
-        showSuccess('Login realizado com sucesso! Redirecionando...');
-        
-        // Redirecionar com base no perfil
-        if (response.user.profile === 'admin' || response.user.role === 'admin') {
-          router.push('/admin/dashboard');
-        } else {
-          router.push('/student/dashboard');
-        }
+      // Se chegou aqui, o login foi bem-sucedido
+      showSuccess('Login realizado com sucesso! Redirecionando...');
+      
+      // Salvar token (verifica onde o token está na resposta)
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      } else if (response.user && response.user.token) {
+        localStorage.setItem('token', response.user.token);
+      }
+      
+      // Verificar perfil para redirecionamento
+      const userProfile = response.user || {};
+      if (userProfile.profile === 'admin' || userProfile.role === 'admin') {
+        router.push('/admin/dashboard');
       } else {
-        showError(response.error || 'Falha no login. Verifique suas credenciais.');
+        router.push('/student/dashboard');
       }
     } catch (error) {
-      handleApiError(error, showError, 'Falha no login. Verifique suas credenciais.');
+      // Agora podemos usar a mensagem amigável diretamente
+      if (error.friendlyMessage) {
+        showError(error.friendlyMessage);
+      } else {
+        handleApiError(error, showError, 'Falha no login. Verifique suas credenciais.');
+      }
     } finally {
       setLoading(false);
     }
