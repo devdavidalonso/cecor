@@ -72,7 +72,7 @@ export default function AdminEnrollmentDetails() {
 
   return (
     <ProtectedRoute roleRequired="admin">
-      <Layout title="Gerenciar Matrícula | CECOR">
+      {/* <Layout title="Gerenciar Matrícula | CECOR"> */}
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Navegação */}
@@ -104,7 +104,7 @@ export default function AdminEnrollmentDetails() {
             )}
           </div>
         </div>
-      </Layout>
+      {/* </Layout> */}
     </ProtectedRoute>
   );
 }
