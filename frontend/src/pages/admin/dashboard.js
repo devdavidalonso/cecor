@@ -44,32 +44,40 @@ export default function AdminDashboard() {
           courseService.getAllCourses(),
           enrollmentService.getAllEnrollments(),
         ]);
-        
+
+        // Ponto de depuração para examinar as credenciais enviadas
+        debugger;
+
         // Calcular estatísticas
         const totalUsers = users.length;
         const totalCourses = courses.length;
         const totalEnrollments = enrollments.length;
-        const activeEnrollments = enrollments.filter(e => e.status === 'ativa').length;
-        
+        const activeEnrollments =
+          enrollments.length > 0
+            ? enrollments.filter((e) => e.status === "ativa").length
+            : 0;
+
         setStats({
           totalUsers,
           totalCourses,
           totalEnrollments,
           activeEnrollments,
         });
-        
-        // Ordenar usuários por data de criação (mais recentes primeiro)
-        const sortedUsers = [...users].sort((a, b) => 
-          new Date(b.created_at) - new Date(a.created_at)
-        );
-        
-        // Ordenar matrículas por data de criação (mais recentes primeiro)
-        const sortedEnrollments = [...enrollments].sort((a, b) => 
-          new Date(b.created_at) - new Date(a.created_at)
-        );
-        
-        setRecentUsers(sortedUsers.slice(0, 5));
-        setRecentEnrollments(sortedEnrollments.slice(0, 5));
+
+        if (users.length > 0 && sortedEnrollments.length > 0) {
+          // Ordenar usuários por data de criação (mais recentes primeiro)
+          const sortedUsers = [...users].sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          );
+
+          // Ordenar matrículas por data de criação (mais recentes primeiro)
+          const sortedEnrollments = [...enrollments].sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          );
+
+          setRecentUsers(sortedUsers.slice(0, 5));
+          setRecentEnrollments(sortedEnrollments.slice(0, 5));
+        }
       } catch (error) {
         handleApiError(error, showError, 'Erro ao carregar dados do dashboard');
       } finally {
@@ -93,7 +101,7 @@ export default function AdminDashboard() {
 
   return (
     <ProtectedRoute roleRequired="admin">
-      <Layout title="Dashboard Administrativo | CECOR">
+      {/* <Layout title="Dashboard Administrativo | CECOR"> */}
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-semibold text-gray-900">Painel Administrativo</h1>
@@ -385,7 +393,7 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
-      </Layout>
+      {/* </Layout> */}
     </ProtectedRoute>
   );
 }

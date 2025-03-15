@@ -12,6 +12,10 @@ const authService = {
    */
   login: async (credentials) => {
     try {
+
+       // Ponto de depuração para examinar as credenciais enviadas
+       debugger;
+       
       // Adicionar log para depuração
       console.log('Tentando login com:', credentials);
       

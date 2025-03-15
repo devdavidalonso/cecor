@@ -73,6 +73,9 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+     // Ponto de depuração para examinar as credenciais enviadas
+     debugger;
+
     if (!validateForm()) return;
     
     setLoading(true);
@@ -83,12 +86,12 @@ export default function Login() {
       // Se chegou aqui, o login foi bem-sucedido
       showSuccess('Login realizado com sucesso! Redirecionando...');
       
-      // Salvar token (verifica onde o token está na resposta)
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-      } else if (response.user && response.user.token) {
-        localStorage.setItem('token', response.user.token);
-      }
+      // // Salvar token (verifica onde o token está na resposta)
+      // if (response.token) {
+      //   localStorage.setItem('token', response.token);
+      // } else if (response.user && response.user.token) {
+      //   localStorage.setItem('token', response.user.token);
+      // }
       
       // Verificar perfil para redirecionamento
       const userProfile = response.user || {};

@@ -40,6 +40,13 @@ export default function StudentEnrollments() {
 
   // Filtrar matrículas
   const getFilteredEnrollments = () => {
+
+
+    if (!Array.isArray(enrollments)) {
+      console.warn('courses não é um array:', enrollments);
+      return []; // Retornar um array vazio se courses não for um array
+    }
+
     return enrollments.filter(enrollment => {
       // Filtro por termo de busca (nome do curso)
       const matchesSearch = enrollment.course?.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -59,7 +66,7 @@ export default function StudentEnrollments() {
 
   return (
     <ProtectedRoute roleRequired="aluno">
-      <Layout title="Minhas Matrículas | CECOR">
+      {/* <Layout title="Minhas Matrículas | CECOR"> */}
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-semibold text-gray-900">Minhas Matrículas</h1>
@@ -163,7 +170,7 @@ export default function StudentEnrollments() {
             )}
           </div>
         </div>
-      </Layout>
+      {/* </Layout> */}
     </ProtectedRoute>
   );
 }

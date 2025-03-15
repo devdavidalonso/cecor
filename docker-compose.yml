@@ -62,6 +62,8 @@ services:
       - /app/node_modules         # Preserve os node_modules do contêiner
     ports:
       - "3000:3000"
+      - "9229:9229"
+      - "9230:9230"  # Porta adicional para o router do Next.js
     environment:
       REACT_APP_API_URL: http://backend:8080/api
     depends_on:

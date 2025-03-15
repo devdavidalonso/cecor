@@ -43,7 +43,7 @@ export default function StudentEnrollmentDetails() {
 
   return (
     <ProtectedRoute roleRequired="aluno">
-      <Layout title="Detalhes da Matrícula | CECOR">
+      {/* <Layout title="Detalhes da Matrícula | CECOR"> */}
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Navegação */}
@@ -71,7 +71,7 @@ export default function StudentEnrollmentDetails() {
             )}
           </div>
         </div>
-      </Layout>
+      {/* </Layout> */}
     </ProtectedRoute>
   );
 }

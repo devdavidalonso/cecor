@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { HiAcademicCap, HiSearch, HiCheck, HiX } from 'react-icons/hi';
+import { HiAcademicCap, HiSearch, HiCheck, HiX, HiOutlineRefresh } from 'react-icons/hi';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useAlert } from '../../../contexts/AlertContext';
 import { handleApiError } from '../../../lib/errorHandler';
@@ -25,19 +24,19 @@ export default function StudentCourses() {
   const [filter, setFilter] = useState('all'); // 'all', 'enrolled', 'available'
 
   // Carregando cursos
+  const fetchCourses = async () => {
+    setLoading(true);
+    try {
+      const data = await courseService.getAvailableCourses();
+      setCourses(data);
+    } catch (error) {
+      handleApiError(error, showError, 'Erro ao carregar cursos disponíveis');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true);
-      try {
-        const data = await courseService.getAvailableCourses();
-        setCourses(data);
-      } catch (error) {
-        handleApiError(error, showError, 'Erro ao carregar cursos disponíveis');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchCourses();
   }, [showError]);
 
@@ -66,6 +65,12 @@ export default function StudentCourses() {
 
   // Filtrar cursos
   const getFilteredCourses = () => {
+
+    if (!Array.isArray(courses)) {
+      console.warn('courses não é um array:', courses);
+      return []; // Retornar um array vazio se courses não for um array
+    }
+
     return courses.filter(course => {
       // Filtro por termo de busca (nome ou descrição)
       const matchesSearch = 
@@ -82,11 +87,69 @@ export default function StudentCourses() {
     });
   };
 
+  // Limpar todos os filtros
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setFilter('all');
+  };
+
   const filteredCourses = getFilteredCourses();
+  const isFiltering = searchTerm !== '' || filter !== 'all';
+
+  // Renderização condicional para estado vazio
+  const renderEmptyState = () => {
+    if (courses.length === 0) {
+      // Não há cursos no sistema
+      return (
+        <Card>
+          <div className="text-center py-10">
+            <HiAcademicCap className="mx-auto h-14 w-14 text-gray-400" />
+            <h3 className="mt-4 text-xl font-medium text-gray-900">Sem cursos disponíveis</h3>
+            <p className="mt-2 text-base text-gray-500">
+              No momento não há cursos disponíveis na plataforma.
+            </p>
+            <Button 
+              variant="secondary" 
+              className="mt-4 inline-flex items-center"
+              onClick={fetchCourses}
+            >
+              <HiOutlineRefresh className="mr-2 h-5 w-5" />
+              Atualizar
+            </Button>
+          </div>
+        </Card>
+      );
+    } else if (isFiltering) {
+      // Há cursos, mas os filtros não retornaram resultados
+      return (
+        <Card>
+          <div className="text-center py-10">
+            <HiSearch className="mx-auto h-14 w-14 text-gray-400" />
+            <h3 className="mt-4 text-xl font-medium text-gray-900">Nenhum curso encontrado</h3>
+            <p className="mt-2 text-base text-gray-500">
+              {searchTerm && (
+                <span>Não encontramos cursos com o termo "<strong>{searchTerm}</strong>".</span>
+              )}
+              {filter !== 'all' && (
+                <span>{searchTerm ? ' ' : ''}Os filtros atuais podem estar limitando os resultados.</span>
+              )}
+            </p>
+            <Button 
+              variant="primary" 
+              className="mt-4"
+              onClick={handleClearFilters}
+            >
+              Limpar filtros
+            </Button>
+          </div>
+        </Card>
+      );
+    }
+  };
 
   return (
     <ProtectedRoute roleRequired="aluno">
-      <Layout title="Cursos Disponíveis | CECOR">
+      {/* <Layout title="Cursos Disponíveis | CECOR"> */}
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-semibold text-gray-900">Cursos Disponíveis</h1>
@@ -137,12 +200,50 @@ export default function StudentCourses() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pr-10"
                       />
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <HiSearch className="h-5 w-5 text-gray-400" />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        {searchTerm ? (
+                          <button 
+                            onClick={() => setSearchTerm('')}
+                            className="text-gray-400 hover:text-gray-600"
+                            aria-label="Limpar busca"
+                          >
+                            <HiX className="h-5 w-5" />
+                          </button>
+                        ) : (
+                          <HiSearch className="h-5 w-5 text-gray-400 pointer-events-none" />
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
+
+                {isFiltering && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-600">
+                        <span>Filtros aplicados: </span>
+                        {filter !== 'all' && (
+                          <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-100 text-indigo-800">
+                            {filter === 'enrolled' ? 'Matriculados' : 'Disponíveis'}
+                          </span>
+                        )}
+                        {searchTerm && (
+                          <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-100 text-indigo-800">
+                            Busca: {searchTerm}
+                          </span>
+                        )}
+                      </div>
+                      <Button 
+                        variant="text" 
+                        size="sm" 
+                        onClick={handleClearFilters}
+                        className="text-indigo-600 hover:text-indigo-800"
+                      >
+                        Limpar todos
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </Card>
             </div>
             
@@ -152,31 +253,30 @@ export default function StudentCourses() {
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
               </div>
             ) : filteredCourses.length === 0 ? (
-              <Card>
-                <div className="text-center py-8">
-                  <HiX className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">Nenhum curso encontrado</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Não foram encontrados cursos com os filtros selecionados.
-                  </p>
-                </div>
-              </Card>
+              renderEmptyState()
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCourses.map(course => (
-                  <CourseCard
-                    key={course.id}
-                    course={course}
-                    isEnrolled={course.is_enrolled}
-                    onEnroll={handleEnroll}
-                    loading={enrollingCourseId === course.id}
-                  />
-                ))}
-              </div>
+              <>
+                {isFiltering && (
+                  <div className="mb-4 text-gray-600">
+                    Mostrando {filteredCourses.length} {filteredCourses.length === 1 ? 'curso' : 'cursos'} de {courses.length}
+                  </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredCourses.map(course => (
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      isEnrolled={course.is_enrolled}
+                      onEnroll={handleEnroll}
+                      loading={enrollingCourseId === course.id}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
-      </Layout>
+      {/* </Layout> */}
     </ProtectedRoute>
   );
 }

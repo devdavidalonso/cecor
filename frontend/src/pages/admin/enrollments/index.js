@@ -41,6 +41,12 @@ export default function AdminEnrollments() {
 
   // Filtrar matrículas
   const getFilteredEnrollments = () => {
+
+    if (!Array.isArray(enrollments)) {
+      console.warn('courses não é um array:', enrollments);
+      return []; // Retornar um array vazio se courses não for um array
+    }
+
     return enrollments.filter(enrollment => {
       // Filtro por termo de busca (nome do curso ou nome do aluno)
       const matchesSearch = 
