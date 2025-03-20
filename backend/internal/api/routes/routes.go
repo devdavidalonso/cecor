@@ -28,8 +28,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	noteRepo := repositories.NewNoteRepository(db)
 	formRepo := repositories.NewFormRepository(db)
 	formResponseRepo := repositories.NewFormResponseRepository(db)
-	volunteerTermRepo := repositories.NewVolunteerTermRepository(db)
-	notificationRepo := repositories.NewNotificationRepository(db)
+	// volunteerTermRepo := repositories.NewVolunteerTermRepository(db)
+	// notificationRepo := repositories.NewNotificationRepository(db)
 
 	// No seu arquivo de rotas do backend
 	router.GET("/api/health", func(c *gin.Context) {
@@ -54,13 +54,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		student.GET("/profile", handlers.GetUserProfile(userRepo))
 		student.PUT("/profile", handlers.UpdateUserProfile(userRepo))
 		student.GET("/courses", handlers.ListAvailableCourses(courseRepo, enrollmentRepo))
-		student.POST("/enroll", handlers.EnrollInCourse(enrollmentRepo, courseRepo))
-		student.GET("/enrollments", handlers.GetStudentEnrollments(enrollmentRepo))
+		// student.POST("/enroll", handlers.EnrollInCourse(enrollmentRepo, courseRepo))
+		// student.GET("/enrollments", handlers.GetStudentEnrollments(enrollmentRepo))
 
 		// Registro de faltas e justificativas
-		student.GET("/attendance/my", handlers.MyAttendances(attendanceRepo))
-		student.POST("/justifications", handlers.SubmitJustification(attendanceRepo))
-		student.GET("/justifications/my", handlers.MyJustifications(attendanceRepo))
+		// student.GET("/attendance/my", handlers.MyAttendances(attendanceRepo))
+		// student.POST("/justifications", handlers.SubmitJustification(attendanceRepo))
+		// student.GET("/justifications/my", handlers.MyJustifications(attendanceRepo))
 
 		// Rotas para entrevistas
 		student.GET("/interviews/my", handlers.GetMyInterviews(formRepo))
@@ -78,16 +78,16 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		// Rotas de registro de presenças
 		teacher.POST("/attendance/course/:id/date/:date", handlers.RegisterCourseAttendance(attendanceRepo))
 		teacher.GET("/attendance/course/:id/date/:date", handlers.GetCourseAttendance(attendanceRepo))
-		teacher.POST("/attendance/student", handlers.RegisterStudentAttendance(attendanceRepo))
-		teacher.PUT("/attendance/:id", handlers.UpdateAttendance(attendanceRepo))
+		// teacher.POST("/attendance/student", handlers.RegisterStudentAttendance(attendanceRepo))
+		// teacher.PUT("/attendance/:id", handlers.UpdateAttendance(attendanceRepo))
 
 		// Rotas de justificativas
-		teacher.GET("/justifications/pending", handlers.ListPendingJustifications(attendanceRepo))
-		teacher.PUT("/justifications/:id", handlers.ReviewJustification(attendanceRepo))
+		// teacher.GET("/justifications/pending", handlers.ListPendingJustifications(attendanceRepo))
+		// teacher.PUT("/justifications/:id", handlers.ReviewJustification(attendanceRepo))
 
-		// Rotas de alertas
-		teacher.GET("/alerts/absences", handlers.ListAbsenceAlerts(attendanceRepo))
-		teacher.PUT("/alerts/absences/:id/resolve", handlers.ResolveAbsenceAlert(attendanceRepo))
+		// // Rotas de alertas
+		// teacher.GET("/alerts/absences", handlers.ListAbsenceAlerts(attendanceRepo))
+		// teacher.PUT("/alerts/absences/:id/resolve", handlers.ResolveAbsenceAlert(attendanceRepo))
 
 		// Rotas para entrevistas (visualização apenas das próprias)
 		teacher.GET("/interviews/my", handlers.GetMyInterviews(formRepo))
@@ -98,39 +98,39 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		teacher.GET("/form-responses/my", handlers.GetMyFormResponses(formResponseRepo))
 
 		// Rotas para termos de voluntariado
-		teacher.GET("/volunteer-terms/my", handlers.GetMyVolunteerTerms(volunteerTermRepo))
-		teacher.GET("/volunteer-terms/current-template", handlers.GetCurrentTemplate(volunteerTermRepo))
-		teacher.POST("/volunteer-terms/sign", handlers.SignVolunteerTerm(volunteerTermRepo))
+		// teacher.GET("/volunteer-terms/my", handlers.GetMyVolunteerTerms(volunteerTermRepo))
+		// teacher.GET("/volunteer-terms/current-template", handlers.GetCurrentTemplate(volunteerTermRepo))
+		// teacher.POST("/volunteer-terms/sign", handlers.SignVolunteerTerm(volunteerTermRepo))
 
-		// Rotas para gestão de alunos (acesso limitado para professores)
-		teacher.GET("/students/course/:courseId", handlers.ListCourseStudents(studentRepo))
-		teacher.GET("/students/:id", handlers.GetStudentBasicDetails(studentRepo))
+		// // Rotas para gestão de alunos (acesso limitado para professores)
+		// teacher.GET("/students/course/:courseId", handlers.ListCourseStudents(studentRepo))
+		// teacher.GET("/students/:id", handlers.GetStudentBasicDetails(studentRepo))
 		teacher.POST("/students/:id/notes", handlers.AddTeacherStudentNote(noteRepo, studentRepo))
 		teacher.GET("/students/:id/notes", handlers.GetTeacherStudentNotes(noteRepo))
 		teacher.PUT("/students/notes/:noteId", handlers.UpdateTeacherStudentNote(noteRepo))
 	}
 
-	// Grupo de rotas para gestores
-	manager := router.Group("/api/manager")
-	manager.Use(middleware.AuthMiddleware("gestor"))
-	{
-		// Gestão de alunos para gestores
-		manager.GET("/students", handlers.ListAllStudents(studentRepo))
-		manager.GET("/students/:id", handlers.GetStudentDetails(studentRepo))
-		manager.POST("/students", handlers.CreateStudent(studentRepo, userRepo, auditRepo, guardianRepo))
-		manager.PUT("/students/:id", handlers.UpdateStudent(studentRepo, userRepo, auditRepo))
+	// // Grupo de rotas para gestores
+	// manager := router.Group("/api/manager")
+	// manager.Use(middleware.AuthMiddleware("gestor"))
+	// {
+	// 	// Gestão de alunos para gestores
+	// 	manager.GET("/students", handlers.ListAllStudents(studentRepo))
+	// 	manager.GET("/students/:id", handlers.GetStudentDetails(studentRepo))
+	// 	manager.POST("/students", handlers.CreateStudent(studentRepo, userRepo, auditRepo, guardianRepo))
+	// 	manager.PUT("/students/:id", handlers.UpdateStudent(studentRepo, userRepo, auditRepo))
 
-		// Gestão de responsáveis
-		manager.GET("/students/:id/guardians", handlers.ListStudentGuardians(guardianRepo))
-		manager.POST("/students/:id/guardians", handlers.AddGuardian(guardianRepo, studentRepo, auditRepo))
-		manager.PUT("/guardians/:id", handlers.UpdateGuardian(guardianRepo, auditRepo))
+	// 	// Gestão de responsáveis
+	// 	manager.GET("/students/:id/guardians", handlers.ListStudentGuardians(guardianRepo))
+	// 	manager.POST("/students/:id/guardians", handlers.AddGuardian(guardianRepo, studentRepo, auditRepo))
+	// 	manager.PUT("/guardians/:id", handlers.UpdateGuardian(guardianRepo, auditRepo))
 
-		// Busca e exportação
-		manager.POST("/students/search", handlers.SearchStudents(studentRepo))
-		manager.POST("/students/export", handlers.ExportStudentResults(studentRepo))
+	// 	// Busca e exportação
+	// 	manager.POST("/students/search", handlers.SearchStudents(studentRepo))
+	// 	manager.POST("/students/export", handlers.ExportStudentResults(studentRepo))
 
-		// Adicionar outras rotas conforme necessário para gestores
-	}
+	// 	// Adicionar outras rotas conforme necessário para gestores
+	// }
 
 	// Grupo de rotas para administradores
 	admin := router.Group("/api/admin")
@@ -150,7 +150,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		admin.DELETE("/users/:id", handlers.DeleteUser(userRepo, auditRepo))
 
 		// Gestão de matrículas
-		admin.GET("/enrollments", handlers.ListAllEnrollments(enrollmentRepo))
+		// admin.GET("/enrollments", handlers.ListAllEnrollments(enrollmentRepo))
 		admin.PUT("/enrollments/:id", handlers.UpdateEnrollment(enrollmentRepo))
 		admin.DELETE("/enrollments/:id", handlers.DeleteEnrollment(enrollmentRepo))
 
@@ -175,43 +175,43 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		admin.GET("/form-responses", handlers.ListAllFormResponses(formResponseRepo))
 		admin.GET("/form-responses/:id", handlers.GetFormResponseDetails(formResponseRepo))
 
-		// Rotas para gestão de termos de voluntariado
-		admin.GET("/volunteer-templates", handlers.ListTermTemplates(volunteerTermRepo))
-		admin.POST("/volunteer-templates", handlers.CreateTermTemplate(volunteerTermRepo))
-		admin.GET("/volunteer-templates/:id", handlers.GetTermTemplateDetails(volunteerTermRepo))
-		admin.PUT("/volunteer-templates/:id", handlers.UpdateTermTemplate(volunteerTermRepo))
-		admin.DELETE("/volunteer-templates/:id", handlers.DeleteTermTemplate(volunteerTermRepo))
-		admin.PUT("/volunteer-templates/:id/active", handlers.SetTemplateActive(volunteerTermRepo))
+		// // Rotas para gestão de termos de voluntariado
+		// admin.GET("/volunteer-templates", handlers.ListTermTemplates(volunteerTermRepo))
+		// admin.POST("/volunteer-templates", handlers.CreateTermTemplate(volunteerTermRepo))
+		// admin.GET("/volunteer-templates/:id", handlers.GetTermTemplateDetails(volunteerTermRepo))
+		// admin.PUT("/volunteer-templates/:id", handlers.UpdateTermTemplate(volunteerTermRepo))
+		// admin.DELETE("/volunteer-templates/:id", handlers.DeleteTermTemplate(volunteerTermRepo))
+		// admin.PUT("/volunteer-templates/:id/active", handlers.SetTemplateActive(volunteerTermRepo))
 
-		admin.GET("/volunteer-terms", handlers.ListVolunteerTerms(volunteerTermRepo))
-		admin.GET("/volunteer-terms/expiring", handlers.ListExpiringTerms(volunteerTermRepo))
-		admin.POST("/volunteer-terms/send-reminders", handlers.SendExpirationReminders(volunteerTermRepo, notificationRepo))
-		admin.GET("/volunteer-terms/:id", handlers.GetVolunteerTermDetails(volunteerTermRepo))
-		admin.GET("/volunteer-terms/teacher/:id", handlers.GetTeacherTerms(volunteerTermRepo, userRepo))
-		admin.POST("/volunteer-terms/:id/revoke", handlers.RevokeVolunteerTerm(volunteerTermRepo))
+		// admin.GET("/volunteer-terms", handlers.ListVolunteerTerms(volunteerTermRepo))
+		// admin.GET("/volunteer-terms/expiring", handlers.ListExpiringTerms(volunteerTermRepo))
+		// admin.POST("/volunteer-terms/send-reminders", handlers.SendExpirationReminders(volunteerTermRepo, notificationRepo))
+		// admin.GET("/volunteer-terms/:id", handlers.GetVolunteerTermDetails(volunteerTermRepo))
+		// admin.GET("/volunteer-terms/teacher/:id", handlers.GetTeacherTerms(volunteerTermRepo, userRepo))
+		// admin.POST("/volunteer-terms/:id/revoke", handlers.RevokeVolunteerTerm(volunteerTermRepo))
 
-		admin.GET("/term-history/:termId", handlers.GetTermHistory(volunteerTermRepo))
+		// admin.GET("/term-history/:termId", handlers.GetTermHistory(volunteerTermRepo))
 
 		// NOVIDADES: Gestão completa de alunos conforme seção 3.1 do documento técnico
 
 		// Rotas para gestão completa de alunos
-		admin.GET("/students", handlers.ListAllStudents(studentRepo))
-		admin.GET("/students/:id", handlers.GetStudentDetails(studentRepo))
-		admin.POST("/students", handlers.CreateStudent(studentRepo, userRepo, auditRepo, guardianRepo))
-		admin.PUT("/students/:id", handlers.UpdateStudent(studentRepo, userRepo, auditRepo))
-		admin.DELETE("/students/:id", handlers.DeleteStudent(studentRepo, userRepo, auditRepo)) // Soft delete
+		// admin.GET("/students", handlers.ListAllStudents(studentRepo))
+		// admin.GET("/students/:id", handlers.GetStudentDetails(studentRepo))
+		// admin.POST("/students", handlers.CreateStudent(studentRepo, userRepo, auditRepo, guardianRepo))
+		// admin.PUT("/students/:id", handlers.UpdateStudent(studentRepo, userRepo, auditRepo))
+		// admin.DELETE("/students/:id", handlers.DeleteStudent(studentRepo, userRepo, auditRepo)) // Soft delete
 
-		// Busca avançada de alunos com múltiplos critérios
-		admin.POST("/students/search", handlers.SearchStudents(studentRepo))
+		// // Busca avançada de alunos com múltiplos critérios
+		// admin.POST("/students/search", handlers.SearchStudents(studentRepo))
 
-		// Exportação de resultados da busca
-		admin.POST("/students/export", handlers.ExportStudentResults(studentRepo))
+		// // Exportação de resultados da busca
+		// admin.POST("/students/export", handlers.ExportStudentResults(studentRepo))
 
-		// Rotas para gestão de responsáveis
-		admin.GET("/students/:id/guardians", handlers.ListStudentGuardians(guardianRepo))
-		admin.POST("/students/:id/guardians", handlers.AddGuardian(guardianRepo, studentRepo, auditRepo))
+		// // Rotas para gestão de responsáveis
+		// admin.GET("/students/:id/guardians", handlers.ListStudentGuardians(guardianRepo))
+		// admin.POST("/students/:id/guardians", handlers.AddGuardian(guardianRepo, studentRepo, auditRepo))
 		admin.GET("/guardians/:id", handlers.GetGuardian(guardianRepo))
-		admin.PUT("/guardians/:id", handlers.UpdateGuardian(guardianRepo, auditRepo))
+		// admin.PUT("/guardians/:id", handlers.UpdateGuardian(guardianRepo, auditRepo))
 		admin.DELETE("/guardians/:id", handlers.DeleteGuardian(guardianRepo)) // Soft delete
 
 		// Upload de documentos

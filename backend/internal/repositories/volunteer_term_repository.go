@@ -1,4 +1,4 @@
-// internal/database/volunteer_term_repository.go
+// internal/repositories/volunteer_term_repository.go
 
 package repositories
 
@@ -14,6 +14,7 @@ var (
 	ErrTemplateNotFound = errors.New("term template not found")
 	ErrTermNotFound     = errors.New("volunteer term not found")
 	ErrNoActiveTemplate = errors.New("no active term template found")
+	ErrActiveTermExists = errors.New("teacher already has an active term")
 )
 
 // VolunteerTermRepository implements database operations for volunteer terms
@@ -84,6 +85,15 @@ func (r *VolunteerTermRepository) ListTermTemplates(offset, limit int, filters m
 	return templates, int(total), nil
 }
 
+// GetAllTermTemplates gets all term templates
+func (r *VolunteerTermRepository) GetAllTermTemplates() ([]models.VolunteerTermTemplate, error) {
+	var templates []models.VolunteerTermTemplate
+	if err := r.db.Order("created_at DESC").Find(&templates).Error; err != nil {
+		return nil, err
+	}
+	return templates, nil
+}
+
 // SetTemplateActiveStatus sets the active status of a template
 func (r *VolunteerTermRepository) SetTemplateActiveStatus(templateID uint, active bool) error {
 	return r.db.Model(&models.VolunteerTermTemplate{}).Where("id = ?", templateID).Update("is_active", active).Error
@@ -113,6 +123,27 @@ func (r *VolunteerTermRepository) CountSignedTermsByTemplate(templateID uint) (i
 	return int(count), err
 }
 
+// HasSignedTermsForTemplate checks if there are any signed terms using this template
+func (r *VolunteerTermRepository) HasSignedTermsForTemplate(templateID uint) (bool, error) {
+	count, err := r.CountSignedTermsByTemplate(templateID)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+// HasActiveTermForTeacher checks if a teacher already has an active term
+func (r *VolunteerTermRepository) HasActiveTermForTeacher(teacherID uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&models.VolunteerTerm{}).
+		Where("teacher_id = ? AND status = ? AND expiration_date > ?", teacherID, "active", time.Now()).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 // SignVolunteerTerm creates a signed volunteer term
 func (r *VolunteerTermRepository) SignVolunteerTerm(term *models.VolunteerTerm) error {
 	// Start transaction
@@ -129,7 +160,9 @@ func (r *VolunteerTermRepository) SignVolunteerTerm(term *models.VolunteerTerm) 
 		TermID:     term.ID,
 		ActionType: "signed",
 		ActionDate: term.SignedAt,
+		ActionByID: &term.TeacherID,
 		Details:    "Term signed by teacher",
+		CreatedBy:  term.CreatedBy,
 	}
 
 	if err := tx.Create(&history).Error; err != nil {
@@ -172,6 +205,25 @@ func (r *VolunteerTermRepository) GetVolunteerTermsByTeacherID(teacherID uint) (
 	return terms, nil
 }
 
+// GetAllVolunteerTerms gets all volunteer terms with optional status filter
+func (r *VolunteerTermRepository) GetAllVolunteerTerms(statusFilter string) ([]models.VolunteerTerm, error) {
+	var terms []models.VolunteerTerm
+	query := r.db.Model(&models.VolunteerTerm{})
+
+	if statusFilter != "" {
+		query = query.Where("status = ?", statusFilter)
+	}
+
+	if err := query.Preload("Teacher").
+		Preload("Template").
+		Order("signed_at DESC").
+		Find(&terms).Error; err != nil {
+		return nil, err
+	}
+
+	return terms, nil
+}
+
 // ListVolunteerTerms lists volunteer terms with pagination and filters
 func (r *VolunteerTermRepository) ListVolunteerTerms(offset, limit int, filters map[string]interface{}) ([]models.VolunteerTerm, int, error) {
 	var terms []models.VolunteerTerm
@@ -195,9 +247,6 @@ func (r *VolunteerTermRepository) ListVolunteerTerms(offset, limit int, filters 
 	if expiresAfter, ok := filters["expires_after"].(time.Time); ok && !expiresAfter.IsZero() {
 		query = query.Where("expiration_date >= ?", expiresAfter)
 	}
-	// internal/database/volunteer_term_repository.go (continuação)
-
-	// ListVolunteerTerms lists volunteer terms with pagination and filters (continuação)
 	if expiresBefore, ok := filters["expires_before"].(time.Time); ok && !expiresBefore.IsZero() {
 		query = query.Where("expiration_date <= ?", expiresBefore)
 	}
@@ -218,6 +267,38 @@ func (r *VolunteerTermRepository) ListVolunteerTerms(offset, limit int, filters 
 	}
 
 	return terms, int(total), nil
+}
+
+// GetExpiringTerms gets terms that will expire before the given date
+func (r *VolunteerTermRepository) GetExpiringTerms(limitDate time.Time) ([]models.VolunteerTerm, error) {
+	var terms []models.VolunteerTerm
+
+	if err := r.db.Where("status = ? AND expiration_date <= ? AND expiration_date > ?",
+		"active", limitDate, time.Now()).
+		Preload("Teacher").
+		Preload("Template").
+		Order("expiration_date").
+		Find(&terms).Error; err != nil {
+		return nil, err
+	}
+
+	return terms, nil
+}
+
+// GetExpiringTermsWithoutReminder gets terms that will expire before the given date and haven't been reminded
+func (r *VolunteerTermRepository) GetExpiringTermsWithoutReminder(limitDate time.Time) ([]models.VolunteerTerm, error) {
+	var terms []models.VolunteerTerm
+
+	if err := r.db.Where("status = ? AND expiration_date <= ? AND expiration_date > ? AND reminder_sent = ?",
+		"active", limitDate, time.Now(), false).
+		Preload("Teacher").
+		Preload("Template").
+		Order("expiration_date").
+		Find(&terms).Error; err != nil {
+		return nil, err
+	}
+
+	return terms, nil
 }
 
 // ListExpiringTerms lists terms that are about to expire
@@ -287,6 +368,7 @@ func (r *VolunteerTermRepository) ExpireTerms() (int, error) {
 			ActionType: "expired",
 			ActionDate: time.Now(),
 			Details:    "Term automatically expired by system",
+			CreatedBy:  term.CreatedBy,
 		}
 
 		if err := tx.Create(&history).Error; err != nil {
@@ -321,7 +403,9 @@ func (r *VolunteerTermRepository) RevokeTerms(termIDs []uint, reason string, rev
 			TermID:     termID,
 			ActionType: "revoked",
 			ActionDate: time.Now(),
+			ActionByID: &revokedBy,
 			Details:    reason,
+			CreatedBy:  revokedBy,
 		}
 
 		if err := tx.Create(&history).Error; err != nil {
@@ -339,7 +423,9 @@ func (r *VolunteerTermRepository) AddTermHistory(termID uint, actionType string,
 		TermID:     termID,
 		ActionType: actionType,
 		ActionDate: time.Now(),
+		ActionByID: &actionBy,
 		Details:    details,
+		CreatedBy:  actionBy,
 	}
 
 	return r.db.Create(&history).Error

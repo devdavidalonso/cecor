@@ -132,7 +132,7 @@ func RegisterStudent(userRepo *repositories.UserRepository, studentRepo *reposit
 		}
 
 		// Salvar aluno
-		err = studentRepo.Create(&student)
+		_, err = studentRepo.Create(&student)
 		if err != nil {
 			log.Printf("Erro ao salvar aluno: %v", err)
 			// Desfazer criação do usuário em caso de erro

@@ -34,14 +34,19 @@ func (r *StudentRepository) FindByID(id uint) (models.Student, error) {
 	return student, nil
 }
 
-// Create creates a new student
-func (r *StudentRepository) Create(student *models.Student) error {
-	return r.db.Create(student).Error
+func (r *StudentRepository) Create(student *models.Student) (*models.Student, error) {
+	if err := r.db.Create(student).Error; err != nil {
+		return nil, err
+	}
+	return student, nil
 }
 
 // Update updates a student
-func (r *StudentRepository) Update(student models.Student) error {
-	return r.db.Save(&student).Error
+func (r *StudentRepository) Update(student models.Student) (models.Student, error) {
+	if err := r.db.Save(&student).Error; err != nil {
+		return models.Student{}, err
+	}
+	return student, nil
 }
 
 // Delete removes a student
