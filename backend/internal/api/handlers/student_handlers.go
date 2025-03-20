@@ -10,22 +10,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetCourses retorna todos os cursos
-func GetCourses(repo *repositories.CourseRepository) gin.HandlerFunc {
+// GetStudents retorna todos os alunos
+func GetStudents(repo *repositories.StudentRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		courses, err := repo.FindAll()
+		students, err := repo.FindAll()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		c.JSON(http.StatusOK, courses)
+		c.JSON(http.StatusOK, students)
 	}
 }
 
-// GetCourse retorna um curso pelo ID
-func GetCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
+// GetStudent retorna um aluno pelo ID
+func GetStudent(repo *repositories.StudentRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -35,33 +35,33 @@ func GetCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
 			return
 		}
 
-		course, err := repo.FindByID(uint(id))
+		student, err := repo.FindByID(uint(id))
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{
-				"error": "Course not found",
+				"error": "Student not found",
 			})
 			return
 		}
 
-		c.JSON(http.StatusOK, course)
+		c.JSON(http.StatusOK, student)
 	}
 }
 
-// CreateCourse cria um novo curso
-func CreateCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
+// CreateStudent cria um novo aluno
+func CreateStudent(repo *repositories.StudentRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var course models.Course
-		if err := c.ShouldBindJSON(&course); err != nil {
+		var student models.Student
+		if err := c.ShouldBindJSON(&student); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
 
-		course.CreatedAt = time.Now()
-		// course.Active = true
+		student.CreatedAt = time.Now()
+		student.Active = true
 
-		createdCourse, err := repo.Create(course)
+		createdStudent, err := repo.Create(student)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -69,12 +69,12 @@ func CreateCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusCreated, createdCourse)
+		c.JSON(http.StatusCreated, createdStudent)
 	}
 }
 
-// UpdateCourse atualiza um curso
-func UpdateCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
+// UpdateStudent atualiza um aluno
+func UpdateStudent(repo *repositories.StudentRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -84,16 +84,16 @@ func UpdateCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
 			return
 		}
 
-		var course models.Course
-		if err := c.ShouldBindJSON(&course); err != nil {
+		var student models.Student
+		if err := c.ShouldBindJSON(&student); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
 
-		course.ID = uint(id)
-		updatedCourse, err := repo.Update(course)
+		student.ID = id
+		updatedStudent, err := repo.Update(student)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -101,12 +101,12 @@ func UpdateCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, updatedCourse)
+		c.JSON(http.StatusOK, updatedStudent)
 	}
 }
 
-// DeleteCourse desativa um curso
-func DeleteCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
+// DeleteStudent desativa um aluno
+func DeleteStudent(repo *repositories.StudentRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -124,7 +124,7 @@ func DeleteCourse(repo *repositories.CourseRepository) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Course successfully deactivated",
+			"message": "Student successfully deactivated",
 		})
 	}
 }

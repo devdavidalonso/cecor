@@ -12,13 +12,11 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var db *gorm.DB
-
-// InitDB inicializa a conexão com o banco de dados
-func InitDB() error {
+// InitDB inicializa a conexão com o banco de dados e retorna a instância
+func InitDB() (*gorm.DB, error) {
 	// Recupera a DSN completa das variáveis de ambiente
 	dsn := os.Getenv("DB_DSN")
-	
+
 	// Se DSN não estiver definida, construa com variáveis individuais
 	if dsn == "" {
 		// Configura valores padrão caso não existam variáveis de ambiente
@@ -26,22 +24,22 @@ func InitDB() error {
 		if dbHost == "" {
 			dbHost = "mysql" // Nome do serviço no docker-compose
 		}
-		
+
 		dbPort := os.Getenv("DB_PORT")
 		if dbPort == "" {
 			dbPort = "3306"
 		}
-		
+
 		dbUser := os.Getenv("DB_USER")
 		if dbUser == "" {
 			dbUser = "root"
 		}
-		
+
 		dbPass := os.Getenv("DB_PASS")
 		if dbPass == "" {
 			dbPass = "password" // Senha definida no docker-compose
 		}
-		
+
 		dbName := os.Getenv("DB_NAME")
 		if dbName == "" {
 			dbName = "cecor_db"
@@ -65,6 +63,7 @@ func InitDB() error {
 	)
 
 	// Inicializa a conexão com retry
+	var db *gorm.DB
 	var err error
 	maxRetries := 5
 	for i := 0; i < maxRetries; i++ {
@@ -74,7 +73,7 @@ func InitDB() error {
 		if err == nil {
 			break // Conexão estabelecida com sucesso
 		}
-		
+
 		log.Printf("Tentativa %d de %d falhou: %v", i+1, maxRetries, err)
 		if i < maxRetries-1 {
 			// Aguardar antes de tentar novamente (tempo exponencial)
@@ -83,9 +82,9 @@ func InitDB() error {
 			time.Sleep(backoff)
 		}
 	}
-	
+
 	if err != nil {
-		return fmt.Errorf("todas as tentativas de conexão falharam: %w", err)
+		return nil, fmt.Errorf("todas as tentativas de conexão falharam: %w", err)
 	}
 
 	log.Println("Conexão com o banco de dados estabelecida com sucesso!")
@@ -93,7 +92,7 @@ func InitDB() error {
 	// Configuração da pool de conexões
 	sqlDB, err := db.DB()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// SetMaxIdleConns define o número máximo de conexões no pool de conexões ociosas
@@ -109,31 +108,23 @@ func InitDB() error {
 	log.Println("Iniciando migração automática de tabelas...")
 	err = db.AutoMigrate(&models.User{}, &models.Course{}, &models.Enrollment{})
 	if err != nil {
-		return fmt.Errorf("erro ao migrar tabelas: %w", err)
+		return nil, fmt.Errorf("erro ao migrar tabelas: %w", err)
 	}
 	log.Println("Migração de tabelas concluída com sucesso!")
 
 	// Inicializa o usuário administrador se não existir
 	log.Println("Verificando usuário administrador...")
-	err = setupAdminUser()
+	err = setupAdminUser(db)
 	if err != nil {
-		return fmt.Errorf("erro ao configurar usuário admin: %w", err)
+		return nil, fmt.Errorf("erro ao configurar usuário admin: %w", err)
 	}
 	log.Println("Inicialização do banco de dados concluída com sucesso!")
 
-	return nil
-}
-
-// GetDB retorna a conexão com o banco de dados
-func GetDB() (*gorm.DB, error) {
-	if db == nil {
-		return nil, fmt.Errorf("banco de dados não inicializado")
-	}
 	return db, nil
 }
 
 // setupAdminUser cria um usuário administrador inicial se não existir
-func setupAdminUser() error {
+func setupAdminUser(db *gorm.DB) error {
 	var count int64
 	db.Model(&models.User{}).Where("profile = ?", "admin").Count(&count)
 
@@ -149,11 +140,11 @@ func setupAdminUser() error {
 
 		// Criar o usuário admin com data de nascimento válida
 		admin := models.User{
-			Name:      "Administrador",
-			Email:     "admin@sistema.edu",
-			Password:  password, // A senha será criptografada no handler
-			Profile:   "admin",
-			Active:    true,			
+			Name:     "Administrador",
+			Email:    "admin@sistema.edu",
+			Password: password, // A senha será criptografada no handler
+			Profile:  "admin",
+			Active:   true,
 		}
 
 		// Salvar no banco

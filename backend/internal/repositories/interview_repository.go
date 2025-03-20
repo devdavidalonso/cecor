@@ -1,13 +1,13 @@
 // internal/database/interview_repository.go
 
-package database
+package repositories
 
 import (
 	"errors"
 	"time"
 
 	"github.com/devdavidalonso/cecor/internal/models"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,12 +41,12 @@ func (r *InterviewRepository) GetFormByID(formID uint) (*models.Form, error) {
 		}
 		return nil, err
 	}
-	
+
 	// Load questions
 	if err := r.db.Where("form_id = ?", formID).Order("display_order").Find(&form.Questions).Error; err != nil {
 		return nil, err
 	}
-	
+
 	return &form, nil
 }
 
@@ -63,10 +63,10 @@ func (r *InterviewRepository) DeleteForm(formID uint) error {
 // ListForms lists forms with pagination and filters
 func (r *InterviewRepository) ListForms(offset, limit int, filters map[string]interface{}) ([]models.Form, int, error) {
 	var forms []models.Form
-	var total int
-	
+	var total int64
+
 	query := r.db.Model(&models.Form{}).Where("deleted_at IS NULL")
-	
+
 	// Apply filters
 	if title, ok := filters["title"].(string); ok && title != "" {
 		query = query.Where("title LIKE ?", "%"+title+"%")
@@ -80,18 +80,18 @@ func (r *InterviewRepository) ListForms(offset, limit int, filters map[string]in
 	if status, ok := filters["status"].(string); ok && status != "" {
 		query = query.Where("status = ?", status)
 	}
-	
+
 	// Count total matching records
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Get paginated results
 	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&forms).Error; err != nil {
 		return nil, 0, err
 	}
-	
-	return forms, total, nil
+
+	return forms, int(total), nil
 }
 
 // AddQuestion adds a question to a form
@@ -177,10 +177,10 @@ func (r *InterviewRepository) RescheduleInterview(interviewID uint, newDate time
 // ListInterviews lists interviews with pagination and filters
 func (r *InterviewRepository) ListInterviews(offset, limit int, filters map[string]interface{}) ([]models.Interview, int, error) {
 	var interviews []models.Interview
-	var total int
-	
+	var total int64
+
 	query := r.db.Model(&models.Interview{})
-	
+
 	// Apply filters
 	if userID, ok := filters["user_id"].(uint); ok && userID > 0 {
 		query = query.Where("user_id = ?", userID)
@@ -198,12 +198,12 @@ func (r *InterviewRepository) ListInterviews(offset, limit int, filters map[stri
 	if endDate, ok := filters["end_date"].(time.Time); ok && !endDate.IsZero() {
 		query = query.Where("scheduled_date <= ?", endDate)
 	}
-	
+
 	// Count total matching records
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Get paginated results with preloads
 	if err := query.Preload("Form").
 		Preload("User").
@@ -214,8 +214,8 @@ func (r *InterviewRepository) ListInterviews(offset, limit int, filters map[stri
 		Find(&interviews).Error; err != nil {
 		return nil, 0, err
 	}
-	
-	return interviews, total, nil
+
+	return interviews, int(total), nil
 }
 
 // ListInterviewsByUserID lists interviews for a specific user
@@ -234,13 +234,13 @@ func (r *InterviewRepository) ListInterviewsByUserID(userID uint) ([]models.Inte
 func (r *InterviewRepository) SubmitResponse(response *models.FormResponse, answers []models.FormAnswerDetail) error {
 	// Start transaction
 	tx := r.db.Begin()
-	
+
 	// Create the response
 	if err := tx.Create(response).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	
+
 	// Create each answer detail
 	for i := range answers {
 		answers[i].ResponseID = response.ID
@@ -249,7 +249,7 @@ func (r *InterviewRepository) SubmitResponse(response *models.FormResponse, answ
 			return err
 		}
 	}
-	
+
 	return tx.Commit().Error
 }
 
@@ -292,13 +292,13 @@ func (r *InterviewRepository) GetResponseDetail(responseID uint) (*models.FormRe
 		}
 		return nil, err
 	}
-	
+
 	// Load answer details
 	if err := r.db.Where("response_id = ?", responseID).
 		Preload("Question").
 		Find(&response.AnswerDetails).Error; err != nil {
 		return nil, err
 	}
-	
+
 	return &response, nil
 }

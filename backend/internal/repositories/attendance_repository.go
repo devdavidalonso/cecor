@@ -1,12 +1,10 @@
-// internal/database/attendance_repository.go
-
-package database
+package repositories
 
 import (
 	"time"
 
 	"github.com/devdavidalonso/cecor/internal/models"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // AttendanceRepository implements database operations for Attendances
@@ -19,21 +17,78 @@ func NewAttendanceRepository(db *gorm.DB) *AttendanceRepository {
 	return &AttendanceRepository{db}
 }
 
+// FindAll returns all attendance records
+func (r *AttendanceRepository) FindAll() ([]models.Attendance, error) {
+	var attendances []models.Attendance
+	if err := r.db.Find(&attendances).Error; err != nil {
+		return nil, err
+	}
+	return attendances, nil
+}
+
+// FindByID returns an attendance record by ID
+func (r *AttendanceRepository) FindByID(id uint) (models.Attendance, error) {
+	var attendance models.Attendance
+	if err := r.db.First(&attendance, id).Error; err != nil {
+		return attendance, err
+	}
+	return attendance, nil
+}
+
+// Create creates a new attendance record
+func (r *AttendanceRepository) Create(attendance models.Attendance) (models.Attendance, error) {
+	if err := r.db.Create(&attendance).Error; err != nil {
+		return attendance, err
+	}
+	return attendance, nil
+}
+
+// Update updates an attendance record
+func (r *AttendanceRepository) Update(attendance models.Attendance) (models.Attendance, error) {
+	if err := r.db.Save(&attendance).Error; err != nil {
+		return attendance, err
+	}
+	return attendance, nil
+}
+
+// Delete removes an attendance record
+func (r *AttendanceRepository) Delete(id uint) error {
+	return r.db.Delete(&models.Attendance{}, id).Error
+}
+
+// FindByStudentAndCourse returns all attendance records for a student in a course
+func (r *AttendanceRepository) FindByStudentAndCourse(studentID, courseID uint) ([]models.Attendance, error) {
+	var attendances []models.Attendance
+	if err := r.db.Where("student_id = ? AND course_id = ?", studentID, courseID).Find(&attendances).Error; err != nil {
+		return nil, err
+	}
+	return attendances, nil
+}
+
+// FindByDateRange returns all attendance records within a date range
+func (r *AttendanceRepository) FindByDateRange(courseID uint, startDate, endDate string) ([]models.Attendance, error) {
+	var attendances []models.Attendance
+	if err := r.db.Where("course_id = ? AND date BETWEEN ? AND ?", courseID, startDate, endDate).Find(&attendances).Error; err != nil {
+		return nil, err
+	}
+	return attendances, nil
+}
+
 // RegisterCourseAttendance registers attendance for all students in a course
 func (r *AttendanceRepository) RegisterCourseAttendance(courseID uint, date time.Time, records []models.Attendance) error {
 	// Start transaction
 	tx := r.db.Begin()
-	
+
 	for _, attendance := range records {
 		attendance.CourseID = courseID
 		attendance.Date = date
-		
+
 		if err := tx.Create(&attendance).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
-	
+
 	return tx.Commit().Error
 }
 
@@ -60,16 +115,9 @@ func (r *AttendanceRepository) FindStudentAttendances(studentID, courseID uint) 
 	return attendances, err
 }
 
-// UpdateAttendance updates an attendance record
-func (r *AttendanceRepository) UpdateAttendance(attendance models.Attendance) error {
-	return r.db.Save(&attendance).Error
-}
-
 // CountConsecutiveAbsences counts the number of consecutive absences for a student in a course
-func (r *AttendanceRepository) CountConsecutiveAbsences(studentID, courseID uint) (int, error) {
-	// Advanced implementation here...
-	// This is pseudo-code that would need to be adapted to specific SQL
-	var count int
+func (r *AttendanceRepository) CountConsecutiveAbsences(studentID, courseID uint) (int64, error) {
+	var count int64
 	err := r.db.Raw(`
 		WITH absences AS (
 			SELECT date, 
@@ -87,42 +135,6 @@ func (r *AttendanceRepository) CountConsecutiveAbsences(studentID, courseID uint
 			AND date < a1.date
 		)
 	`, studentID, courseID, studentID, courseID).Count(&count).Error
-	
+
 	return count, err
-}
-
-// CreateAbsenceJustification creates a new absence justification
-func (r *AttendanceRepository) CreateAbsenceJustification(justification models.AbsenceJustification) error {
-	return r.db.Create(&justification).Error
-}
-
-// UpdateAbsenceJustification updates an absence justification
-func (r *AttendanceRepository) UpdateAbsenceJustification(justification models.AbsenceJustification) error {
-	return r.db.Save(&justification).Error
-}
-
-// FindPendingJustifications finds pending justifications
-func (r *AttendanceRepository) FindPendingJustifications(courseID uint) ([]models.AbsenceJustification, error) {
-	var justifications []models.AbsenceJustification
-	query := r.db.Where("status = 'pending'")
-	
-	if courseID > 0 {
-		query = query.Where("course_id = ?", courseID)
-	}
-	
-	err := query.Preload("Student").
-		Preload("Course").
-		Preload("SubmittedBy").
-		Find(&justifications).Error
-	
-	return justifications, err
-}
-
-// ProcessAbsenceAlerts automatically processes absence alerts
-func (r *AttendanceRepository) ProcessAbsenceAlerts() error {
-	// More complex implementation that would query recent absences
-	// and generate alerts according to business rules
-	
-	// Pseudo-code to illustrate the logic
-	return nil
 }

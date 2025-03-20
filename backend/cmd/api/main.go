@@ -17,12 +17,13 @@ func main() {
 	}
 
 	// Inicializar conexão com banco
-	if err := database.InitDB(); err != nil {
+	db, err := database.InitDB()
+	if err != nil {
 		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
 	}
 
-	// Inicializar router
-	router := routes.SetupRouter()
+	// Inicializar router, passando a instância do DB
+	router := routes.SetupRouter(db)
 
 	// Definir porta
 	port := os.Getenv("PORT")

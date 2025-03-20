@@ -1,13 +1,13 @@
 // internal/database/volunteer_term_repository.go
 
-package database
+package repositories
 
 import (
 	"errors"
 	"time"
 
 	"github.com/devdavidalonso/cecor/internal/models"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 var (
@@ -56,10 +56,10 @@ func (r *VolunteerTermRepository) DeleteTermTemplate(templateID uint) error {
 // ListTermTemplates lists templates with pagination and filters
 func (r *VolunteerTermRepository) ListTermTemplates(offset, limit int, filters map[string]interface{}) ([]models.VolunteerTermTemplate, int, error) {
 	var templates []models.VolunteerTermTemplate
-	var total int
-	
+	var total int64
+
 	query := r.db.Model(&models.VolunteerTermTemplate{})
-	
+
 	// Apply filters
 	if title, ok := filters["title"].(string); ok && title != "" {
 		query = query.Where("title LIKE ?", "%"+title+"%")
@@ -70,18 +70,18 @@ func (r *VolunteerTermRepository) ListTermTemplates(offset, limit int, filters m
 	if isActive, ok := filters["is_active"].(bool); ok {
 		query = query.Where("is_active = ?", isActive)
 	}
-	
+
 	// Count total matching records
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Get paginated results
 	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&templates).Error; err != nil {
 		return nil, 0, err
 	}
-	
-	return templates, total, nil
+
+	return templates, int(total), nil
 }
 
 // SetTemplateActiveStatus sets the active status of a template
@@ -108,36 +108,35 @@ func (r *VolunteerTermRepository) GetActiveTermTemplate() (*models.VolunteerTerm
 
 // CountSignedTermsByTemplate counts how many signed terms use a specific template
 func (r *VolunteerTermRepository) CountSignedTermsByTemplate(templateID uint) (int, error) {
-	var count int
+	var count int64
 	err := r.db.Model(&models.VolunteerTerm{}).Where("template_id = ?", templateID).Count(&count).Error
-	return count, err
+	return int(count), err
 }
 
 // SignVolunteerTerm creates a signed volunteer term
 func (r *VolunteerTermRepository) SignVolunteerTerm(term *models.VolunteerTerm) error {
 	// Start transaction
 	tx := r.db.Begin()
-	
+
 	// Create the term
 	if err := tx.Create(term).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	
+
 	// Create initial history record
 	history := models.VolunteerTermHistory{
 		TermID:     term.ID,
 		ActionType: "signed",
 		ActionDate: term.SignedAt,
-		ActionBy:   &term.TeacherID,
 		Details:    "Term signed by teacher",
 	}
-	
+
 	if err := tx.Create(&history).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	
+
 	return tx.Commit().Error
 }
 
@@ -176,10 +175,10 @@ func (r *VolunteerTermRepository) GetVolunteerTermsByTeacherID(teacherID uint) (
 // ListVolunteerTerms lists volunteer terms with pagination and filters
 func (r *VolunteerTermRepository) ListVolunteerTerms(offset, limit int, filters map[string]interface{}) ([]models.VolunteerTerm, int, error) {
 	var terms []models.VolunteerTerm
-	var total int
-	
+	var total int64
+
 	query := r.db.Model(&models.VolunteerTerm{})
-	
+
 	// Apply filters
 	if teacherID, ok := filters["teacher_id"].(uint); ok && teacherID > 0 {
 		query = query.Where("teacher_id = ?", teacherID)
@@ -198,166 +197,164 @@ func (r *VolunteerTermRepository) ListVolunteerTerms(offset, limit int, filters 
 	}
 	// internal/database/volunteer_term_repository.go (continuação)
 
-// ListVolunteerTerms lists volunteer terms with pagination and filters (continuação)
-if expiresBefore, ok := filters["expires_before"].(time.Time); ok && !expiresBefore.IsZero() {
-	query = query.Where("expiration_date <= ?", expiresBefore)
-}
+	// ListVolunteerTerms lists volunteer terms with pagination and filters (continuação)
+	if expiresBefore, ok := filters["expires_before"].(time.Time); ok && !expiresBefore.IsZero() {
+		query = query.Where("expiration_date <= ?", expiresBefore)
+	}
 
-// Count total matching records
-if err := query.Count(&total).Error; err != nil {
-	return nil, 0, err
-}
+	// Count total matching records
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
 
-// Get paginated results with preloads
-if err := query.Preload("Teacher").
-	Preload("Template").
-	Order("signed_at DESC").
-	Offset(offset).
-	Limit(limit).
-	Find(&terms).Error; err != nil {
-	return nil, 0, err
-}
+	// Get paginated results with preloads
+	if err := query.Preload("Teacher").
+		Preload("Template").
+		Order("signed_at DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&terms).Error; err != nil {
+		return nil, 0, err
+	}
 
-return terms, total, nil
+	return terms, int(total), nil
 }
 
 // ListExpiringTerms lists terms that are about to expire
 func (r *VolunteerTermRepository) ListExpiringTerms(daysThreshold int) ([]models.VolunteerTerm, error) {
-var terms []models.VolunteerTerm
+	var terms []models.VolunteerTerm
 
-// Calculate the date threshold
-threshold := time.Now().AddDate(0, 0, daysThreshold)
+	// Calculate the date threshold
+	threshold := time.Now().AddDate(0, 0, daysThreshold)
 
-if err := r.db.Where("status = ? AND expiration_date <= ? AND expiration_date > ?", "active", threshold, time.Now()).
-	Preload("Teacher").
-	Preload("Template").
-	Order("expiration_date").
-	Find(&terms).Error; err != nil {
-	return nil, err
-}
+	if err := r.db.Where("status = ? AND expiration_date <= ? AND expiration_date > ?", "active", threshold, time.Now()).
+		Preload("Teacher").
+		Preload("Template").
+		Order("expiration_date").
+		Find(&terms).Error; err != nil {
+		return nil, err
+	}
 
-return terms, nil
+	return terms, nil
 }
 
 // MarkExpiringTermsAsReminded marks expiring terms as having been reminded
 func (r *VolunteerTermRepository) MarkExpiringTermsAsReminded(daysThreshold int) (int, error) {
-// Calculate the date threshold
-threshold := time.Now().AddDate(0, 0, daysThreshold)
+	// Calculate the date threshold
+	threshold := time.Now().AddDate(0, 0, daysThreshold)
 
-// Update the reminder status
-result := r.db.Model(&models.VolunteerTerm{}).
-	Where("status = ? AND expiration_date <= ? AND expiration_date > ? AND reminder_sent = ?", 
-		"active", threshold, time.Now(), false).
-	Updates(map[string]interface{}{
-		"reminder_sent": true,
-	})
+	// Update the reminder status
+	result := r.db.Model(&models.VolunteerTerm{}).
+		Where("status = ? AND expiration_date <= ? AND expiration_date > ? AND reminder_sent = ?",
+			"active", threshold, time.Now(), false).
+		Updates(map[string]interface{}{
+			"reminder_sent": true,
+		})
 
-if result.Error != nil {
-	return 0, result.Error
-}
+	if result.Error != nil {
+		return 0, result.Error
+	}
 
-return int(result.RowsAffected), nil
+	return int(result.RowsAffected), nil
 }
 
 // ExpireTerms marks expired terms as expired
 func (r *VolunteerTermRepository) ExpireTerms() (int, error) {
-// Start transaction
-tx := r.db.Begin()
+	// Start transaction
+	tx := r.db.Begin()
 
-// Find terms that should be expired
-var termsToExpire []models.VolunteerTerm
-if err := tx.Where("status = ? AND expiration_date < ?", "active", time.Now()).
-	Find(&termsToExpire).Error; err != nil {
-	tx.Rollback()
-	return 0, err
-}
-
-count := len(termsToExpire)
-
-// Update each term and add history record
-for _, term := range termsToExpire {
-	// Update term status
-	if err := tx.Model(&term).Update("status", "expired").Error; err != nil {
+	// Find terms that should be expired
+	var termsToExpire []models.VolunteerTerm
+	if err := tx.Where("status = ? AND expiration_date < ?", "active", time.Now()).
+		Find(&termsToExpire).Error; err != nil {
 		tx.Rollback()
 		return 0, err
 	}
-	
-	// Add history record
-	history := models.VolunteerTermHistory{
-		TermID:     term.ID,
-		ActionType: "expired",
-		ActionDate: time.Now(),
-		Details:    "Term automatically expired by system",
+
+	count := len(termsToExpire)
+
+	// Update each term and add history record
+	for _, term := range termsToExpire {
+		// Update term status
+		if err := tx.Model(&term).Update("status", "expired").Error; err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+
+		// Add history record
+		history := models.VolunteerTermHistory{
+			TermID:     term.ID,
+			ActionType: "expired",
+			ActionDate: time.Now(),
+			Details:    "Term automatically expired by system",
+		}
+
+		if err := tx.Create(&history).Error; err != nil {
+			tx.Rollback()
+			return 0, err
+		}
 	}
-	
-	if err := tx.Create(&history).Error; err != nil {
-		tx.Rollback()
+
+	if err := tx.Commit().Error; err != nil {
 		return 0, err
 	}
-}
 
-if err := tx.Commit().Error; err != nil {
-	return 0, err
-}
-
-return count, nil
+	return count, nil
 }
 
 // RevokeTerms revokes specified terms
 func (r *VolunteerTermRepository) RevokeTerms(termIDs []uint, reason string, revokedBy uint) error {
-// Start transaction
-tx := r.db.Begin()
+	// Start transaction
+	tx := r.db.Begin()
 
-for _, termID := range termIDs {
-	// Update term status
-	if err := tx.Model(&models.VolunteerTerm{}).
-		Where("id = ?", termID).
-		Update("status", "revoked").Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	
-	// Add history record
-	history := models.VolunteerTermHistory{
-		TermID:     termID,
-		ActionType: "revoked",
-		ActionDate: time.Now(),
-		ActionBy:   &revokedBy,
-		Details:    reason,
-	}
-	
-	if err := tx.Create(&history).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-}
+	for _, termID := range termIDs {
+		// Update term status
+		if err := tx.Model(&models.VolunteerTerm{}).
+			Where("id = ?", termID).
+			Update("status", "revoked").Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 
-return tx.Commit().Error
+		// Add history record
+		history := models.VolunteerTermHistory{
+			TermID:     termID,
+			ActionType: "revoked",
+			ActionDate: time.Now(),
+			Details:    reason,
+		}
+
+		if err := tx.Create(&history).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit().Error
 }
 
 // AddTermHistory adds a new history record for a term
 func (r *VolunteerTermRepository) AddTermHistory(termID uint, actionType string, actionBy uint, details string) error {
-history := models.VolunteerTermHistory{
-	TermID:     termID,
-	ActionType: actionType,
-	ActionDate: time.Now(),
-	ActionBy:   &actionBy,
-	Details:    details,
-}
+	history := models.VolunteerTermHistory{
+		TermID:     termID,
+		ActionType: actionType,
+		ActionDate: time.Now(),
+		Details:    details,
+	}
 
-return r.db.Create(&history).Error
+	return r.db.Create(&history).Error
 }
 
 // GetTermHistory gets the history of a term
 func (r *VolunteerTermRepository) GetTermHistory(termID uint) ([]models.VolunteerTermHistory, error) {
-var history []models.VolunteerTermHistory
+	var history []models.VolunteerTermHistory
 
-if err := r.db.Where("term_id = ?", termID).
-	Preload("ActionBy").
-	Order("action_date DESC").
-	Find(&history).Error; err != nil {
-	return nil, err
-}
+	if err := r.db.Where("term_id = ?", termID).
+		Preload("ActionBy").
+		Order("action_date DESC").
+		Find(&history).Error; err != nil {
+		return nil, err
+	}
 
-return history, nil
+	return history, nil
 }

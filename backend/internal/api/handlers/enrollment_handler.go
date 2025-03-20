@@ -1,4 +1,3 @@
-// internal/api/handlers/enrollment_handler.go
 package handlers
 
 import (
@@ -7,206 +6,150 @@ import (
 	"time"
 
 	"github.com/devdavidalonso/cecor/internal/models"
-	"github.com/devdavidalonso/cecor/pkg/database"
+	"github.com/devdavidalonso/cecor/internal/repositories"
 	"github.com/gin-gonic/gin"
 )
 
-// EnrollInCourse matricula um aluno em um curso
-func EnrollInCourse(c *gin.Context) {
-	userID := c.GetUint("userID")
-	
-	var enrollmentData struct {
-		CourseID uint `json:"course_id" binding:"required"`
+// GetEnrollments retorna todas as matrículas
+func GetEnrollments(repo *repositories.EnrollmentRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		enrollments, err := repo.FindAll()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, enrollments)
 	}
-
-	if err := c.ShouldBindJSON(&enrollmentData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos", "details": err.Error()})
-		return
-	}
-
-	db, err := database.GetDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao conectar ao banco de dados"})
-		return
-	}
-
-	// Verificar se o curso existe
-	var course models.Course
-	if err := db.First(&course, enrollmentData.CourseID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Curso não encontrado"})
-		return
-	}
-
-	// Verificar se já existe matrícula ativa
-	var count int64
-	db.Model(&models.Enrollment{}).Where(
-		"user_id = ? AND course_id = ? AND status = ?", 
-		userID, enrollmentData.CourseID, "ativa",
-	).Count(&count)
-	
-	if count > 0 {
-		c.JSON(http.StatusConflict, gin.H{"error": "Você já está matriculado neste curso"})
-		return
-	}
-
-	// Verificar número de vagas disponíveis
-	db.Model(&models.Enrollment{}).Where(
-		"course_id = ? AND status = ?", 
-		enrollmentData.CourseID, "ativa",
-	).Count(&count)
-	
-	if int(count) >= course.MaxStudents {
-		c.JSON(http.StatusConflict, gin.H{"error": "Não há vagas disponíveis neste curso"})
-		return
-	}
-
-	// Criar nova matrícula
-	enrollment := models.Enrollment{
-		UserID:    userID,
-		CourseID:  enrollmentData.CourseID,
-		Status:    "ativa",
-		StartDate: time.Now(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	if err := db.Create(&enrollment).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar matrícula"})
-		return
-	}
-
-	// Carregar relações para retorno
-	db.Preload("Course").First(&enrollment, enrollment.ID)
-
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "Matrícula realizada com sucesso",
-		"enrollment": enrollment,
-	})
 }
 
-// GetStudentEnrollments lista todas as matrículas do aluno logado
-func GetStudentEnrollments(c *gin.Context) {
-	userID := c.GetUint("userID")
-	
-	db, err := database.GetDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao conectar ao banco de dados"})
-		return
-	}
+// GetEnrollment retorna uma matrícula pelo ID
+func GetEnrollment(repo *repositories.EnrollmentRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid ID",
+			})
+			return
+		}
 
-	var enrollments []models.Enrollment
-	if err := db.Preload("Course").Where("user_id = ?", userID).Find(&enrollments).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar matrículas"})
-		return
-	}
+		enrollment, err := repo.FindByID(uint(id))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Enrollment not found",
+			})
+			return
+		}
 
-	c.JSON(http.StatusOK, enrollments)
+		c.JSON(http.StatusOK, enrollment)
+	}
 }
 
-// ListAllEnrollments lista todas as matrículas (admin)
-func ListAllEnrollments(c *gin.Context) {
-	db, err := database.GetDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao conectar ao banco de dados"})
-		return
-	}
+// CreateEnrollment cria uma nova matrícula
+func CreateEnrollment(
+	enrollRepo *repositories.EnrollmentRepository,
+	studentRepo *repositories.StudentRepository,
+	courseRepo *repositories.CourseRepository,
+) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var enrollment models.Enrollment
+		if err := c.ShouldBindJSON(&enrollment); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 
-	var enrollments []models.Enrollment
-	if err := db.Preload("User").Preload("Course").Find(&enrollments).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar matrículas"})
-		return
-	}
+		// Verificar se aluno existe
+		_, err := studentRepo.FindByID(enrollment.StudentID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
+			return
+		}
 
-	c.JSON(http.StatusOK, enrollments)
+		// Verificar se curso existe
+		_, err = courseRepo.FindByID(enrollment.CourseID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Course not found"})
+			return
+		}
+
+		// Verificar se já existe matrícula
+		exists, err := enrollRepo.ExistsByStudentAndCourse(enrollment.StudentID, enrollment.CourseID)
+		if err != nil || exists {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Student already enrolled in this course"})
+			return
+		}
+
+		// Continuar com a criação...
+		enrollment.CreatedAt = time.Now()
+
+		createdEnrollment, err := enrollRepo.Create(enrollment)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusCreated, createdEnrollment)
+	}
 }
 
-// UpdateEnrollment atualiza status de uma matrícula (admin)
-func UpdateEnrollment(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
-		return
-	}
+// UpdateEnrollment atualiza uma matrícula
+func UpdateEnrollment(repo *repositories.EnrollmentRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid ID",
+			})
+			return
+		}
 
-	var enrollmentUpdate struct {
-		Status string `json:"status" binding:"required"`
-	}
+		var enrollment models.Enrollment
+		if err := c.ShouldBindJSON(&enrollment); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 
-	if err := c.ShouldBindJSON(&enrollmentUpdate); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos", "details": err.Error()})
-		return
-	}
+		enrollment.ID = uint(id)
+		updatedEnrollment, err := repo.Update(enrollment)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 
-	// Validar status
-	validStatus := map[string]bool{
-		"ativa":     true,
-		"concluida": true,
-		"cancelada": true,
+		c.JSON(http.StatusOK, updatedEnrollment)
 	}
-
-	if !validStatus[enrollmentUpdate.Status] {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Status inválido"})
-		return
-	}
-
-	db, err := database.GetDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao conectar ao banco de dados"})
-		return
-	}
-
-	var enrollment models.Enrollment
-	if err := db.First(&enrollment, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Matrícula não encontrada"})
-		return
-	}
-
-	// Atualizar status
-	updates := map[string]interface{}{
-		"status":     enrollmentUpdate.Status,
-		"updated_at": time.Now(),
-	}
-
-	// Se o status for concluído, definir data de término
-	if enrollmentUpdate.Status == "concluida" {
-		updates["end_date"] = time.Now()
-	}
-
-	if err := db.Model(&enrollment).Updates(updates).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar matrícula"})
-		return
-	}
-
-	// Buscar matrícula atualizada
-	db.Preload("User").Preload("Course").First(&enrollment, id)
-	c.JSON(http.StatusOK, enrollment)
 }
 
-// DeleteEnrollment cancela uma matrícula (admin)
-func DeleteEnrollment(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
-		return
-	}
+// DeleteEnrollment desativa uma matrícula
+func DeleteEnrollment(repo *repositories.EnrollmentRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid ID",
+			})
+			return
+		}
 
-	db, err := database.GetDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao conectar ao banco de dados"})
-		return
-	}
+		if err := repo.SoftDelete(uint(id)); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 
-	// Soft delete - alterar status para cancelada
-	updates := map[string]interface{}{
-		"status":     "cancelada",
-		"updated_at": time.Now(),
-		"end_date":   time.Now(),
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Enrollment successfully soft deleted",
+		})
 	}
-
-	if err := db.Model(&models.Enrollment{}).Where("id = ?", id).Updates(updates).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao cancelar matrícula"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Matrícula cancelada com sucesso"})
 }
