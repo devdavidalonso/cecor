@@ -35,13 +35,15 @@ func (r *GuardianRepository) FindByID(id uint) (models.Guardian, error) {
 }
 
 // Create creates a new guardian
-func (r *GuardianRepository) Create(guardian *models.Guardian) error {
-	return r.db.Create(guardian).Error
+func (r *GuardianRepository) Create(guardian *models.Guardian) (models.Guardian, error) {
+	err := r.db.Create(guardian).Error
+	return *guardian, err
 }
 
 // Update updates a guardian
-func (r *GuardianRepository) Update(guardian models.Guardian) error {
-	return r.db.Save(&guardian).Error
+func (r *GuardianRepository) Update(guardian models.Guardian) (models.Guardian, error) {
+	err := r.db.Save(&guardian).Error
+	return guardian, err
 }
 
 // Delete removes a guardian

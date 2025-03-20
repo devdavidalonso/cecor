@@ -60,7 +60,7 @@ func CreateGuardian(repo *repositories.GuardianRepository) gin.HandlerFunc {
 
 		guardian.CreatedAt = time.Now()
 
-		createdGuardian, err := repo.Create(guardian)
+		createdGuardian, err := repo.Create(&guardian)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -91,7 +91,7 @@ func UpdateGuardian(repo *repositories.GuardianRepository) gin.HandlerFunc {
 			return
 		}
 
-		guardian.ID = id
+		guardian.ID = uint(id)
 		updatedGuardian, err := repo.Update(guardian)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{

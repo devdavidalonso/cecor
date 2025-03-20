@@ -72,6 +72,15 @@ func (r *EnrollmentRepository) FindByStudent(studentID uint) ([]models.Enrollmen
 	return enrollments, nil
 }
 
+// FindByUserID returns all enrollments for a user
+func (r *EnrollmentRepository) FindByUserID(userID uint) ([]models.Enrollment, error) {
+	var enrollments []models.Enrollment
+	if err := r.db.Where("user_id = ?", userID).Preload("Course").Find(&enrollments).Error; err != nil {
+		return nil, err
+	}
+	return enrollments, nil
+}
+
 // ExistsByStudentAndCourse checks if an enrollment already exists
 func (r *EnrollmentRepository) ExistsByStudentAndCourse(studentID, courseID uint) (bool, error) {
 	var count int64
@@ -84,4 +93,15 @@ func (r *EnrollmentRepository) ExistsByStudentAndCourse(studentID, courseID uint
 // SoftDelete soft deletes an enrollment
 func (r *EnrollmentRepository) SoftDelete(id uint) error {
 	return r.db.Model(&models.Enrollment{}).Where("id = ?", id).Update("active", false).Error
+}
+
+// CountActiveByCourseID conta o número de matrículas ativas em um curso
+func (r *EnrollmentRepository) CountActiveByCourseID(courseID uint) (int, error) {
+	var count int64
+	if err := r.db.Model(&models.Enrollment{}).
+		Where("course_id = ? AND status IN (?, ?)", courseID, "ativa", "active").
+		Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return int(count), nil
 }

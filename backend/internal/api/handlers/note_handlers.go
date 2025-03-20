@@ -54,12 +54,13 @@ func AddStudentNote(noteRepo *repositories.NoteRepository, studentRepo *reposito
 			UpdatedAt:      time.Now(),
 		}
 
-		if err := noteRepo.Create(&note); err != nil {
+		createdNote, err := noteRepo.Create(&note)
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar observação"})
 			return
 		}
 
-		c.JSON(http.StatusCreated, note)
+		c.JSON(http.StatusCreated, createdNote)
 	}
 }
 
@@ -162,12 +163,13 @@ func UpdateStudentNote(noteRepo *repositories.NoteRepository) gin.HandlerFunc {
 
 		note.UpdatedAt = time.Now()
 
-		if err := noteRepo.Update(note); err != nil {
+		updatedNote, err := noteRepo.Update(note)
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar observação"})
 			return
 		}
 
-		c.JSON(http.StatusOK, note)
+		c.JSON(http.StatusOK, updatedNote)
 	}
 }
 
@@ -215,5 +217,145 @@ func DeleteStudentNote(noteRepo *repositories.NoteRepository) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"message": "Observação excluída com sucesso"})
+	}
+}
+
+// AddTeacherStudentNote adiciona uma observação por um professor
+func AddTeacherStudentNote(noteRepo *repositories.NoteRepository, studentRepo *repositories.StudentRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		studentIDStr := c.Param("id")
+		studentIDInt, err := strconv.Atoi(studentIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID de aluno inválido"})
+			return
+		}
+		studentID := uint(studentIDInt)
+
+		// Verificar se o aluno existe
+		_, err = studentRepo.FindByID(studentID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Aluno não encontrado"})
+			return
+		}
+
+		var input struct {
+			Content string `json:"content" binding:"required"`
+		}
+
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		userIDVal, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "ID de usuário não encontrado"})
+			return
+		}
+		userID := userIDVal.(uint)
+
+		note := models.StudentNote{
+			StudentID:      studentID,
+			AuthorID:       userID,
+			Content:        input.Content,
+			IsConfidential: false, // Professores não podem criar notas confidenciais
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
+		}
+
+		createdNote, err := noteRepo.Create(&note)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar observação"})
+			return
+		}
+
+		c.JSON(http.StatusCreated, createdNote)
+	}
+}
+
+// GetTeacherStudentNotes obtém observações de um aluno (para professores)
+func GetTeacherStudentNotes(noteRepo *repositories.NoteRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		studentIDStr := c.Param("id")
+		studentIDInt, err := strconv.Atoi(studentIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID de aluno inválido"})
+			return
+		}
+		studentID := uint(studentIDInt)
+
+		// Obter ID do professor
+		userIDVal, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "ID de usuário não encontrado"})
+			return
+		}
+		userID := userIDVal.(uint)
+
+		// Professores só podem ver notas não confidenciais
+		notes, err := noteRepo.FindByStudentID(studentID, userID, false)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar observações"})
+			return
+		}
+
+		c.JSON(http.StatusOK, notes)
+	}
+}
+
+// UpdateTeacherStudentNote atualiza uma observação criada por um professor
+func UpdateTeacherStudentNote(noteRepo *repositories.NoteRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		noteIDStr := c.Param("noteId")
+		noteIDInt, err := strconv.Atoi(noteIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID de observação inválido"})
+			return
+		}
+		noteID := uint(noteIDInt)
+
+		// Verificar se a observação existe
+		note, err := noteRepo.FindByID(noteID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Observação não encontrada"})
+			return
+		}
+
+		// Verificar se o professor é o autor da nota
+		userIDVal, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "ID de usuário não encontrado"})
+			return
+		}
+		userID := userIDVal.(uint)
+
+		if note.AuthorID != userID {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Sem permissão para editar esta observação"})
+			return
+		}
+
+		var input struct {
+			Content string `json:"content"`
+		}
+
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Atualizar conteúdo da observação
+		if input.Content != "" {
+			note.Content = input.Content
+		}
+
+		note.UpdatedAt = time.Now()
+
+		updatedNote, err := noteRepo.Update(note)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar observação"})
+			return
+		}
+
+		c.JSON(http.StatusOK, updatedNote)
 	}
 }

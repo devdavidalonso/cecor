@@ -141,7 +141,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		admin.GET("/courses", handlers.ListAllCourses(courseRepo))
 		admin.GET("/courses/:id", handlers.GetCourseDetails(courseRepo, enrollmentRepo))
 		admin.PUT("/courses/:id", handlers.UpdateCourse(courseRepo))
-		admin.DELETE("/courses/:id", handlers.DeleteCourse(courseRepo, enrollmentRepo))
+		admin.DELETE("/courses/:id", handlers.DeleteCourseEnrollment(courseRepo, enrollmentRepo))
 
 		// Gestão de usuários
 		admin.GET("/users", handlers.ListAllUsers(userRepo))

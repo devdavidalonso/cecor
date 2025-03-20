@@ -63,7 +63,7 @@ func CreateEnrollment(
 		}
 
 		// Verificar se aluno existe
-		_, err := studentRepo.FindByID(enrollment.StudentID)
+		_, err := studentRepo.FindByID(enrollment.UserID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
 			return
@@ -77,7 +77,7 @@ func CreateEnrollment(
 		}
 
 		// Verificar se já existe matrícula
-		exists, err := enrollRepo.ExistsByStudentAndCourse(enrollment.StudentID, enrollment.CourseID)
+		exists, err := enrollRepo.ExistsByStudentAndCourse(enrollment.UserID, enrollment.CourseID)
 		if err != nil || exists {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Student already enrolled in this course"})
 			return

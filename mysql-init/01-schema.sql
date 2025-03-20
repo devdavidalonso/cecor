@@ -216,25 +216,29 @@ CREATE TABLE documents (
 );
 
 -- Tabela de notificações avançadas
+-- Atualização da tabela de notificações para compatibilidade com o NotificationRepository
+DROP TABLE IF EXISTS notifications;
 CREATE TABLE notifications (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NOT NULL,
     title VARCHAR(100) NOT NULL,
-    content TEXT NOT NULL,
+    message TEXT NOT NULL,
     type VARCHAR(30) NOT NULL, -- 'absence', 'event', 'system', etc.
-    channel VARCHAR(20) NOT NULL, -- 'email', 'sms', 'telegram', 'push', 'in-app'
-    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- 'pending', 'sent', 'delivered', 'read', 'failed'
-    read BOOLEAN DEFAULT FALSE, -- Mantido para compatibilidade com o sistema existente
-    sent_at TIMESTAMP NULL,
+    entity_type VARCHAR(30), -- 'student', 'course', 'enrollment', etc.
+    entity_id INT UNSIGNED,
+    delivery_status VARCHAR(20) NOT NULL DEFAULT 'pending', -- 'pending', 'delivered', 'failed'
+    delivery_attempt INT NOT NULL DEFAULT 0,
+    last_attempt_at TIMESTAMP NULL,
     delivered_at TIMESTAMP NULL,
     read_at TIMESTAMP NULL,
     error_message TEXT,
-    related_type VARCHAR(30), -- 'absence', 'enrollment', 'course', etc.
-    related_id INT UNSIGNED,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    INDEX (user_id)
+    INDEX (user_id),
+    INDEX (delivery_status),
+    INDEX (type),
+    INDEX (entity_type, entity_id)
 );
 
 -- Tabela de logs de auditoria
