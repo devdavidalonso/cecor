@@ -1,3 +1,54 @@
-node_modules/
-# env files (can opt-in for committing if needed)
+# Dependências
+/node_modules
+/bower_components
+
+# Arquivos de Compilação e Distribuição
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Ambiente e Configuração
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+environment.*.ts
+!environment.ts
+!environment.prod.ts
+
+# Cache e Logs
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+
+# Arquivos de IDEs e editores
+/.idea
+/.vscode
+/.history
+/.project
+/.classpath
+/.c9/
+/.settings/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*.launch
+.DS_Store
+Thumbs.db
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+*.lnk
+desktop.ini
+
+# Arquivos específicos do Angular
+.angular/*

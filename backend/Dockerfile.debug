@@ -1,0 +1,15 @@
+FROM golang:1.22-alpine
+
+WORKDIR /app
+
+# Copiar o código-fonte
+COPY . .
+
+# Compilar 
+RUN go build -o myapp ./cmd/api
+
+# Expor a porta do servidor
+EXPOSE 8080
+
+# Executar o binário
+CMD ["/app/myapp"]

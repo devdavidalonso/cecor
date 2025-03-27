@@ -1,24 +1,35 @@
-# frontend/Dockerfile
-FROM node:20.18.3-alpine
+# Stage 1: Build
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copiar package.json e package-lock.json
-COPY package*.json ./
+# Copiar package.json e instalar dependências
+COPY package.json tsconfig.json angular.json ./
+COPY tsconfig.app.json ./
 
 # Instalar dependências
 RUN npm install
 
-# Copiar o resto dos arquivos
+# Copiar o restante do código
 COPY . .
 
-# Configurar variável de ambiente para API
-ENV NEXT_PUBLIC_API_URL=http://localhost:8080/api
-
-# Construir a aplicação Next.js
+# Compilar o aplicativo
 RUN npm run build
 
-EXPOSE 3000
+# Stage 2: Runtime
+FROM nginx:alpine
 
-# Iniciar o servidor em modo de produção
-CMD ["npm", "run", "start"]
+# Remover o conteúdo padrão do Nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copiar os arquivos compilados - CORRIGIDO:
+# Em vez de copiar para /usr/share/nginx/html/frontend/
+# Copiamos diretamente para /usr/share/nginx/html/
+COPY --from=builder /app/dist/frontend/ /usr/share/nginx/html/
+
+# Copiar configuração do Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,79 +1,102 @@
-version: '3.8'
-
+# docker-compose.yml
 services:
-  # Serviço do banco de dados MySQL
-  mysql:
-    image: mysql:8.0
-    container_name: cecor-mysql
-    restart: always
+  postgres:
+    image: postgres:15-alpine
+    container_name: cecor-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: cecor_db
-      MYSQL_USER: cecor_user
-      MYSQL_PASSWORD: cecor_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: educational_management
     ports:
-      - "3307:3306"
+      - "5432:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./mysql-init/01-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - cecor-network
+      - postgres-data:/var/lib/postgresql/data
+      - ./backend/scripts/postgres-init:/docker-entrypoint-initdb.d
 
-  # Serviço da API backend
-  backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: cecor-backend
-    restart: always
+  mongodb:
+    image: mongo:6-jammy
+    container_name: cecor-mongodb
+    ports:
+      - "27017:27017"
     volumes:
-      - ./backend:/app
-    environment:
-      DB_DSN: root:password@tcp(mysql:3306)/cecor_db?charset=utf8mb4&parseTime=True&loc=Local
-      GIN_MODE: debug  # Mudar para 'release' em produção
-      PORT: 8080
+      - mongodb-data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: cecor-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: cecor-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  # Usar a mesma imagem que o contêiner de debug
+  backend:
+    image: cecor-backend-debug  # Imagem que já sabemos que funciona
+    container_name: cecor-backend
+    command: /app/myapp  # Comando para executar o binário
     ports:
       - "8080:8080"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - cecor-network
+      - postgres
+      - redis
+      - mongodb
+      - rabbitmq
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: educational_management
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MONGODB_URI: mongodb://mongodb:27017
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
 
-  # Serviço do frontend
+  # Manter o contêiner de debug para testes e desenvolvimento
+  backend-debug:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.debug
+    container_name: cecor-backend-debug
+    depends_on:
+      - postgres
+      - redis
+      - mongodb
+      - rabbitmq
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: educational_management
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MONGODB_URI: mongodb://mongodb:27017
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev  # Use o Dockerfile de desenvolvimento
+      dockerfile: Dockerfile
     container_name: cecor-frontend
-    restart: always
-    volumes:
-      - ./frontend:/app           # Monte o código-fonte local
-      - /app/node_modules         # Preserve os node_modules do contêiner
     ports:
-      - "3000:3000"
-      - "9229:9229"
-      - "9230:9230"  # Porta adicional para o router do Next.js
-    environment:
-      REACT_APP_API_URL: http://backend:8080/api
+      - "80:80"
     depends_on:
       - backend
-    networks:
-      - cecor-network
-
-networks:
-  cecor-network:
-    driver: bridge
 
 volumes:
-  mysql-data:
+  postgres-data:
+  mongodb-data:
+  redis-data:
+  rabbitmq-data:
