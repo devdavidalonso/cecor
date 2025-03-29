@@ -1,0 +1,72 @@
+/* src/styles/prototype.scss */
+
+/* Indicador de modo protótipo que aparece no topo da aplicação */
+.prototype-mode-indicator {
+    background-color: #ff9800;
+    color: white;
+    text-align: center;
+    padding: 4px 0;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilo para elementos que só existem no protótipo */
+  .prototype-element {
+    border-left: 4px solid #ff9800;
+    padding-left: 8px;
+    position: relative;
+  }
+  
+  /* Painel de controle do protótipo */
+  .prototype-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+  
+  .prototype-control-panel {
+    position: absolute;
+    bottom: 60px;
+    right: 0;
+    width: 300px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+  }
+  
+  .prototype-control-panel h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  /* Estilos para formulários de protótipo */
+  .prototype-form .mat-form-field {
+    margin-bottom: 16px;
+  }
+  
+  .prototype-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  /* Estilo para dados mockados */
+  .prototype-data {
+    background-color: rgba(255, 152, 0, 0.1);
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+  
+  /* Para importar no styles.scss principal: 
+     @import 'styles/prototype.scss';
+  */
