@@ -164,7 +164,7 @@ func (h *AlunoHandler) CreateAluno(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Obter usuário do contexto (para auditoria)
-	userClaims, ok := middleware.GetUserFromContext(r.Context())
+	_, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
 		errors.RespondWithError(w, http.StatusUnauthorized, "Usuário não autenticado")
 		return

@@ -6,23 +6,24 @@ import (
 
 // Usuario representa um usuário do sistema
 type Usuario struct {
-	ID              uint       `json:"id" gorm:"primaryKey"`
-	Nome            string     `json:"nome" gorm:"not null"`
-	Email           string     `json:"email" gorm:"not null;unique"`
-	Senha           string     `json:"-" gorm:"not null"`      // Não exposta em JSON
-	Perfil          string     `json:"perfil" gorm:"not null"` // admin, gestor, professor, aluno, responsavel
-	CPF             string     `json:"cpf" gorm:"unique"`
-	DataNascimento  *time.Time `json:"dataNascimento"`
-	Telefone        string     `json:"telefone"`
-	Endereco        string     `json:"endereco"`
-	FotoURL         string     `json:"fotoUrl"`
-	Ativo           bool       `json:"ativo" gorm:"default:true"`
-	UltimoLogin     *time.Time `json:"ultimoLogin"`
-	TokenResetSenha string     `json:"-"`
-	ExpiracaoToken  *time.Time `json:"-"`
-	CriadoEm        time.Time  `json:"criadoEm" gorm:"autoCreateTime"`
-	AtualizadoEm    time.Time  `json:"atualizadoEm" gorm:"autoUpdateTime"`
-	ExcluidoEm      *time.Time `json:"excluidoEm" gorm:"index"`
+	ID              uint            `json:"id" gorm:"primaryKey"`
+	Nome            string          `json:"nome" gorm:"not null"`
+	Email           string          `json:"email" gorm:"not null;unique"`
+	Senha           string          `json:"-" gorm:"not null"`      // Não exposta em JSON
+	Perfil          string          `json:"perfil" gorm:"not null"` // admin, gestor, professor, aluno, responsavel
+	CPF             string          `json:"cpf" gorm:"unique"`
+	DataNascimento  *time.Time      `json:"dataNascimento"`
+	Telefone        string          `json:"telefone"`
+	Endereco        string          `json:"endereco"`
+	FotoURL         string          `json:"fotoUrl"`
+	Ativo           bool            `json:"ativo" gorm:"default:true"`
+	UltimoLogin     *time.Time      `json:"ultimoLogin"`
+	TokenResetSenha string          `json:"-"`
+	ExpiracaoToken  *time.Time      `json:"-"`
+	CriadoEm        time.Time       `json:"criadoEm" gorm:"autoCreateTime"`
+	AtualizadoEm    time.Time       `json:"atualizadoEm" gorm:"autoUpdateTime"`
+	ExcluidoEm      *time.Time      `json:"excluidoEm" gorm:"index"`
+	Perfis          []PerfilUsuario `json:"perfis" gorm:"-"` // Relação carregada manualmente, não pelo GORM
 }
 
 // TableName define o nome da tabela no banco de dados

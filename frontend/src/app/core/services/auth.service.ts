@@ -4,8 +4,18 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { environment } from '@environments/environment';
-import { User } from '@core/models/user.model';
+import { environment } from 'src/environments/environment';
+import { User } from '../models/user.model';
+
+interface LoginResponse {
+  token: string;
+  refreshToken: string;
+  user: User;
+}
+
+interface RefreshResponse {
+  token: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -35,12 +45,11 @@ export class AuthService {
   checkAuth(): boolean {
     const token = localStorage.getItem(this.TOKEN_KEY);
     if (!token) {
-      this.logout();
+      this.isAuthenticatedSubject.next(false);
+      this.currentUserSubject.next(null);
       return false;
     }
     
-    // Verificar se o token expirou (implementação simplificada)
-    // Em uma implementação completa, você deve decodificar o JWT e verificar a data de expiração
     try {
       const userData = localStorage.getItem(this.USER_KEY);
       if (userData) {
@@ -53,7 +62,6 @@ export class AuthService {
       console.error('Erro ao processar dados do usuário:', error);
     }
     
-    // Se não foi possível obter os dados do usuário, fazer logout
     this.logout();
     return false;
   }
@@ -62,7 +70,7 @@ export class AuthService {
    * Realiza o login do usuário
    */
   login(email: string, password: string): Observable<User> {
-    return this.http.post<any>(`${this.API_URL}/login`, { email, password })
+    return this.http.post<LoginResponse>(`${this.API_URL}/login`, { email, password })
       .pipe(
         tap(response => {
           // Armazenar tokens
@@ -70,23 +78,17 @@ export class AuthService {
           localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
           
           // Armazenar dados do usuário
-          const user: User = {
-            id: response.user.id,
-            name: response.user.name,
-            email: response.user.email,
-            roles: response.user.roles,
-            profile: response.user.profile
-          };
-          
-          localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+          localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
           
           // Atualizar estado da autenticação
-          this.currentUserSubject.next(user);
+          this.currentUserSubject.next(response.user);
           this.isAuthenticatedSubject.next(true);
         }),
+        map(response => response.user),
         catchError(error => {
           console.error('Erro ao realizar login:', error);
-          return throwError(() => new Error(error.error?.message || 'Erro ao realizar login'));
+          const message = error.error?.message || 'Erro ao realizar login';
+          return throwError(() => new Error(message));
         })
       );
   }
@@ -118,7 +120,7 @@ export class AuthService {
       return throwError(() => new Error('Refresh token não encontrado'));
     }
     
-    return this.http.post<any>(`${this.API_URL}/refresh`, { refreshToken })
+    return this.http.post<RefreshResponse>(`${this.API_URL}/refresh`, { refreshToken })
       .pipe(
         map(response => {
           localStorage.setItem(this.TOKEN_KEY, response.token);
@@ -144,10 +146,13 @@ export class AuthService {
    */
   hasRole(role: string): boolean {
     const user = this.currentUserSubject.value;
-    if (!user || !user.roles) {
+    if (!user) {
       return false;
     }
-    return user.roles.includes(role);
+    
+    // Na implementação atual, estamos utilizando apenas o perfil principal
+    // Futuramente, isso pode ser expandido para incluir múltiplos perfis
+    return user.profile === role;
   }
 
   /**

@@ -3,13 +3,14 @@ package routes
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/devdavidalonso/cecor/backend/internal/api/handlers"
 	"github.com/devdavidalonso/cecor/backend/internal/api/middleware"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
+	"github.com/go-chi/chi/v5"
 )
 
 // Register configura todas as rotas da API
-func Register(r chi.Router, cfg *config.Config) {
+func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler) {
 	// Rota de saúde para verificação do servidor
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -20,8 +21,8 @@ func Register(r chi.Router, cfg *config.Config) {
 	r.Route("/api/v1", func(r chi.Router) {
 		// Rotas públicas (sem autenticação)
 		r.Group(func(r chi.Router) {
-			r.Post("/auth/login", http.NotFound)   // TODO: Implementar handler
-			r.Post("/auth/refresh", http.NotFound) // TODO: Implementar handler
+			r.Post("/auth/login", authHandler.Login)          // Handler implementado
+			r.Post("/auth/refresh", authHandler.RefreshToken) // Handler implementado
 		})
 
 		// Rotas protegidas (com autenticação)
