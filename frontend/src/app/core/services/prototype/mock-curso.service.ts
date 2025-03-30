@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { Curso, PaginatedResponse } from '../curso.service';
+import { Curso, PaginatedResponse } from '../../models/curso.model';
 
 @Injectable()
 export class MockCursoService {
@@ -23,7 +23,7 @@ export class MockCursoService {
       nivelDificuldade: 'Iniciante',
       publicoAlvo: 'Pessoas de todas as idades interessadas em aprender informática básica',
       requisitosPrevios: 'Nenhum conhecimento prévio necessário',
-      tags: 'informática,tecnologia,iniciante',
+      tags: ['informática', 'tecnologia', 'iniciante'],
       imagemUrl: 'assets/images/cursos/informatica-basica.jpg'
     },
     {
@@ -41,7 +41,7 @@ export class MockCursoService {
       nivelDificuldade: 'Iniciante',
       publicoAlvo: 'Jovens e adultos interessados em aprender costura',
       requisitosPrevios: 'Nenhum conhecimento prévio necessário',
-      tags: 'costura,moda,artesanato',
+      tags: ['costura', 'moda', 'artesanato'],
       imagemUrl: 'assets/images/cursos/corte-costura.jpg'
     },
     {
@@ -59,7 +59,7 @@ export class MockCursoService {
       nivelDificuldade: 'Iniciante',
       publicoAlvo: 'Crianças de 8 a 12 anos',
       requisitosPrevios: 'Nenhum conhecimento prévio necessário',
-      tags: 'jiu-jitsu,esporte,infantil',
+      tags: ['jiu-jitsu', 'esporte', 'infantil'],
       imagemUrl: 'assets/images/cursos/jiu-jitsu-infantil.jpg'
     },
     {
@@ -77,7 +77,7 @@ export class MockCursoService {
       nivelDificuldade: 'Iniciante a Intermediário',
       publicoAlvo: 'Pessoas de todas as idades interessadas em pintura',
       requisitosPrevios: 'Nenhum conhecimento prévio necessário',
-      tags: 'pintura,arte,criatividade',
+      tags: ['pintura', 'arte', 'criatividade'],
       imagemUrl: 'assets/images/cursos/pintura-tela.jpg'
     }
   ];
@@ -121,12 +121,10 @@ export class MockCursoService {
     // Criar resposta paginada
     const response: PaginatedResponse<Curso> = {
       data: paginatedCursos,
-      meta: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize)
-      }
+      page,
+      pageSize,
+      totalItems: total,  // Aqui é totalItems, não total
+      totalPages: Math.ceil(total / pageSize)
     };
     
     // Simular atraso de rede para experiência mais realista

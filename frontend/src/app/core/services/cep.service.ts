@@ -15,6 +15,7 @@ export interface CepResponse {
   gia: string;
   ddd: string;
   siafi: string;
+  erro?: boolean; // Adicione a propriedade erro como opcional
 }
 
 @Injectable({

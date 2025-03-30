@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, startWith, debounceTime, switchMap, catchError } from 'rxjs/operators';
 
 // Angular Material
@@ -24,6 +24,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CursoService } from '../../../core/services/curso.service';
 import { Curso, PaginatedResponse } from '../../../core/models/curso.model';
 import { PrototypeHighlightDirective } from '../../../shared/directives/prototype-highlight.directive';
+import { PrototypeService } from '../../../core/services/prototype/prototype.service';
+
 
 @Component({
   selector: 'app-cursos-list',
@@ -49,7 +51,7 @@ import { PrototypeHighlightDirective } from '../../../shared/directives/prototyp
   ],
   template: `
     <!-- Indicador de modo protótipo -->
-    <div *ngIf="isPrototypeMode$ | async" class="prototype-indicator" appPrototypeHighlight>
+    <div *ngIf="isPrototypeMode$ | async" class="prototype-indicator" [appPrototypeHighlight]="true">
       <mat-icon>build</mat-icon> 
       Modo Protótipo Ativado - Listagem de Cursos com Dados Simulados
     </div>
@@ -353,7 +355,7 @@ export class CursosListComponent implements OnInit {
     private snackBar: MatSnackBar,
     private prototypeService: PrototypeService
   ) {
-    this.isPrototypeMode$ = this.prototypeService.prototypeEnabled$;
+    this.isPrototypeMode$ = of(this.prototypeService.isPrototypeEnabled());
   }
   
   ngOnInit() {
@@ -383,8 +385,8 @@ export class CursosListComponent implements OnInit {
     this.cursoService.getCursos(this.page, this.pageSize).subscribe({
       next: (response: PaginatedResponse<Curso>) => {
         this.cursos = response.data;
-        this.totalCursos = response.meta.total;
-        this.totalPages = response.meta.totalPages;
+        this.totalCursos = response.totalItems;
+        this.totalPages = response.totalPages;
         this.loading = false;
       },
       error: (err) => {
@@ -414,8 +416,8 @@ export class CursosListComponent implements OnInit {
       return this.cursoService.getCursos(this.page, this.pageSize).pipe(
         map((response: PaginatedResponse<Curso>) => {
           this.cursos = response.data;
-          this.totalCursos = response.meta.total;
-          this.totalPages = response.meta.totalPages;
+          this.totalCursos = response.totalItems;
+         this.totalPages = response.totalPages;
           this.loading = false;
           return response;
         }),
@@ -427,11 +429,11 @@ export class CursosListComponent implements OnInit {
       );
     }
     
-    return this.cursoService.buscarCursos(termo, this.page, this.pageSize).pipe(
+    return this.cursoService.searchCursos(termo).pipe(
       map((response: PaginatedResponse<Curso>) => {
         this.cursos = response.data;
-        this.totalCursos = response.meta.total;
-        this.totalPages = response.meta.totalPages;
+        this.totalCursos = response.totalItems;
+        this.totalPages = response.totalPages;
         this.loading = false;
         return response;
       }),
@@ -468,8 +470,9 @@ export class CursosListComponent implements OnInit {
       .join(', ');
   }
   
-  getTagsArray(tagsStr: string | undefined): string[] {
-    if (!tagsStr) return [];
-    return tagsStr.split(',').map(tag => tag.trim());
+  getTagsArray(tags: string[] | string | undefined): string[] {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags;
+    return tags.split(',').map(tag => tag.trim());
   }
 }

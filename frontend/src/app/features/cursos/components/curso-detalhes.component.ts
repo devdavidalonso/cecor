@@ -60,7 +60,7 @@ interface Curso {
   ],
   template: `
     <!-- Indicador de modo protótipo -->
-    <div *ngIf="isPrototypeMode$ | async" class="prototype-indicator" appPrototypeHighlight>
+    <div *ngIf="isPrototypeMode$ | async" class="prototype-indicator" [appPrototypeHighlight]="true">
       <mat-icon>build</mat-icon> Modo Protótipo - Dados de Exemplo
     </div>
     
@@ -351,7 +351,7 @@ export class CursoDetalhesComponent implements OnInit {
     private authService: AuthService,
     private prototypeService: PrototypeService
   ) {
-    this.isPrototypeMode$ = this.prototypeService.prototypeEnabled$;
+    this.isPrototypeMode$ = of(this.prototypeService.isPrototypeEnabled());
   }
   
   ngOnInit() {
@@ -455,8 +455,9 @@ export class CursoDetalhesComponent implements OnInit {
       .join(', ');
   }
   
-  getTagsArray(tagsStr: string | undefined): string[] {
-    if (!tagsStr) return [];
-    return tagsStr.split(',').map(tag => tag.trim());
+  getTagsArray(tags: string[] | string | undefined): string[] {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags;
+    return tags.split(',').map(tag => tag.trim());
   }
 }
