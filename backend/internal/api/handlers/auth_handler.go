@@ -80,20 +80,20 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extrair informações necessárias para o token
-	userRoles := make([]string, len(user.Perfis))
-	for i, perfil := range user.Perfis {
-		userRoles[i] = perfil.TipoPerfil
+	userRoles := make([]string, len(user.Profile))
+	for i, perfil := range user.Profile {
+		userRoles[i] = string(perfil)
 	}
 
 	// Gerar token de acesso
-	token, err := auth.GenerateToken(int64(user.ID), user.Email, user.Nome, userRoles, auth.AccessToken, h.cfg)
+	token, err := auth.GenerateToken(int64(user.ID), user.Email, user.Name, userRoles, auth.AccessToken, h.cfg)
 	if err != nil {
 		errors.RespondWithError(w, http.StatusInternalServerError, "Erro ao gerar token")
 		return
 	}
 
 	// Gerar refresh token
-	refreshToken, err := auth.GenerateToken(int64(user.ID), user.Email, user.Nome, userRoles, auth.RefreshToken, h.cfg)
+	refreshToken, err := auth.GenerateToken(int64(user.ID), user.Email, user.Name, userRoles, auth.RefreshToken, h.cfg)
 	if err != nil {
 		errors.RespondWithError(w, http.StatusInternalServerError, "Erro ao gerar refresh token")
 		return
@@ -101,7 +101,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Atualizar último login do usuário
 	now := time.Now()
-	user.UltimoLogin = &now
+	user.LastLogin = &now
 	h.usuarioService.UpdateLastLogin(r.Context(), user.ID)
 
 	// Preparar resposta
@@ -109,10 +109,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Token:        token,
 		RefreshToken: refreshToken,
 		User: models.User{
-			ID:     user.ID,
-			Nome:   user.Nome,
-			Email:  user.Email,
-			Perfil: user.Perfis[0].TipoPerfil, // Usando o perfil principal
+			ID:      user.ID,
+			Name:    user.Name,
+			Email:   user.Email,
+			Profile: user.Profile, // Usando o perfil principal
 		},
 	}
 

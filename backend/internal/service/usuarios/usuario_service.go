@@ -12,18 +12,18 @@ import (
 
 // usuarioService implementa a interface Service
 type usuarioService struct {
-	usuarioRepo repository.UsuarioRepository
+	usuarioRepo repository.UserRepository
 }
 
 // NewUsuarioService cria uma nova instância do serviço de usuários
-func NewUsuarioService(usuarioRepo repository.UsuarioRepository) Service {
+func NewUsuarioService(usuarioRepo repository.UserRepository) Service {
 	return &usuarioService{
 		usuarioRepo: usuarioRepo,
 	}
 }
 
 // Authenticate autentica um usuário com email e senha
-func (s *usuarioService) Authenticate(ctx context.Context, email, password string) (*models.Usuario, error) {
+func (s *usuarioService) Authenticate(ctx context.Context, email, password string) (*models.User, error) {
 	// Buscar usuário pelo email
 	user, err := s.usuarioRepo.FindByEmail(ctx, email)
 	if err != nil {
@@ -35,12 +35,12 @@ func (s *usuarioService) Authenticate(ctx context.Context, email, password strin
 	}
 
 	// Verificar se o usuário está ativo
-	if !user.Ativo {
+	if !user.Active {
 		return nil, fmt.Errorf("usuário inativo")
 	}
 
 	// Comparar senha
-	err = bcrypt.CompareHashAndPassword([]byte(user.Senha), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return nil, fmt.Errorf("senha incorreta")
 	}
@@ -51,13 +51,13 @@ func (s *usuarioService) Authenticate(ctx context.Context, email, password strin
 		return nil, fmt.Errorf("erro ao carregar perfis: %w", err)
 	}
 
-	user.Perfis = perfis
+	user.Profile = fmt.Sprintf("%v", perfis) // Convert perfis to a string representation
 
 	return user, nil
 }
 
 // GetUserByID obtém um usuário pelo ID
-func (s *usuarioService) GetUserByID(ctx context.Context, id uint) (*models.Usuario, error) {
+func (s *usuarioService) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
 	user, err := s.usuarioRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar usuário: %w", err)
@@ -73,13 +73,13 @@ func (s *usuarioService) GetUserByID(ctx context.Context, id uint) (*models.Usua
 		return nil, fmt.Errorf("erro ao carregar perfis: %w", err)
 	}
 
-	user.Perfis = perfis
+	user.Profile = fmt.Sprintf("%v", perfis) // Convert perfis to a string representation
 
 	return user, nil
 }
 
 // GetUserByEmail obtém um usuário pelo email
-func (s *usuarioService) GetUserByEmail(ctx context.Context, email string) (*models.Usuario, error) {
+func (s *usuarioService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	user, err := s.usuarioRepo.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar usuário: %w", err)
@@ -95,15 +95,15 @@ func (s *usuarioService) GetUserByEmail(ctx context.Context, email string) (*mod
 		return nil, fmt.Errorf("erro ao carregar perfis: %w", err)
 	}
 
-	user.Perfis = perfis
+	user.Profile = fmt.Sprintf("%v", perfis) // Convert perfis to a string representation
 
 	return user, nil
 }
 
 // CreateUser cria um novo usuário
-func (s *usuarioService) CreateUser(ctx context.Context, user *models.Usuario) error {
+func (s *usuarioService) CreateUser(ctx context.Context, user *models.User) error {
 	// Verificar campos obrigatórios
-	if user.Nome == "" || user.Email == "" || user.Senha == "" {
+	if user.Name == "" || user.Email == "" || user.Password == "" {
 		return fmt.Errorf("nome, email e senha são obrigatórios")
 	}
 
@@ -118,16 +118,16 @@ func (s *usuarioService) CreateUser(ctx context.Context, user *models.Usuario) e
 	}
 
 	// Hash da senha
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Senha), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("erro ao gerar hash da senha: %w", err)
 	}
 
-	user.Senha = string(hashedPassword)
+	user.Password = string(hashedPassword)
 
 	// Definir status padrão
-	if !user.Ativo {
-		user.Ativo = true
+	if !user.Active {
+		user.Active = true
 	}
 
 	// Criar usuário
@@ -140,7 +140,7 @@ func (s *usuarioService) CreateUser(ctx context.Context, user *models.Usuario) e
 }
 
 // UpdateUser atualiza um usuário existente
-func (s *usuarioService) UpdateUser(ctx context.Context, user *models.Usuario) error {
+func (s *usuarioService) UpdateUser(ctx context.Context, user *models.User) error {
 	// Verificar se o usuário existe
 	existente, err := s.usuarioRepo.FindByID(ctx, user.ID)
 	if err != nil {
@@ -164,15 +164,15 @@ func (s *usuarioService) UpdateUser(ctx context.Context, user *models.Usuario) e
 	}
 
 	// Verificar alteração de senha
-	if user.Senha != "" && user.Senha != existente.Senha {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Senha), bcrypt.DefaultCost)
+	if user.Password != "" && user.Password != existente.Password {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return fmt.Errorf("erro ao gerar hash da senha: %w", err)
 		}
 
-		user.Senha = string(hashedPassword)
+		user.Password = string(hashedPassword)
 	} else {
-		user.Senha = existente.Senha
+		user.Password = existente.Password
 	}
 
 	// Atualizar usuário

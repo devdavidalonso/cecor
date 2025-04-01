@@ -51,11 +51,12 @@ services:
       - mongodb
       - rabbitmq
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: educational_management
+      POSTGRES_HOST: postgres  # Corrigido para usar o nome do serviço
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: educational_management
+      POSTGRES_SSLMODE: disable  # Adicionado para garantir que a conexão funcione
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MONGODB_URI: mongodb://mongodb:27017
@@ -74,11 +75,12 @@ services:
       - mongodb
       - rabbitmq
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: educational_management
+      POSTGRES_HOST: postgres  # Corrigido para usar o nome do serviço
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: educational_management
+      POSTGRES_SSLMODE: disable  # Adicionado para garantir que a conexão funcione
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MONGODB_URI: mongodb://mongodb:27017

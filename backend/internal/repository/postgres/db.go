@@ -13,10 +13,7 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 )
 
-// DB é a instância global do banco de dados
-var DB *gorm.DB
-
-// InitDB inicializa a conexão com o banco de dados PostgreSQL
+// InitDB initializes the PostgreSQL database connection and performs migrations
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Database.PostgresHost,
@@ -27,7 +24,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		cfg.Database.PostgresSSLMode,
 	)
 
-	// Configurar logger do GORM
+	// Configure GORM logger
 	gormLogger := logger.New(
 		log.New(log.Writer(), "\r\n", log.LstdFlags),
 		logger.Config{
@@ -38,75 +35,78 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		},
 	)
 
-	// Conectar ao banco de dados
+	// Connect to the database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: gormLogger,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("falha ao conectar no banco de dados: %w", err)
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	// Configurar pool de conexões
+	// Configure connection pool
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, fmt.Errorf("falha ao configurar pool de conexões: %w", err)
+		return nil, fmt.Errorf("failed to configure connection pool: %w", err)
 	}
 
-	// SetMaxIdleConns define o número máximo de conexões no pool de conexões idle.
+	// Set connection pool parameters
 	sqlDB.SetMaxIdleConns(10)
-	// SetMaxOpenConns define o número máximo de conexões abertas com o banco de dados.
 	sqlDB.SetMaxOpenConns(100)
-	// SetConnMaxLifetime define o tempo máximo que uma conexão pode ser reutilizada.
 	sqlDB.SetConnMaxLifetime(time.Hour)
-
-	// Armazenar a instância do DB globalmente
-	DB = db
 
 	return db, nil
 }
 
-// MigrateDB realiza a migração do banco de dados
+// MigrateDB performs database migrations
 func MigrateDB(db *gorm.DB) error {
-	// Modelos principais
+	// Migrate all models
 	if err := db.AutoMigrate(
-		&models.Usuario{},
-		&models.PerfilUsuario{},
-		&models.Permissao{},
-		&models.PermissaoPerfil{},
-		&models.LogAcesso{},
-		&models.LogAuditoria{},
-		&models.Aluno{},
-		&models.Responsavel{},
-		&models.Documento{},
-		&models.NotaAluno{},
-		&models.Curso{},
-		&models.ProfessorCurso{},
-		&models.MaterialCurso{},
-		&models.AulaCurso{},
-		&models.Matricula{},
-		&models.HistoricoMatricula{},
-		&models.ListaEspera{},
-		&models.Certificado{},
-		&models.ModeloCertificado{},
-		&models.Presenca{},
-		&models.JustificativaAusencia{},
-		&models.AlertaAusencia{},
-		&models.CompensacaoFalta{},
-		&models.Notificacao{},
-		&models.CanalNotificacao{},
-		&models.ConfiguracaoNotificacao{},
-		&models.ModeloNotificacao{},
-		&models.AgendamentoNotificacao{},
-		&models.Formulario{},
-		&models.Pergunta{},
-		&models.Entrevista{},
-		&models.RespostaFormulario{},
-		&models.DetalhesResposta{},
-		&models.ModeloTermoVoluntariado{},
-		&models.TermoVoluntariado{},
-		&models.HistoricoTermoVoluntariado{},
+		// User related models
+		&models.User{},
+		&models.UserProfile{},
+
+		// Student related models
+		&models.Student{},
+		&models.Guardian{},
+		&models.GuardianPermissions{},
+		&models.StudentNote{},
+		&models.Document{},
+
+		// Course related models
+		&models.Course{},
+		&models.TeacherCourse{},
+
+		// Enrollment related models
+		&models.Enrollment{},
+		&models.Registration{}, // Legacy
+
+		// Attendance related models
+		&models.Attendance{},
+		// &models.AttendanceLegacy{}, // Legacy
+		&models.AbsenceJustification{},
+		&models.AbsenceAlert{},
+
+		// Certificate related models
+		&models.Certificate{},
+		&models.CertificateTemplate{},
+
+		// Form and Interview related models
+		&models.Form{},
+		&models.FormQuestion{},
+		&models.Interview{},
+		&models.FormResponse{},
+		&models.FormAnswerDetail{},
+
+		// Volunteer related models
+		&models.VolunteerTermTemplate{},
+		&models.VolunteerTerm{},
+		&models.VolunteerTermHistory{},
+
+		// System models
+		&models.Notification{},
+		&models.AuditLog{},
 	); err != nil {
-		return fmt.Errorf("erro na migração do banco de dados: %w", err)
+		return fmt.Errorf("error in database migration: %w", err)
 	}
 
 	return nil
