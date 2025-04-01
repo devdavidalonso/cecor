@@ -178,7 +178,7 @@ A API está disponível em `/api/v1` e oferece os seguintes endpoints principais
 ### Matrículas
 
 - `GET /api/v1/matriculas` - Listar matrículas
-- `POST /api/v1/matriculas` - Criar nova matrícula
+- `POST /api/v1/matriculas` - Criar New Enrollment
 - `GET /api/v1/matriculas/{id}` - Obter detalhes de matrícula
 - `PUT /api/v1/matriculas/{id}` - Atualizar matrícula
 - `DELETE /api/v1/matriculas/{id}` - Cancelar matrícula
@@ -186,7 +186,7 @@ A API está disponível em `/api/v1` e oferece os seguintes endpoints principais
 ### Presenças
 
 - `GET /api/v1/presencas` - Listar registros de presença
-- `POST /api/v1/presencas` - Registrar presença
+- `POST /api/v1/presencas` - Register Attendance
 - `GET /api/v1/presencas/curso/{cursoId}/data/{data}` - Obter presenças por curso e data
 
 ### Outros Endpoints

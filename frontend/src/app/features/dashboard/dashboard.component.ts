@@ -68,12 +68,12 @@ interface DashboardCard {
             <mat-icon>person_add</mat-icon> Novo Aluno
           </button>
           
-          <button mat-raised-button color="accent" routerLink="/matriculas/cadastrar">
-            <mat-icon>how_to_reg</mat-icon> Nova Matrícula
+          <button mat-raised-button color="accent" routerLink="/enrollments/new">
+            <mat-icon>how_to_reg</mat-icon> New Enrollment
           </button>
           
           <button mat-raised-button color="primary" routerLink="/presencas">
-            <mat-icon>fact_check</mat-icon> Registrar Presença
+            <mat-icon>fact_check</mat-icon> Register Attendance
           </button>
           
           <button mat-raised-button color="accent" routerLink="/relatorios">
@@ -186,16 +186,16 @@ export class DashboardComponent implements OnInit {
       color: '#2196f3'
     },
     {
-      title: 'Matrículas',
-      subtitle: 'Matrículas ativas',
+      title: 'Enrollments',
+      subtitle: 'Active enrollments',
       icon: 'how_to_reg',
       value: '---',
       route: '/matriculas',
       color: '#ff9800'
     },
     {
-      title: 'Presenças',
-      subtitle: 'Taxa de frequência atual',
+      title: 'Attendance',
+      subtitle: 'Current attendance rate',
       icon: 'fact_check',
       value: '---',
       route: '/presencas',
@@ -232,8 +232,8 @@ export class DashboardComponent implements OnInit {
           color: '#2196f3'
         },
         {
-          title: 'Matrículas',
-          subtitle: 'Matrículas ativas',
+          title: 'Enrollments',
+          subtitle: 'Active enrollments',
           icon: 'how_to_reg',
           value: '312',
           route: '/matriculas',

@@ -13,7 +13,7 @@ export const MATRICULAS_ROUTES: Routes = [
   {
     path: 'nova',
     component: MatriculaFormComponent,
-    title: 'Nova Matrícula'
+    title: 'New Enrollment'
   },
   {
     path: ':id',

@@ -155,7 +155,7 @@ import { debounceTime, finalize } from 'rxjs';
                     </button>
                     <button mat-menu-item [routerLink]="['/matriculas/nova']" [queryParams]="{alunoId: aluno.id}">
                       <mat-icon>how_to_reg</mat-icon>
-                      <span>Nova Matrícula</span>
+                      <span>New Enrollment</span>
                     </button>
                     <button mat-menu-item (click)="excluirAluno(aluno.id)">
                       <mat-icon>delete</mat-icon>

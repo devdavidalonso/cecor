@@ -1,8 +1,6 @@
-// src/app/app.routes.ts
+
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
-import { AdminGuard } from '../app/core/guards/admin.guard';
-import { ProfessorGuard } from '../app/core/guards/professor.guard';
 
 export const routes: Routes = [
   {
@@ -18,66 +16,37 @@ export const routes: Routes = [
     path: '',
     canActivate: [AuthGuard],
     children: [
-      // Dashboard principal
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
-      
-      // Módulo de alunos
       {
-        path: 'alunos',
-        loadChildren: () => import('./features/alunos/alunos.routes').then(m => m.ALUNOS_ROUTES)
+        path: 'students',
+        loadChildren: () => import('./features/students/students.routes').then(m => m.STUDENTS_ROUTES)
       },
-      
-      // Módulo de cursos
       {
-        path: 'cursos',
-        loadChildren: () => import('./features/cursos/cursos.routes').then(m => m.CURSOS_ROUTES)
+        path: 'courses', loadChildren: () => import('./features/courses/courses.routes').then(m => m.COURSES_ROUTES) 
       },
-      
-      // Módulo de matrículas
+      { path: 'enrollments', loadChildren: () => import('./features/enrollments/enrollments.routes').then(m => m.ENROLLMENTS_ROUTES) },
       {
-        path: 'matriculas',
-        loadChildren: () => import('./features/matriculas/matriculas.routes').then(m => m.MATRICULAS_ROUTES)
+        path: 'attendance',
+        loadChildren: () => import('./features/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
       },
-      
-      // Módulo de presenças
       {
-        path: 'presencas',
-        canActivate: [ProfessorGuard],
-        loadChildren: () => import('./features/presencas/presencas.routes').then(m => m.PRESENCAS_ROUTES)
+        path: 'reports',
+        loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
       },
-      
-      // Módulo de relatórios
       {
-        path: 'relatorios',
-        loadChildren: () => import('./features/relatorios/relatorios.routes').then(m => m.RELATORIOS_ROUTES)
+        path: 'interviews',
+        loadChildren: () => import('./features/interviews/interviews.routes').then(m => m.INTERVIEWS_ROUTES)
       },
-      
-      // Módulo de entrevistas
       {
-        path: 'entrevistas',
-        loadChildren: () => import('./features/entrevistas/entrevistas.routes').then(m => m.ENTREVISTAS_ROUTES)
+        path: 'volunteering',
+        loadChildren: () => import('./features/volunteering/volunteering.routes').then(m => m.VOLUNTEERING_ROUTES)
       },
-      
-      // Módulo de voluntariado
       {
-        path: 'voluntariado',
-        loadChildren: () => import('./features/voluntariado/voluntariado.routes').then(m => m.VOLUNTARIADO_ROUTES)
-      },
-      
-      // Módulo de administração (apenas para administradores)
-      {
-        path: 'administracao',
-        canActivate: [AdminGuard],
-        loadChildren: () => import('./features/administracao/administracao.routes').then(m => m.ADMINISTRACAO_ROUTES)
-      },
-      
-      // Perfil do usuário
-      {
-        path: 'perfil',
-        loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent)
+        path: 'admin',
+        loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
       }
     ]
   },

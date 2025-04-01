@@ -131,41 +131,41 @@ export class SidebarComponent {
       ]
     },
     {
-      text: 'Cursos',
+      text: 'Courses',
       icon: 'school',
       children: [
         {
           text: 'Listar Cursos',
           icon: 'list',
-          route: '/cursos'
+          route: '/courses'
         },
         {
           text: 'Cadastrar Curso',
           icon: 'add_circle',
-          route: '/cursos/cadastrar'
+          route: '/courses/new'
         }
       ]
     },
     {
-      text: 'Matrículas',
+      text: 'Enrollments',
       icon: 'how_to_reg',
       children: [
         {
           text: 'Listar Matrículas',
           icon: 'list',
-          route: '/matriculas'
+          route: '/enrollments'
         },
         {
-          text: 'Nova Matrícula',
+          text: 'New Enrollment',
           icon: 'add_circle',
-          route: '/matriculas/cadastrar'
+          route: '/enrollments/new'
         }
       ]
     },
     {
-      text: 'Presenças',
+      text: 'Attendance',
       icon: 'fact_check',
-      route: '/presencas'
+      route: '/attendance'
     },
     {
       text: 'Relatórios',
