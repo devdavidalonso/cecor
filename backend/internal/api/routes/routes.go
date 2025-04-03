@@ -74,7 +74,7 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 				r.Put("/{id}/lida", http.NotFound) // TODO: Implementar handler
 			})
 
-			// Relatórios
+			// Reports
 			r.Route("/relatorios", func(r chi.Router) {
 				r.Get("/frequencia/{cursoId}", http.NotFound) // TODO: Implementar handler
 				r.Get("/alunos", http.NotFound)               // TODO: Implementar handler

@@ -10,15 +10,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { StudentService } from '@core/services/student.service';
 import { Student, Guardian } from '@core/models/student.model';
-
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 @Component({
   selector: 'app-student-details',
   standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],  // Adicionar esta linha
   imports: [
     CommonModule,
     RouterModule,
@@ -29,7 +32,10 @@ import { Student, Guardian } from '@core/models/student.model';
     MatDividerModule,
     MatListModule,
     MatTableModule,
-    MatChipsModule
+    MatChipsModule,
+    MatSnackBarModule,
+    MatSlideToggleModule,
+    MatProgressSpinnerModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

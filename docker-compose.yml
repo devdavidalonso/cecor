@@ -93,7 +93,7 @@ services:
       dockerfile: Dockerfile
     container_name: cecor-frontend
     ports:
-      - "80:80"
+      - "8880:80"
     depends_on:
       - backend
 

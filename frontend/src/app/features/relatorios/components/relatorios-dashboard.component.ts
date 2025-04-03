@@ -87,7 +87,7 @@ interface Relatorio {
   ],
   template: `
     <div class="container">
-      <h1 class="page-title">Dashboard de Relatórios</h1>
+      <h1 class="page-title">Dashboard de Reports</h1>
       
       <div class="filter-section">
         <form [formGroup]="filtroForm" class="filter-form">
@@ -305,10 +305,10 @@ interface Relatorio {
         </mat-card-content>
       </mat-card>
       
-      <!-- Relatórios disponíveis -->
+      <!-- Reports disponíveis -->
       <mat-card class="content-card">
         <mat-card-header>
-          <mat-card-title>Relatórios Disponíveis</mat-card-title>
+          <mat-card-title>Reports Disponíveis</mat-card-title>
           <mat-card-subtitle>Selecione um relatório para visualizar ou exportar</mat-card-subtitle>
         </mat-card-header>
         
@@ -821,7 +821,7 @@ export class RelatoriosDashboardComponent implements OnInit {
   }
   
   /**
-   * Carrega a lista de relatórios disponíveis
+   * Carrega a lista de Reports disponíveis
    */
   carregarRelatoriosDisponiveis(): void {
     // Simulando dados

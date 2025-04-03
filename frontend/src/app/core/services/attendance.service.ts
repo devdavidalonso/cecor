@@ -69,7 +69,7 @@ export class AttendanceService {
     return this.http.put<AbsenceAlert>(`${this.API_URL}/alerts/${id}/resolve`, resolution);
   }
 
-  // Relatórios de presença
+  // Reports de presença
   getAttendanceReport(courseId: number, startDate?: Date, endDate?: Date): Observable<any> {
     let params = new HttpParams().set('courseId', courseId.toString());
     if (startDate) params = params.set('startDate', startDate.toISOString());

@@ -77,7 +77,7 @@ interface DashboardCard {
           </button>
           
           <button mat-raised-button color="accent" routerLink="/relatorios">
-            <mat-icon>assessment</mat-icon> Relatórios
+            <mat-icon>assessment</mat-icon> Reports
           </button>
         </div>
       </div>

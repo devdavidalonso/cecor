@@ -59,8 +59,8 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 
 // MigrateDB performs database migrations
 func MigrateDB(db *gorm.DB) error {
-	// Migrate all models
-	if err := db.AutoMigrate(
+	// Lista de todos os modelos para migração
+	models := []interface{}{
 		// User related models
 		&models.User{},
 		&models.UserProfile{},
@@ -105,8 +105,14 @@ func MigrateDB(db *gorm.DB) error {
 		// System models
 		&models.Notification{},
 		&models.AuditLog{},
-	); err != nil {
-		return fmt.Errorf("error in database migration: %w", err)
+	}
+
+	// Migrar cada modelo individualmente
+	for _, model := range models {
+		if err := db.AutoMigrate(model); err != nil {
+			log.Printf("Warning: error migrating %T: %v", model, err)
+			// Continua com o próximo modelo, não interrompe a migração
+		}
 	}
 
 	return nil

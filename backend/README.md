@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este é o backend do Sistema de Gestão Educacional CECOR, uma solução completa para administração de alunos, cursos, matrículas, presenças, relatórios e entrevistas. O sistema foi desenvolvido com uma arquitetura de microsserviços, utilizando Go como linguagem principal, oferecendo alta performance, escalabilidade e manutenibilidade.
+Este é o backend do Sistema de Gestão Educacional CECOR, uma solução completa para administração de alunos, cursos, matrículas, presenças, Reports e entrevistas. O sistema foi desenvolvido com uma arquitetura de microsserviços, utilizando Go como linguagem principal, oferecendo alta performance, escalabilidade e manutenibilidade.
 
 ## Tecnologias Utilizadas
 
@@ -192,7 +192,7 @@ A API está disponível em `/api/v1` e oferece os seguintes endpoints principais
 ### Outros Endpoints
 
 - **Notificações**: `/api/v1/notificacoes`
-- **Relatórios**: `/api/v1/relatorios`
+- **Reports**: `/api/v1/relatorios`
 - **Entrevistas**: `/api/v1/entrevistas`
 - **Voluntariado**: `/api/v1/voluntariado`
 - **Usuários**: `/api/v1/usuarios` (apenas admin)
@@ -214,7 +214,7 @@ A API utiliza autenticação baseada em JWT (JSON Web Tokens). Para acessar endp
 O sistema implementa RBAC (Role-Based Access Control) com os seguintes perfis:
 
 - **Administrador**: Acesso total ao sistema
-- **Gestor**: Gerenciamento de cursos, matrículas e relatórios
+- **Gestor**: Gerenciamento de cursos, matrículas e Reports
 - **Professor**: Controle de presenças e acompanhamento de alunos
 - **Aluno**: Visualização de dados próprios
 - **Responsável**: Visualização de dados de alunos sob responsabilidade

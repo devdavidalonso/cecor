@@ -115,7 +115,7 @@ A API está disponível em `/api/v1` e inclui os seguintes endpoints principais:
 - `/api/v1/cursos` - Gestão de cursos
 - `/api/v1/matriculas` - Gestão de matrículas
 - `/api/v1/presencas` - Controle de presença
-- `/api/v1/relatorios` - Relatórios
+- `/api/v1/relatorios` - Reports
 
 ## Perguntas Frequentes
 

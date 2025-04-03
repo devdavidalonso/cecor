@@ -8,7 +8,7 @@ export const RELATORIOS_ROUTES: Routes = [
   {
     path: '',
     component: RelatoriosDashboardComponent,
-    title: 'Dashboard de Relatórios'
+    title: 'Dashboard de Reports'
   },
   {
     path: 'frequencia',

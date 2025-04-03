@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS courses (
 -- Tabela de matrículas (enrollments)
 CREATE TABLE IF NOT EXISTS enrollments (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
     course_id INTEGER NOT NULL,
     status VARCHAR(20) NOT NULL, -- 'ativa', 'concluida', 'cancelada' ou 'active', 'completed', 'canceled' (para compatibilidade)
     start_date DATE NOT NULL,
@@ -96,10 +96,10 @@ CREATE TABLE IF NOT EXISTS enrollments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (student_id) REFERENCES students(id),
     FOREIGN KEY (course_id) REFERENCES courses(id)
 );
-CREATE INDEX enrollments_user_id_idx ON enrollments(user_id);
+CREATE INDEX enrollments_student_id_idx ON enrollments(student_id);
 CREATE INDEX enrollments_course_id_idx ON enrollments(course_id);
 
 -- Tabela de matrículas (registrations) - mantida para compatibilidade com código existente

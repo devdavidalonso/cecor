@@ -1,6 +1,6 @@
 # Frontend do Sistema de Gestão Educacional CECOR
 
-Este é o frontend do Sistema de Gestão Educacional CECOR, uma aplicação web desenvolvida em Angular para gerenciar alunos, cursos, matrículas, presenças, relatórios e entrevistas.
+Este é o frontend do Sistema de Gestão Educacional CECOR, uma aplicação web desenvolvida em Angular para gerenciar alunos, cursos, matrículas, presenças, Reports e entrevistas.
 
 ## Tecnologias Utilizadas
 
@@ -75,7 +75,7 @@ frontend/
 │   │   │   ├── entrevistas/      # Módulo de entrevistas
 │   │   │   ├── matriculas/       # Módulo de matrículas
 │   │   │   ├── presencas/        # Módulo de presenças
-│   │   │   ├── relatorios/       # Módulo de relatórios
+│   │   │   ├── relatorios/       # Módulo de Reports
 │   │   │   └── voluntariado/     # Módulo de voluntariado
 │   │   │
 │   │   ├── layout/               # Componentes de layout
@@ -150,7 +150,7 @@ O frontend segue os princípios de arquitetura de componentes do Angular 17+, co
 - `/cursos`: Gestão de cursos
 - `/matriculas`: Gestão de matrículas
 - `/presencas`: Registro e controle de presença
-- `/relatorios`: Relatórios e análises
+- `/relatorios`: Reports e análises
 - `/entrevistas`: Gestão de entrevistas
 - `/voluntariado`: Gestão de termos de voluntariado
 - `/administracao`: Funções administrativas (somente para administradores)
@@ -160,7 +160,7 @@ O frontend segue os princípios de arquitetura de componentes do Angular 17+, co
 A interface se adapta dinamicamente ao perfil do usuário logado:
 
 - **Administrador**: Acesso completo a todas as funcionalidades
-- **Gestor**: Acesso a gerenciamento de alunos, cursos e relatórios
+- **Gestor**: Acesso a gerenciamento de alunos, cursos e Reports
 - **Professor**: Acesso a listas de presença e acompanhamento de alunos
 - **Aluno**: Visualização de informações pessoais e frequência
 - **Responsável**: Visualização de informações do aluno vinculado

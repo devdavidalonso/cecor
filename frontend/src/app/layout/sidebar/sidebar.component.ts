@@ -168,9 +168,9 @@ export class SidebarComponent {
       route: '/attendance'
     },
     {
-      text: 'Relatórios',
+      text: 'Reports',
       icon: 'assessment',
-      route: '/relatorios'
+      route: '/reports'
     },
     {
       text: 'Entrevistas',

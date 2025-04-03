@@ -1,6 +1,6 @@
 # Sistema de Gestão Educacional CECOR
 
-Sistema avançado de gestão educacional para o CECOR, projetado para administrar alunos, cursos, matrículas, presenças, relatórios e entrevistas.
+Sistema avançado de gestão educacional para o CECOR, projetado para administrar alunos, cursos, matrículas, presenças, Reports e entrevistas.
 
 ## Arquitetura
 
@@ -115,7 +115,7 @@ Authorization: Bearer <token>
 - **Cursos**: /api/v1/cursos
 - **Matrículas**: /api/v1/matriculas
 - **Presenças**: /api/v1/presencas
-- **Relatórios**: /api/v1/relatorios
+- **Reports**: /api/v1/relatorios
 - **Entrevistas**: /api/v1/entrevistas
 - **Voluntariado**: /api/v1/voluntariado
 

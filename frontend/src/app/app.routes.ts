@@ -36,18 +36,18 @@ export const routes: Routes = [
         path: 'reports',
         loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
       },
-      {
-        path: 'interviews',
-        loadChildren: () => import('./features/interviews/interviews.routes').then(m => m.INTERVIEWS_ROUTES)
-      },
-      {
-        path: 'volunteering',
-        loadChildren: () => import('./features/volunteering/volunteering.routes').then(m => m.VOLUNTEERING_ROUTES)
-      },
-      {
-        path: 'admin',
-        loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
-      }
+      // {
+      //   path: 'interviews',
+      //   loadChildren: () => import('./features/interviews/interviews.routes').then(m => m.INTERVIEWS_ROUTES)
+      // },
+      // {
+      //   path: 'volunteering',
+      //   loadChildren: () => import('./features/volunteering/volunteering.routes').then(m => m.VOLUNTEERING_ROUTES)
+      // },
+      // {
+      //   path: 'admin',
+      //   loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
+      // }
     ]
   },
   {
