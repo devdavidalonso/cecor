@@ -18,7 +18,7 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/api/routes"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
-	"github.com/devdavidalonso/cecor/backend/internal/service/students"
+	"github.com/devdavidalonso/cecor/backend/internal/service/users" // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
 )
 
@@ -52,13 +52,16 @@ func main() {
 	appLogger.Info("Database migration completed successfully")
 
 	// Initialize repositories
-	studentRepo := postgres.NewStudentRepository(db)
+	//studentRepo := postgres.NewStudentRepository(db)
+	userRepo := postgres.NewUserRepository(db) // Adicionar o repositório de usuários
 
 	// Initialize services
-	studentService := students.NewStudentService(studentRepo)
+	// studentService := students.NewStudentService(studentRepo)
+	userService := users.NewUserService(userRepo) // Adicionar o serviço de usuários
 
 	// Initialize handlers
-	studentHandler := handlers.NewStudentHandler(studentService)
+	// studentHandler := handlers.NewStudentHandler(studentService)
+	authHandler := handlers.NewAuthHandler(userService, cfg) // Adicionar o handler de autenticação
 
 	// Create router
 	r := chi.NewRouter()
@@ -88,21 +91,23 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	// API v1 routes
-	r.Route("/api/v1", func(r chi.Router) {
-		// Setup auth routes (not implemented here)
-		// routes.SetupAuthRoutes(r)
+	// Registrar todas as rotas, incluindo autenticação
+	routes.Register(r, cfg, authHandler)
 
-		// Setup student routes
-		routes.SetupStudentRoutes(r, studentHandler)
+	// API v1 routes (deixar comentado ou remover, pois já estamos usando routes.Register)
+	/*
+		r.Route("/api/v1", func(r chi.Router) {
+			// Setup student routes
+			routes.SetupStudentRoutes(r, studentHandler)
 
-		// Setup other routes
-		// routes.SetupCourseRoutes(r, courseHandler)
-		// routes.SetupEnrollmentRoutes(r, enrollmentHandler)
-		// routes.SetupAttendanceRoutes(r, attendanceHandler)
-		// routes.SetupReportRoutes(r, reportHandler)
-		// routes.SetupInterviewRoutes(r, interviewHandler)
-	})
+			// Setup other routes
+			// routes.SetupCourseRoutes(r, courseHandler)
+			// routes.SetupEnrollmentRoutes(r, enrollmentHandler)
+			// routes.SetupAttendanceRoutes(r, attendanceHandler)
+			// routes.SetupReportRoutes(r, reportHandler)
+			// routes.SetupInterviewRoutes(r, interviewHandler)
+		})
+	*/
 
 	// Get server port
 	port := cfg.Server.Port
@@ -116,6 +121,12 @@ func main() {
 		WriteTimeout: cfg.Server.WriteTimeout,
 		IdleTimeout:  cfg.Server.IdleTimeout,
 	}
+
+	// Imprimir todas as rotas registradas
+	chi.Walk(r, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		fmt.Printf("%s %s\n", method, route)
+		return nil
+	})
 
 	// Start server in a goroutine
 	go func() {

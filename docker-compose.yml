@@ -1,4 +1,3 @@
-# docker-compose.yml
 services:
   postgres:
     image: postgres:15-alpine
@@ -12,6 +11,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./backend/scripts/postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   mongodb:
     image: mongo:6-jammy
@@ -38,54 +42,37 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
 
-  # Usar a mesma imagem que o contêiner de debug
   backend:
-    image: cecor-backend-debug  # Imagem que já sabemos que funciona
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: cecor-backend
-    command: /app/myapp  # Comando para executar o binário
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
-      - redis
-      - mongodb
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     environment:
-      POSTGRES_HOST: postgres  # Corrigido para usar o nome do serviço
+      POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: educational_management
-      POSTGRES_SSLMODE: disable  # Adicionado para garantir que a conexão funcione
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MONGODB_URI: mongodb://mongodb:27017
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
-
-  # Manter o contêiner de debug para testes e desenvolvimento
-  backend-debug:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.debug
-    container_name: cecor-backend-debug
-    depends_on:
-      - postgres
-      - redis
-      - mongodb
-      - rabbitmq
-    environment:
-      POSTGRES_HOST: postgres  # Corrigido para usar o nome do serviço
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: educational_management
-      POSTGRES_SSLMODE: disable  # Adicionado para garantir que a conexão funcione
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      MONGODB_URI: mongodb://mongodb:27017
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
+      ENABLE_ELK: "true"
+      LOGSTASH_ADDR: "logstash:5000"
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -93,12 +80,81 @@ services:
       dockerfile: Dockerfile
     container_name: cecor-frontend
     ports:
-      - "8880:80"
+      - "80:80"
     depends_on:
       - backend
+    networks:
+      - app-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    container_name: cecor-elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.9
+    container_name: cecor-logstash
+    volumes:
+      - ./config/logstash/:/usr/share/logstash/pipeline/
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9600"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.9
+    container_name: cecor-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - app-network
 
 volumes:
   postgres-data:
   mongodb-data:
   redis-data:
   rabbitmq-data:
+  elasticsearch-data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,11 +1,34 @@
 package logger
 
 import (
+	"fmt"
+	"net"
 	"os"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+// configureLogstash adiciona um novo sink para Logstash
+func configureLogstash(writers *[]zapcore.WriteSyncer) {
+	if os.Getenv("ENABLE_ELK") == "true" {
+		logstashAddr := os.Getenv("LOGSTASH_ADDR")
+		if logstashAddr == "" {
+			logstashAddr = "logstash:5000"
+		}
+
+		// Configuração para enviar logs para o Logstash
+		conn, err := net.Dial("tcp", logstashAddr)
+		if err != nil {
+			fmt.Printf("Failed to connect to Logstash: %v\n", err)
+		} else {
+			// Adicionar um writer para enviar logs para o Logstash
+			// Note que isso é um exemplo simplificado
+			// Em produção, você precisaria de um cliente mais robusto
+			*writers = append(*writers, zapcore.AddSync(conn))
+		}
+	}
+}
 
 // Logger é uma interface para logging
 type Logger interface {
@@ -45,10 +68,16 @@ func NewLogger() Logger {
 		logLevel = zapcore.DebugLevel
 	}
 
-	// Criar core
+	// Preparar os writers para os logs
+	writers := []zapcore.WriteSyncer{zapcore.AddSync(os.Stdout)}
+
+	// Adicionar Logstash como um writer adicional, se configurado
+	configureLogstash(&writers)
+
+	// Criar core com múltiplos escritores
 	core := zapcore.NewCore(
 		encoder,
-		zapcore.AddSync(os.Stdout),
+		zapcore.NewMultiWriteSyncer(writers...),
 		logLevel,
 	)
 

@@ -9,7 +9,7 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/auth"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
-	"github.com/devdavidalonso/cecor/backend/internal/service/usuarios"
+	"github.com/devdavidalonso/cecor/backend/internal/service/users"
 	"github.com/devdavidalonso/cecor/backend/pkg/errors"
 )
 
@@ -33,15 +33,15 @@ type AuthResponse struct {
 
 // AuthHandler implementa os handlers HTTP para autenticação
 type AuthHandler struct {
-	usuarioService usuarios.Service
-	cfg            *config.Config
+	userService users.Service
+	cfg         *config.Config
 }
 
 // NewAuthHandler cria uma nova instância de AuthHandler
-func NewAuthHandler(usuarioService usuarios.Service, cfg *config.Config) *AuthHandler {
+func NewAuthHandler(userService users.Service, cfg *config.Config) *AuthHandler {
 	return &AuthHandler{
-		usuarioService: usuarioService,
-		cfg:            cfg,
+		userService: userService,
+		cfg:         cfg,
 	}
 }
 
@@ -73,7 +73,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Autenticar usuário
-	user, err := h.usuarioService.Authenticate(r.Context(), req.Email, req.Password)
+	user, err := h.userService.Authenticate(r.Context(), req.Email, req.Password)
 	if err != nil {
 		errors.RespondWithError(w, http.StatusUnauthorized, "Credenciais inválidas")
 		return
@@ -102,7 +102,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Atualizar último login do usuário
 	now := time.Now()
 	user.LastLogin = &now
-	h.usuarioService.UpdateLastLogin(r.Context(), user.ID)
+	h.userService.UpdateLastLogin(r.Context(), user.ID)
 
 	// Preparar resposta
 	response := AuthResponse{
