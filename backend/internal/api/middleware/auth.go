@@ -30,21 +30,21 @@ func Authenticate(next http.Handler) http.Handler {
 		// Extrair token do cabeçalho Authorization
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			errors.RespondWithError(w, http.StatusUnauthorized, "Token de autenticação não fornecido")
+			errors.RespondWithError(w, r, http.StatusUnauthorized, "Token de autenticação não fornecido")
 			return
 		}
 
 		// Verificar formato do token (Bearer token)
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			errors.RespondWithError(w, http.StatusUnauthorized, "Formato de token inválido")
+			errors.RespondWithError(w, r, http.StatusUnauthorized, "Formato de token inválido")
 			return
 		}
 
 		// Validar token
 		claims, err := auth.ValidateToken(parts[1])
 		if err != nil {
-			errors.RespondWithError(w, http.StatusUnauthorized, fmt.Sprintf("Token inválido: %v", err))
+			errors.RespondWithError(w, r, http.StatusUnauthorized, fmt.Sprintf("Token inválido: %v", err))
 			return
 		}
 
@@ -80,7 +80,7 @@ func RequireAdmin(next http.Handler) http.Handler {
 		// Obter claims do contexto
 		claims, ok := r.Context().Value(userClaimsKey).(*UserClaims)
 		if !ok {
-			errors.RespondWithError(w, http.StatusUnauthorized, "Usuário não autenticado")
+			errors.RespondWithError(w, r, http.StatusUnauthorized, "Usuário não autenticado")
 			return
 		}
 
@@ -94,7 +94,7 @@ func RequireAdmin(next http.Handler) http.Handler {
 		}
 
 		if !isAdmin {
-			errors.RespondWithError(w, http.StatusForbidden, "Acesso negado: privilégios de administrador necessários")
+			errors.RespondWithError(w, r, http.StatusForbidden, "Acesso negado: privilégios de administrador necessários")
 			return
 		}
 
