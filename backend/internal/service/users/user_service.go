@@ -4,6 +4,7 @@ package users
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
@@ -25,6 +26,7 @@ func NewUserService(userRepo repository.UserRepository) Service {
 
 // Authenticate authenticates a user with email and password
 func (s *userService) Authenticate(ctx context.Context, email, password string) (*models.User, error) {
+	log.Printf("Debugging email: %s", email) // Linha adicionada para debugging
 	// Find user by email
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {

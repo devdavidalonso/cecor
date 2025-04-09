@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -60,22 +61,30 @@ func NewAuthHandler(userService users.Service, cfg *config.Config) *AuthHandler 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 
+	// Verificar se as dependências estão inicializadas
+	if h.userService == nil {
+		log.Printf("ERRO CRÍTICO: userService é nil no AuthHandler")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Erro interno do servidor: serviço não inicializado"))
+		return
+	}
+
 	// Decodificar corpo da requisição
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Formato de dados inválido")
+		errors.RespondWithError(w, http.StatusBadRequest, "Formato de dados inválido")
 		return
 	}
 
 	// Validar campos
 	if req.Email == "" || req.Password == "" {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Email e senha são obrigatórios")
+		errors.RespondWithError(w, http.StatusBadRequest, "Email e senha são obrigatórios")
 		return
 	}
 
 	// Autenticar usuário
 	user, err := h.userService.Authenticate(r.Context(), req.Email, req.Password)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusUnauthorized, "Credenciais inválidas")
+		errors.RespondWithError(w, http.StatusUnauthorized, "Credenciais inválidas")
 		return
 	}
 
@@ -88,14 +97,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Gerar token de acesso
 	token, err := auth.GenerateToken(int64(user.ID), user.Email, user.Name, userRoles, auth.AccessToken, h.cfg)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusInternalServerError, "Erro ao gerar token")
+		errors.RespondWithError(w, http.StatusInternalServerError, "Erro ao gerar token")
 		return
 	}
 
 	// Gerar refresh token
 	refreshToken, err := auth.GenerateToken(int64(user.ID), user.Email, user.Name, userRoles, auth.RefreshToken, h.cfg)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusInternalServerError, "Erro ao gerar refresh token")
+		errors.RespondWithError(w, http.StatusInternalServerError, "Erro ao gerar refresh token")
 		return
 	}
 
@@ -136,20 +145,20 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	// Decodificar corpo da requisição
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Formato de dados inválido")
+		errors.RespondWithError(w, http.StatusBadRequest, "Formato de dados inválido")
 		return
 	}
 
 	// Validar campos
 	if req.RefreshToken == "" {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Refresh token é obrigatório")
+		errors.RespondWithError(w, http.StatusBadRequest, "Refresh token é obrigatório")
 		return
 	}
 
 	// Renovar token
 	newToken, err := auth.RefreshAccessToken(req.RefreshToken, h.cfg)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusUnauthorized, "Refresh token inválido ou expirado")
+		errors.RespondWithError(w, http.StatusUnauthorized, "Refresh token inválido ou expirado")
 		return
 	}
 

@@ -4,9 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	myctx "github.com/devdavidalonso/cecor/backend/pkg/context"
-	"github.com/devdavidalonso/cecor/backend/pkg/logger" // Added logger import
 )
 
 // AppError represents an application error
@@ -69,34 +66,34 @@ func ConflictError(message string) AppError {
 
 // RespondWithError sends a formatted error response and logs the error
 // Added request parameter to access context
-func RespondWithError(w http.ResponseWriter, r *http.Request, statusCode int, message string) {
-	// Get logger from request context
-	var log logger.Logger
-	if r != nil {
-		// Try to get logger from context
-		logger, ok := r.Context().Value(myctx.LoggerKey).(logger.Logger)
-		if ok {
-			log = logger
-		} else {
-			// Fallback to a new logger if not found in context
-			// log = logger.NewLogger()
-		}
+func RespondWithError(w http.ResponseWriter, statusCode int, message string) {
+	// // Get logger from request context
+	// var log logger.Logger
+	// if r != nil {
+	// 	// Try to get logger from context
+	// 	logger, ok := r.Context().Value(myctx.LoggerKey).(logger.Logger)
+	// 	if ok {
+	// 		log = logger
+	// 	} else {
+	// 		// Fallback to a new logger if not found in context
+	// 		log = logger.DefaultLogger()
+	// 	}
 
-		// Log the error with request details
-		log.Error("API Error",
-			"status_code", statusCode,
-			"error", message,
-			"path", r.URL.Path,
-			"method", r.Method,
-		)
-	} else {
-		// Create a new logger if request is nil (shouldn't happen in normal use)
-		log = logger.NewLogger()
-		log.Error("API Error (no request context)",
-			"status_code", statusCode,
-			"error", message,
-		)
-	}
+	// 	// Log the error with request details
+	// 	log.Error("API Error",
+	// 		"status_code", statusCode,
+	// 		"error", message,
+	// 		"path", r.URL.Path,
+	// 		"method", r.Method,
+	// 	)
+	// } else {
+	// 	// Create a new logger if request is nil (shouldn't happen in normal use)
+	// 	log = logger.NewLogger()
+	// 	log.Error("API Error (no request context)",
+	// 		"status_code", statusCode,
+	// 		"error", message,
+	// 	)
+	// }
 
 	// Send the error response
 	RespondWithErrorDetails(w, statusCode, message, nil)

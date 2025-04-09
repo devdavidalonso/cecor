@@ -93,7 +93,7 @@ func (h *StudentHandler) GetStudents(w http.ResponseWriter, r *http.Request) {
 	// Call service
 	students, total, err := h.studentService.GetStudents(r.Context(), page, pageSize, filters)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+		errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -125,7 +125,7 @@ func (h *StudentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -133,9 +133,9 @@ func (h *StudentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
 	student, err := h.studentService.GetStudentByID(r.Context(), uint(id))
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -159,14 +159,14 @@ func (h *StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
 	// Decode request body
 	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid data format")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid data format")
 		return
 	}
 
 	// Get user from context (for auditing)
 	_, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
-		errors.RespondWithError(w, r, http.StatusUnauthorized, "Unauthorized")
+		errors.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
@@ -180,9 +180,9 @@ func (h *StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 			err.Error() == "birth date is required" ||
 			err.Error() == "a student with this email already exists" ||
 			err.Error() == "a student with this CPF already exists" {
-			errors.RespondWithError(w, r, http.StatusBadRequest, err.Error())
+			errors.RespondWithError(w, http.StatusBadRequest, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -208,7 +208,7 @@ func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -216,7 +216,7 @@ func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 	// Decode request body
 	if err := json.NewDecoder(r.Body).Decode(&student); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid data format")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid data format")
 		return
 	}
 
@@ -228,12 +228,12 @@ func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// Check error type
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else if err.Error() == "another student with this email already exists" ||
 			err.Error() == "another student with this CPF already exists" {
-			errors.RespondWithError(w, r, http.StatusBadRequest, err.Error())
+			errors.RespondWithError(w, http.StatusBadRequest, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -241,7 +241,7 @@ func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	// Get updated student for response
 	updatedStudent, err := h.studentService.GetStudentByID(r.Context(), uint(id))
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusInternalServerError, "Error retrieving updated student")
+		errors.RespondWithError(w, http.StatusInternalServerError, "Error retrieving updated student")
 		return
 	}
 
@@ -265,7 +265,7 @@ func (h *StudentHandler) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -273,9 +273,9 @@ func (h *StudentHandler) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	err = h.studentService.DeleteStudent(r.Context(), uint(id))
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -301,7 +301,7 @@ func (h *StudentHandler) GetGuardians(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -309,9 +309,9 @@ func (h *StudentHandler) GetGuardians(w http.ResponseWriter, r *http.Request) {
 	guardians, err := h.studentService.GetGuardians(r.Context(), uint(id))
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -337,7 +337,7 @@ func (h *StudentHandler) AddGuardian(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -345,7 +345,7 @@ func (h *StudentHandler) AddGuardian(w http.ResponseWriter, r *http.Request) {
 
 	// Decode request body
 	if err := json.NewDecoder(r.Body).Decode(&guardian); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid data format")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid data format")
 		return
 	}
 
@@ -356,13 +356,13 @@ func (h *StudentHandler) AddGuardian(w http.ResponseWriter, r *http.Request) {
 	err = h.studentService.AddGuardian(r.Context(), &guardian)
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else if err.Error() == "guardian name is required" ||
 			err.Error() == "relationship is required" ||
 			err.Error() == "maximum of 3 guardians per student reached" {
-			errors.RespondWithError(w, r, http.StatusBadRequest, err.Error())
+			errors.RespondWithError(w, http.StatusBadRequest, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -388,7 +388,7 @@ func (h *StudentHandler) UpdateGuardian(w http.ResponseWriter, r *http.Request) 
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -396,7 +396,7 @@ func (h *StudentHandler) UpdateGuardian(w http.ResponseWriter, r *http.Request) 
 
 	// Decode request body
 	if err := json.NewDecoder(r.Body).Decode(&guardian); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid data format")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid data format")
 		return
 	}
 
@@ -407,9 +407,9 @@ func (h *StudentHandler) UpdateGuardian(w http.ResponseWriter, r *http.Request) 
 	err = h.studentService.UpdateGuardian(r.Context(), &guardian)
 	if err != nil {
 		if err.Error() == "guardian not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -434,7 +434,7 @@ func (h *StudentHandler) DeleteGuardian(w http.ResponseWriter, r *http.Request) 
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -442,9 +442,9 @@ func (h *StudentHandler) DeleteGuardian(w http.ResponseWriter, r *http.Request) 
 	err = h.studentService.RemoveGuardian(r.Context(), uint(id))
 	if err != nil {
 		if err.Error() == "guardian not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -470,7 +470,7 @@ func (h *StudentHandler) GetDocuments(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -478,9 +478,9 @@ func (h *StudentHandler) GetDocuments(w http.ResponseWriter, r *http.Request) {
 	documents, err := h.studentService.GetDocuments(r.Context(), uint(id))
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -506,7 +506,7 @@ func (h *StudentHandler) AddDocument(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -514,7 +514,7 @@ func (h *StudentHandler) AddDocument(w http.ResponseWriter, r *http.Request) {
 
 	// Decode request body
 	if err := json.NewDecoder(r.Body).Decode(&document); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid data format")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid data format")
 		return
 	}
 
@@ -524,7 +524,7 @@ func (h *StudentHandler) AddDocument(w http.ResponseWriter, r *http.Request) {
 	// Get user from context for document.UploadedBy
 	userClaims, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
-		errors.RespondWithError(w, r, http.StatusUnauthorized, "Unauthorized")
+		errors.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 	document.UploadedByID = uint(userClaims.UserID)
@@ -533,13 +533,13 @@ func (h *StudentHandler) AddDocument(w http.ResponseWriter, r *http.Request) {
 	err = h.studentService.AddDocument(r.Context(), &document)
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else if err.Error() == "document name is required" ||
 			err.Error() == "document type is required" ||
 			err.Error() == "document path is required" {
-			errors.RespondWithError(w, r, http.StatusBadRequest, err.Error())
+			errors.RespondWithError(w, http.StatusBadRequest, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -564,7 +564,7 @@ func (h *StudentHandler) DeleteDocument(w http.ResponseWriter, r *http.Request) 
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -572,9 +572,9 @@ func (h *StudentHandler) DeleteDocument(w http.ResponseWriter, r *http.Request) 
 	err = h.studentService.RemoveDocument(r.Context(), uint(id))
 	if err != nil {
 		if err.Error() == "document not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -601,7 +601,7 @@ func (h *StudentHandler) GetNotes(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -615,9 +615,9 @@ func (h *StudentHandler) GetNotes(w http.ResponseWriter, r *http.Request) {
 	notes, err := h.studentService.GetNotes(r.Context(), uint(id), includeConfidential)
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -643,7 +643,7 @@ func (h *StudentHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid ID")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid ID")
 		return
 	}
 
@@ -651,7 +651,7 @@ func (h *StudentHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 
 	// Decode request body
 	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
-		errors.RespondWithError(w, r, http.StatusBadRequest, "Invalid data format")
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid data format")
 		return
 	}
 
@@ -661,7 +661,7 @@ func (h *StudentHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 	// Get user from context for note.AuthorID
 	userClaims, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
-		errors.RespondWithError(w, r, http.StatusUnauthorized, "Unauthorized")
+		errors.RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 	note.AuthorID = uint(userClaims.UserID)
@@ -670,11 +670,11 @@ func (h *StudentHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 	err = h.studentService.AddNote(r.Context(), &note)
 	if err != nil {
 		if err.Error() == "student not found" {
-			errors.RespondWithError(w, r, http.StatusNotFound, err.Error())
+			errors.RespondWithError(w, http.StatusNotFound, err.Error())
 		} else if err.Error() == "note content is required" {
-			errors.RespondWithError(w, r, http.StatusBadRequest, err.Error())
+			errors.RespondWithError(w, http.StatusBadRequest, err.Error())
 		} else {
-			errors.RespondWithError(w, r, http.StatusInternalServerError, err.Error())
+			errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}

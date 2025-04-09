@@ -28,6 +28,9 @@ COPY --from=builder /app/dist/frontend/ /usr/share/nginx/html/
 # Copiar configuração do Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Adicionar backend ao hosts file (substitua 172.20.0.2 pelo IP correto)
+# RUN echo "172.20.0.2 backend" >> /etc/hosts
+
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]

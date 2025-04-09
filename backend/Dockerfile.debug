@@ -1,15 +1,20 @@
 FROM golang:1.22-alpine
 
+# Instalar ferramentas necessárias
+RUN apk add --no-cache git gcc libc-dev
+# Instalar o Delve (debugger para Go)
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
 WORKDIR /app
 
-# Copiar o código-fonte
-COPY . .
+# Não é mais necessário copiar go.mod e go.sum pois usaremos volume
+# Não é mais necessário copiar o código fonte pois usaremos volume
 
-# Compilar 
-RUN go build -o myapp ./cmd/api
+# Expor portas
+EXPOSE 8080 2345
 
-# Expor a porta do servidor
-EXPOSE 8080
+# Executar um script de inicialização em vez de um comando direto
+COPY scripts/debug-entrypoint.sh /debug-entrypoint.sh
+RUN chmod +x /debug-entrypoint.sh
 
-# Executar o binário
-CMD ["/app/myapp"]
+CMD ["/debug-entrypoint.sh"]
