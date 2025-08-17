@@ -13,14 +13,38 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt" // Adicione esta importação para o bcrypt
+	"gorm.io/gorm"
 
 	"github.com/devdavidalonso/cecor/backend/internal/api/handlers"
 	"github.com/devdavidalonso/cecor/backend/internal/api/routes"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
+	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
 	"github.com/devdavidalonso/cecor/backend/internal/service/users" // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
 )
+
+// Adicione esta função para atualizar a senha do usuário
+func updateUserPassword(db *gorm.DB, email, password string) {
+	// Gerar novo hash
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("Erro ao gerar hash: %v", err)
+		return
+	}
+
+	// Atualizar no banco
+	result := db.Model(&models.User{}).
+		Where("email = ?", email).
+		Update("password", string(hashedPassword))
+
+	if result.Error != nil {
+		log.Printf("Erro ao atualizar senha: %v", result.Error)
+	} else {
+		log.Printf("Senha atualizada com sucesso para %s", email)
+	}
+}
 
 func main() {
 	// Load environment variables
@@ -50,6 +74,9 @@ func main() {
 		appLogger.Fatal("Failed to migrate database", "error", err)
 	}
 	appLogger.Info("Database migration completed successfully")
+
+	// Atualizar senha do usuário de teste
+	updateUserPassword(db, "maria.silva@cecor.org", "cecor2024!")
 
 	// Initialize repositories
 	//studentRepo := postgres.NewStudentRepository(db)

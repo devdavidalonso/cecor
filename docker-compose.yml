@@ -60,11 +60,11 @@ services:
       dockerfile: Dockerfile
       # dockerfile: Dockerfile.debug  # Use o Dockerfile específico para debug
     container_name: cecor-backend
-    volumes:
-      - ./backend:/app  # Monte apenas o diretório backend
+    # volumes:
+    #   - ./backend:/app  # Monte apenas o diretório backend
     ports:
       - "8080:8080"
-      - "2345:2345"  # Porta do debugger
+      - "40000:40000" # Adicione esta linha para expor a porta de depuração
     env_file:
       - ./backend/.env.docker
     security_opt:

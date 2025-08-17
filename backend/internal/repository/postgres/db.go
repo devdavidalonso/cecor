@@ -54,6 +54,9 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
+	// Adicione esta linha para aumentar o timeout de consulta
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+
 	return db, nil
 }
 

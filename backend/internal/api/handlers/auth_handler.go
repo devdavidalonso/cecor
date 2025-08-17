@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -81,8 +82,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Criar um contexto com timeout maior para a operação de autenticação
+	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+	defer cancel()
+
 	// Autenticar usuário
-	user, err := h.userService.Authenticate(r.Context(), req.Email, req.Password)
+	user, err := h.userService.Authenticate(ctx, req.Email, req.Password)
 	if err != nil {
 		errors.RespondWithError(w, http.StatusUnauthorized, "Credenciais inválidas")
 		return

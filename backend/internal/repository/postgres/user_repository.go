@@ -47,7 +47,11 @@ func (r *userRepository) FindByID(ctx context.Context, id uint) (*models.User, e
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
 
-	result := r.db.WithContext(ctx).
+	// Criar um novo contexto com timeout maior (30 segundos)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	result := r.db.WithContext(timeoutCtx).
 		Where("LOWER(email) = LOWER(?) AND deleted_at IS NULL", email).
 		First(&user)
 

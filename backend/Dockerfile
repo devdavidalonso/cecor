@@ -1,20 +1,34 @@
-FROM golang:1.22-alpine
+# Stage 1: Build the application
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
-# Copy go.mod and go.sum first for better caching
+# Install build tools
+RUN apk add --no-cache git gcc libc-dev
+
+# Copy go.mod and go.sum first for better cache
 COPY go.mod go.sum ./
 RUN go mod download
-
-# Add missing dependencies
-RUN go get github.com/go-chi/cors
 
 # Copy the source code
 COPY . .
 
 # Build the application
-RUN go build -o myapp ./cmd/api
+RUN go build -o /app/main ./cmd/api/main.go
 
-# Expose port and set the startup command
+# List files for debugging
+RUN ls -la /app
+
+# Stage 2: Create the final image
+FROM alpine:latest
+
+WORKDIR /app
+
+# Copy the built application from the builder stage
+COPY --from=builder /app/main /app/main
+
+# Expose the application port
 EXPOSE 8080
-CMD ["/app/myapp"]
+
+# Run the application
+CMD ["/app/main"]
