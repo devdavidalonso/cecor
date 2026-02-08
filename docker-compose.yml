@@ -6,9 +6,9 @@ services:
     image: postgres:15-alpine
     container_name: cecor-postgres
     environment:
-      POSTGRES_USER: cecor # ← CORRIGIDO
-      POSTGRES_PASSWORD: cecor123 # ← CORRIGIDO
-      POSTGRES_DB: cecor_db # ← CORRIGIDO
+      POSTGRES_USER: cecor
+      POSTGRES_PASSWORD: cecor123
+      POSTGRES_DB: cecor_db
     ports:
       - "5433:5432"
     volumes:
@@ -18,47 +18,10 @@ services:
       app-network:
         ipv4_address: 172.19.0.3
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cecor -d cecor_db"] # ← CORRIGIDO
+      test: ["CMD-SHELL", "pg_isready -U cecor -d cecor_db"]
       interval: 5s
       timeout: 5s
       retries: 5
-
-  # Redis, MongoDB, RabbitMQ - Comentados para o MVP
-  # Descomentar apenas quando necessário depois do MVP
-
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: cecor-redis
-  #   ports:
-  #     - "6380:6379"
-  #   volumes:
-  #     - redis-data:/data
-  #   networks:
-  #     app-network:
-  #       ipv4_address: 172.19.0.4
-
-  # mongodb:
-  #   image: mongo:6-jammy
-  #   container_name: cecor-mongodb
-  #   ports:
-  #     - "27017:27017"
-  #   volumes:
-  #     - mongodb-data:/data/db
-  #   networks:
-  #     app-network:
-  #       ipv4_address: 172.19.0.5
-
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   container_name: cecor-rabbitmq
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
-  #   volumes:
-  #     - rabbitmq-data:/var/lib/rabbitmq
-  #   networks:
-  #     app-network:
-  #       ipv4_address: 172.19.0.6
 
   backend:
     build:
@@ -98,9 +61,6 @@ services:
 
 volumes:
   postgres-data:
-  # mongodb-data:  # Comentado para MVP
-  # redis-data:    # Comentado para MVP
-  # rabbitmq-data: # Comentado para MVP
 
 networks:
   app-network:
