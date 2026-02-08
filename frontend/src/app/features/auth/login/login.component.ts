@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { SsoService } from '../../../core/services/sso.service';
-import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -144,9 +143,9 @@ import { finalize } from 'rxjs/operators';
   `]
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private ssoService = inject(SsoService);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly ssoService = inject(SsoService);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -157,27 +156,12 @@ export class LoginComponent {
   errorMessage: string | null = null;
 
   onSubmit(): void {
-    if (this.loginForm.invalid || this.loading) {
-      return;
-    }
-
-    this.loading = true;
-    this.errorMessage = null;
-    const { email, password } = this.loginForm.value;
-
-    this.authService.login(email!, password!)
-      .pipe(
-        finalize(() => this.loading = false)
-      )
-      .subscribe(success => {
-        if (!success) {
-          this.errorMessage = 'Email ou senha inválidos. Tente novamente.';
-          this.loginForm.get('password')?.reset();
-        }
-      });
+    // Para MVP, usar apenas autenticação via Keycloak
+    this.loginWithSso();
   }
 
   loginWithSso(): void {
     this.ssoService.login();
   }
 }
+

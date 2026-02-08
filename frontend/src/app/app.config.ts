@@ -1,5 +1,5 @@
 // src/app/app.config.ts
-import { ApplicationConfig, isDevMode } from '@angular/core';
+import { ApplicationConfig, isDevMode, APP_INITIALIZER } from '@angular/core';
 import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -8,21 +8,21 @@ import { provideOAuthClient } from 'angular-oauth2-oidc';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-import { environment } from '../environments/environment';
 
 // Provider Factory para serviços que precisam de versões mockadas no modo protótipo
 import { cursoServiceFactory } from './core/factories/curso-service.factory';
 import { CursoService } from './core/services/curso.service';
-import { MockCursoService } from './core/services/prototype/mock-curso.service';
 import { PrototypeService } from './core/services/prototype/prototype.service';
-import { APP_INITIALIZER } from '@angular/core';
 import { SsoService } from './core/services/sso.service';
 
-
+// Factory para inicialização do SSO
+export function initializeSso(ssoService: SsoService) {
+  return () => ssoService.initSso();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes, withEnabledBlockingInitialNavigation()),
+    provideRouter(routes), // Remove withEnabledBlockingInitialNavigation to let SSO process URL first
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
     provideOAuthClient(),
@@ -35,14 +35,19 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true
     },
+    // Inicialização do SSO antes do bootstrap da aplicação
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeSso,
+      deps: [SsoService],
+      multi: true
+    },
     // Provider para o serviço de curso (real ou mockado)
     {
       provide: CursoService,
       useFactory: cursoServiceFactory
     },
     // Serviço de protótipo (sempre disponível)
-    // Serviço de protótipo (sempre disponível)
-    PrototypeService,
     PrototypeService
   ]
 };
