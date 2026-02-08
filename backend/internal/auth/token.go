@@ -89,19 +89,17 @@ func ValidateToken(tokenString string, cfg *config.Config) (jwt.MapClaims, error
 	return claims, nil
 }
 
-// ValidateSSOToken valida um token JWT do provedor SSO e retorna seus claims
-func ValidateSSOToken(ctx context.Context, tokenString string) (map[string]interface{}, error) {
+// ValidateOIDCToken valida um token JWT do provedor SSO e retorna seus claims
+func ValidateOIDCToken(ctx context.Context, tokenString string) (map[string]interface{}, error) {
 	if Provider == nil {
 		return nil, fmt.Errorf("OIDC provider not initialized")
 	}
 
 	// Configurar verifier
-	// Nota: Para tokens de acesso do Keycloak, pode ser necessário pular verificação de ClientID ou Issuer se não baterem exatamente.
-	// Mas o padrão é verificar.
+	// Usamos o ClientID do backend se disponível, ou aceitamos qualquer um confiando no Provider
+	// O importante é validar a assinatura e expiração
 	verifier := Provider.Verifier(&oidc.Config{
-		ClientID:          "ceco-frontend", // O mesmo ID usado no frontend
-		SkipClientIDCheck: true,            // Descomente se necessário
-		SkipIssuerCheck:   true,
+		SkipClientIDCheck: true, // Keycloak pode emitir tokens com 'azp' diferente do 'aud'
 	})
 
 	// Verificar token

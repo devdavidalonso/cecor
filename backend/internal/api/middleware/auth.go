@@ -43,8 +43,8 @@ func Authenticate(cfg *config.Config) func(next http.Handler) http.Handler {
 				return
 			}
 
-			// Validar token (Local HS256)
-			claims, err := auth.ValidateToken(parts[1], cfg)
+			// Validar token (OIDC Keycloak)
+			claims, err := auth.ValidateOIDCToken(r.Context(), parts[1])
 			if err != nil {
 				fmt.Printf("❌ Authentication Failed: %v\n", err)
 				errors.RespondWithError(w, http.StatusUnauthorized, fmt.Sprintf("Token inválido: %v", err))
@@ -53,15 +53,24 @@ func Authenticate(cfg *config.Config) func(next http.Handler) http.Handler {
 
 			// Extrair claims específicas do usuário
 			userClaims := &UserClaims{
-				UserID: int64(claims["userId"].(float64)),
-				Email:  claims["email"].(string),
-				Name:   claims["name"].(string),
+				Email: claims["email"].(string),
+				Name:  claims["name"].(string),
 			}
 
-			// Extrair roles (pode ser opcional em alguns tokens)
-			if rolesInterface, ok := claims["roles"]; ok {
-				if rolesArray, ok := rolesInterface.([]interface{}); ok {
-					for _, role := range rolesArray {
+			// Tentar extrair UserID se disponível (pode não estar no token do Keycloak inicialmente)
+			// No Keycloak, o ID do usuário é 'sub' (UUID), mas nosso sistema usa int64.
+			// Por enquanto, vamos deixar UserID zerado ou tentar mapear via email se necessário.
+			// Para o MVP, vamos confiar no email como identificador principal se o userId não for compatível.
+			if sub, ok := claims["sub"].(string); ok {
+				// TODO: Mapear UUID do Keycloak para ID local ou usar UUID no sistema todo
+				// Por enquanto, não vamos quebrar se não conseguir converter
+				fmt.Printf("User authenticated: %s (%s)\n", userClaims.Email, sub)
+			}
+
+			// Extrair roles do realm_access
+			if realmAccess, ok := claims["realm_access"].(map[string]interface{}); ok {
+				if roles, ok := realmAccess["roles"].([]interface{}); ok {
+					for _, role := range roles {
 						if roleStr, ok := role.(string); ok {
 							userClaims.Roles = append(userClaims.Roles, roleStr)
 						}

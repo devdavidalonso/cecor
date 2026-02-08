@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -65,8 +66,9 @@ func main() {
 	}
 
 	// Initialize SSO Provider
-	// TODO: Use URL from config
-	if err := auth.InitProvider(context.Background(), "http://localhost:8081/realms/lar-sso"); err != nil {
+	// Extract issuer URL from AuthURL (remove the /protocol/openid-connect/auth part)
+	issuerURL := strings.TrimSuffix(cfg.SSO.AuthURL, "/protocol/openid-connect/auth")
+	if err := auth.InitProvider(context.Background(), issuerURL); err != nil {
 		appLogger.Fatal("Failed to initialize SSO provider", "error", err)
 	}
 
