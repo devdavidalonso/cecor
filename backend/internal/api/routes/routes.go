@@ -31,6 +31,9 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 			// Aplicar middleware de autenticação
 			r.Use(middleware.Authenticate(cfg))
 
+			// Endpoint de verificação de token
+			r.Get("/auth/verify", authHandler.Verify)
+
 			// Alunos
 			r.Route("/alunos", func(r chi.Router) {
 				r.Get("/", http.NotFound)        // TODO: Implementar handler

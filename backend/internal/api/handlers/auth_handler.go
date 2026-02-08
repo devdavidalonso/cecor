@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/devdavidalonso/cecor/backend/internal/api/middleware"
 	"github.com/devdavidalonso/cecor/backend/internal/auth"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
@@ -151,7 +152,7 @@ func (h *AuthHandler) SSOCallback(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) getUserInfo(token *oauth2.Token) (*UserInfo, error) {
 	client := h.ssoConfig.Client(context.Background(), token)
-	resp, err := client.Get("http://localhost:8081/realms/lar-sso/protocol/openid-connect/userinfo")
+	resp, err := client.Get(h.cfg.SSO.UserInfoURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user info from SSO provider: %w", err)
 	}
@@ -206,4 +207,18 @@ func generateRandomState() (string, error) {
 		return "", err
 	}
 	return base64.RawURLEncoding.EncodeToString(b), nil
+}
+
+// Verify retorna as informações do usuário autenticado
+func (h *AuthHandler) Verify(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middleware.GetUserFromContext(r.Context())
+	if !ok {
+		errors.RespondWithError(w, http.StatusUnauthorized, "Usuário não autenticado")
+		return
+	}
+
+	errors.RespondWithJSON(w, http.StatusOK, map[string]interface{}{
+		"valid": true,
+		"user":  claims,
+	})
 }
