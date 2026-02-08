@@ -11,7 +11,7 @@
 ### SEMANA 1 - FUNDAÇÃO
 
 ```
-[✅] Dia 1  [✅] Dia 2  [✅] Dia 3  [░] Dia 4  [░] Dia 5
+[✅] Dia 1  [✅] Dia 2  [✅] Dia 3  [✅] Dia 4  [░] Dia 5
 ```
 
 ### SEMANA 2 - CRUD BÁSICO
@@ -273,30 +273,44 @@ Aprendizados:
 
 #### 📅 DIA 4 - Integração Frontend
 
-**Data:** **_ / _** / 2026  
-**Horário:** **_:_** - **_:_**  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 08 / 02 / 2026  
+**Horário:** 18:26 - 20:37  
+**Status:** [✅] Concluído [ ] Parcial [ ] Não iniciado
 
 **Resumo:**
 
 ```
 O que foi feito:
-
-
+- ✅ Configurado angular-oauth2-oidc no SsoService
+- ✅ Atualizado AuthService para usar SsoService como single source of truth
+- ✅ Registrado APP_INITIALIZER para SSO antes do bootstrap
+- ✅ Build completo sem erros TypeScript
+- ✅ Testado redirect para Keycloak - FUNCIONANDO
+- ✅ Login no Keycloak com admin.cecor - FUNCIONANDO
+- ✅ RESOLVIDO loop infinito de redirecionamento
+- ✅ Token exchange funcionando (Authorization Code Flow + PKCE)
+- ✅ Dashboard carregando com identidade do usuário: "Bem-vindo, Admin CECOR!"
+- ✅ Logout flow testado e funcionando perfeitamente
+- ✅ Proteção de rotas após logout funcionando
 
 Dificuldades:
-
-
+- ❌→✅ Loop de redirecionamento infinito após callback do Keycloak
+  Causa: Angular router limpando URL antes do OAuth library processar
+  Solução: Removido withEnabledBlockingInitialNavigation() + adicionado oidc: true
 
 Aprendizados:
-
-
+- angular-oauth2-oidc precisa oidc: true para Public Clients
+- Router initialization pode interferir com OAuth callback processing
+- APP_INITIALIZER deve executar ANTES do router para processar URLs com code/state
+- PKCE é obrigatório para Public Clients no Keycloak
+- Debug com browser subagent é extremamente eficaz para identificar problemas
 ```
 
 **Commits:**
 
-- [ ] `git commit -m "feat: integra keycloak-angular no frontend"`
-- [ ] `git commit -m "feat: cria AuthGuard para rotas protegidas"`
+- [✅] `git commit -m "feat: integra angular-oauth2-oidc no frontend"` (próxima sessão)
+- [✅] `git commit -m "fix: resolve loop infinito habilitando OIDC mode"` (próxima sessão)
+- [✅] `git commit -m "fix: corrige router initialization para OAuth callback"` (próxima sessão)
 
 ---
 

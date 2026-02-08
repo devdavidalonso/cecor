@@ -37,7 +37,7 @@ Keycloak (lar-sso) ← SSO
 ## 📊 PROGRESSO GERAL
 
 ```
-[████░░░░░░░░░░░░░░░░] 20% - Fundação Concluída (Backend)
+[█████░░░░░░░░░░░░░░░] 26% - Autenticação Completa (Frontend + Backend)
 ```
 
 ---
@@ -123,27 +123,37 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 4 - Integração Frontend com Keycloak
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] **Concluído**
 
 #### Tarefas:
 
-- [ ] Instalar biblioteca: `npm install keycloak-angular keycloak-js`
-- [ ] Configurar KeycloakService no Angular
-- [ ] Criar AuthGuard para rotas protegidas
-- [ ] Implementar tela de redirecionamento para login
-- [ ] Testar fluxo completo de login
+- [✅] ~~Instalar biblioteca: `npm install keycloak-angular keycloak-js`~~ _Usamos angular-oauth2-oidc_
+- [✅] Configurar SsoService no Angular com OIDC
+- [✅] Criar AuthGuard para rotas protegidas
+- [✅] Implementar APP_INITIALIZER para processamento de callbacks
+- [✅] Testar fluxo completo de login
+- [✅] **RESOLVIDO:** Loop infinito de redirecionamento (OIDC mode + router config)
+- [✅] Testar logout flow
 
-**Arquivos a criar/modificar:**
+**Arquivos criados/modificados:**
 
-- `frontend/src/app/core/services/keycloak.service.ts`
+- `frontend/src/app/core/services/sso.service.ts`
+- `frontend/src/app/core/services/auth.service.ts`
 - `frontend/src/app/core/guards/auth.guard.ts`
-- `frontend/src/app/app.module.ts`
+- `frontend/src/app/app.config.ts`
 
 **Critério de sucesso:**
 ✅ Login redireciona para Keycloak  
-✅ Após login, retorna para aplicação  
-✅ Token armazenado no localStorage  
-✅ Rotas protegidas funcionando
+✅ Após login, retorna para aplicação com tokens  
+✅ Token armazenado no sessionStorage  
+✅ Rotas protegidas funcionando  
+✅ Logout limpa tokens e invalida sessão  
+✅ Dashboard carrega com identidade do usuário
+
+**Desafio resolvido:**
+
+- Loop infinito causado por router limpando URL antes de OAuth processar código
+- Solução: `oidc: true` + remover `withEnabledBlockingInitialNavigation()`
 
 ---
 

@@ -1,16 +1,15 @@
 # Sistema de Gestão Educacional CECOR
 
-Sistema avançado de gestão educacional para o CECOR, projetado para administrar alunos, cursos, matrículas, presenças, Reports e entrevistas.
+Sistema de gestão educacional para o CECOR (Lar do Alvorecer), projetado para administrar alunos, cursos, matrículas e frequências.
 
-## Arquitetura
+## Arquitetura (MVP)
 
-O sistema foi migrado para uma arquitetura de microsserviços, conforme a documentação técnica:
+O sistema MVP utiliza uma arquitetura simplificada focada em entregar valor rapidamente:
 
 - **Frontend**: Angular 17 com Material Design
-- **Backend**: Go com padrão arquitetural hexagonal (ports and adapters)
-- **Banco de dados**: PostgreSQL para dados estruturados e MongoDB para dados flexíveis
-- **Cache**: Redis
-- **Mensageria**: RabbitMQ para comunicação assíncrona entre serviços
+- **Backend**: Go com padrão arquitetural hexagonal (Clean Architecture)
+- **Banco de dados**: PostgreSQL 15
+- **Autenticação**: Keycloak (SSO remoto)
 
 ## Estrutura do Projeto
 
@@ -31,7 +30,7 @@ CECOR/
 │   ├── cmd/
 │   │   └── api/               # Ponto de entrada da aplicação
 │   ├── internal/
-│   │   ├── auth/              # Autenticação e autorização
+│   │   ├── auth/              # Autenticação e autorização (OIDC)
 │   │   ├── config/            # Configuração da aplicação
 │   │   ├── models/            # Modelos de dados
 │   │   ├── repository/        # Camada de acesso a dados
@@ -48,7 +47,7 @@ CECOR/
 - Docker e Docker Compose
 - Node.js 18+ (para desenvolvimento frontend)
 - Go 1.22+ (para desenvolvimento backend)
-- PostgreSQL 15+ (instalação local opcional)
+- Acesso à Internet (conecta ao Keycloak remoto)
 
 ## Configuração de Desenvolvimento
 
@@ -67,13 +66,11 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
-Isso iniciará todos os serviços:
-- Frontend: http://localhost:4200
-- Backend API: http://localhost:8080
-- PostgreSQL: localhost:5432
-- MongoDB: localhost:27017
-- Redis: localhost:6379
-- RabbitMQ: localhost:5672 (AMQP) e http://localhost:15672 (Management UI)
+Isso iniciará os serviços:
+
+- **Frontend**: http://localhost:4201
+- **Backend API**: http://localhost:8081
+- **PostgreSQL**: localhost:5433
 
 ### Desenvolvimento Frontend (Angular)
 
@@ -85,7 +82,7 @@ npm install
 npm start
 ```
 
-A aplicação estará disponível em http://localhost:4200 e as requisições API serão redirecionadas para o backend através do proxy configurado.
+A aplicação estará disponível em http://localhost:4200.
 
 ### Desenvolvimento Backend (Go)
 
@@ -99,38 +96,65 @@ go run cmd/api/main.go
 
 ## Autenticação
 
-O sistema utiliza JWT (JSON Web Tokens) para autenticação:
+O sistema utiliza **Keycloak** para autenticação centralizada (OIDC):
 
-- **Login**: POST /api/v1/auth/login
-- **Refresh**: POST /api/v1/auth/refresh
+- **Keycloak URL**: https://lar-sso-keycloak.hrbsys.tech
+- **Realm**: `cecor`
+- **Clients**:
+  - `cecor-frontend` (Public) - para o Angular
+  - `cecor-backend` (Confidential) - para validação de tokens
 
-O token deve ser incluído no cabeçalho Authorization de todas as requisições protegidas:
-```
-Authorization: Bearer <token>
-```
+### Fluxo de Login
+
+1. Usuário acessa rota protegida no frontend
+2. Redireciona para Keycloak (se não autenticado)
+3. Após login, retorna com Authorization Code
+4. Frontend troca código por token JWT (PKCE)
+5. Token é enviado automaticamente nas requisições ao backend
+6. Backend valida o token via OIDC
+
+**Status de Implementação:**
+
+- ✅ **Frontend:** `angular-oauth2-oidc` configurado com OIDC mode
+- ✅ **Backend:** Middleware JWT com validação JWKS
+- ✅ **Logout:** Fluxo completo funcionando
+- ✅ **Proteção de rotas:** AuthGuard no frontend + middleware no backend
 
 ## Rotas API Principais
 
-- **Alunos**: /api/v1/alunos
-- **Cursos**: /api/v1/cursos
-- **Matrículas**: /api/v1/matriculas
-- **Presenças**: /api/v1/presencas
-- **Reports**: /api/v1/relatorios
-- **Entrevistas**: /api/v1/entrevistas
-- **Voluntariado**: /api/v1/voluntariado
+- **Health**: GET /health
+- **Auth Verification**: GET /api/v1/auth/verify (protegido)
+- **Alunos**: /api/v1/alunos (a implementar)
+- **Cursos**: /api/v1/cursos (a implementar)
+- **Matrículas**: /api/v1/matriculas (a implementar)
+- **Presenças**: /api/v1/presencas (a implementar)
 
 ## Perfis de Usuário
 
-- **Administrador**: Acesso total
-- **Gestor**: Gestão de cursos, matrículas, professores
-- **Professor**: Registro de presenças, acompanhamento de alunos
-- **Aluno**: Visualização de frequência, materiais, certificados
-- **Responsável**: Acompanhamento do aluno vinculado
+- **Administrador**: Acesso total ao sistema
+- **Professor**: Registro de frequências e acompanhamento de alunos
+- **Aluno**: Visualização da própria frequência
+
+## Usuários de Teste
+
+| Perfil        | Usuário       | Senha      |
+| ------------- | ------------- | ---------- |
+| Administrador | `admin.cecor` | `admin123` |
+| Professor     | `prof.maria`  | `prof123`  |
+| Aluno         | `aluno.pedro` | `aluno123` |
+
+## Documentação Adicional
+
+- [INTEGRATION-GUIDE.md](./INTEGRATION-GUIDE.md) - Guia de integração com Keycloak
+- [KEYCLOAK-CONFIG.md](./KEYCLOAK-CONFIG.md) - Configuração do Keycloak
+- [MVP-ROADMAP.md](./MVP-ROADMAP.md) - Roadmap de desenvolvimento
+- [DAILY-TASKS.md](./DAILY-TASKS.md) - Tarefas diárias
+- [GIT-CONVENTIONS.md](./GIT-CONVENTIONS.md) - Convenções de commits
 
 ## Contribuição
 
 1. Crie um branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
-2. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+2. Commit suas mudanças seguindo [GIT-CONVENTIONS.md](./GIT-CONVENTIONS.md)
 3. Push para o branch (`git push origin feature/nova-funcionalidade`)
 4. Abra um Pull Request
 
