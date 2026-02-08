@@ -11,13 +11,13 @@
 ### SEMANA 1 - FUNDAÇÃO
 
 ```
-[░] Dia 1  [░] Dia 2  [░] Dia 3  [░] Dia 4  [░] Dia 5
+[░] Dia 1  [✅] Dia 2  [░] Dia 3  [░] Dia 4  [░] Dia 5
 ```
 
 ### SEMANA 2 - CRUD BÁSICO
 
 ```
-[░] Dia 6  [░] Dia 7  [░] Dia 8  [░] Dia 9  [░] Dia 10
+[✅] Dia 6  [░] Dia 7  [░] Dia 8  [░] Dia 9  [░] Dia 10
 ```
 
 ### SEMANA 3 - FREQUÊNCIA
