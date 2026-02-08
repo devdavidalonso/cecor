@@ -11,7 +11,7 @@
 ### SEMANA 1 - FUNDAÇÃO
 
 ```
-[░] Dia 1  [✅] Dia 2  [░] Dia 3  [░] Dia 4  [░] Dia 5
+[✅] Dia 1  [✅] Dia 2  [✅] Dia 3  [░] Dia 4  [░] Dia 5
 ```
 
 ### SEMANA 2 - CRUD BÁSICO
@@ -48,10 +48,10 @@
 
 **O que fazer:**
 
-- [x] Abrir IDE (AntiGravity)
-- [x] Ler a tarefa do dia no MVP-ROADMAP.md
-- [ ] Preparar ambiente (subir docker, abrir arquivos)
-- [ ] Começar primeira subtarefa
+- [✅] Abrir IDE (AntiGravity)
+- [✅] Ler a tarefa do dia no MVP-ROADMAP.md
+- [✅ ] Preparar ambiente (subir docker, abrir arquivos)
+- [✅ ] Começar primeira subtarefa
 
 **Checkpoint 1h:**
 
@@ -123,7 +123,7 @@ Se não, o que falta:
 **Checkpoint 4h - ENCERRAMENTO:**
 
 ```
-✅ Tarefa concluída? [ ] Sim [ ] Parcial [ ] Não
+✅ Tarefa concluída? [✅] Sim [ ] Parcial [ ] Não
 
 Se parcial/não, motivo:
 
@@ -187,7 +187,7 @@ Próxima sessão vai começar em:
 
 **Data:** **_ / _** / 2026  
 **Horário:** **_:_** - **_:_**  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Status:** [✅] Concluído [ ] Parcial [ ] Não iniciado
 
 **Resumo:**
 
@@ -207,8 +207,8 @@ Aprendizados:
 
 **Commits:**
 
-- [ ] `git commit -m "feat: limpa docker-compose para MVP"`
-- [ ] `git commit -m "chore: remove dependências desnecessárias"`
+- [✅] `git commit -m "feat: limpa docker-compose para MVP"`
+- [✅] `git commit -m "chore: remove dependências desnecessárias"`
 
 ---
 
@@ -216,7 +216,7 @@ Aprendizados:
 
 **Data:** **_ / _** / 2026  
 **Horário:** **_:_** - **_:_**  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Status:** [✅ Concluído [ ] Parcial [ ] Não iniciado
 
 **Resumo:**
 
@@ -236,7 +236,7 @@ Aprendizados:
 
 **Commits:**
 
-- [ ] `git commit -m "docs: adiciona configuração Keycloak no README"`
+- [✅] `git commit -m "docs: adiciona configuração Keycloak no README"`
 
 ---
 
@@ -244,28 +244,30 @@ Aprendizados:
 
 **Data:** **_ / _** / 2026  
 **Horário:** **_:_** - **_:_**  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Status:** [✅] Concluído [ ] Parcial [ ] Não iniciado
 
 **Resumo:**
 
 ```
 O que foi feito:
-
-
+- Implementado middleware OIDC para validação de tokens JWT do Keycloak
+- Criado endpoint de verificação de sessão (/api/v1/auth/verify)
+- Configurado backend para usar JWKS do Keycloak de produção
+- Testes manuais de endpoints protegidos e públicos
 
 Dificuldades:
-
-
+- Ajuste inicial de path no routes.go e rebuild do Docker (cache) mascarando as mudanças
+- Correção de sintaxe no auth_handler.go
 
 Aprendizados:
-
-
+- Importância de forçar rebuild sem cache no docker-compose quando se muda estrutura de binários Go
+- Uso de go-oidc facilita muito a validação de tokens RS256
 ```
 
 **Commits:**
 
-- [ ] `git commit -m "feat: adiciona middleware de autenticação JWT"`
-- [ ] `git commit -m "feat: cria endpoint de validação de token"`
+- [✅] `git commit -m "feat: adiciona middleware de autenticação JWT"`
+- [✅] `git commit -m "feat: cria endpoint de validação de token"`
 
 ---
 
