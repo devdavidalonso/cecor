@@ -5,9 +5,9 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AuthService } from './core/services/auth.service';
-import { LayoutComponent } from './layout/layout.component';
 import { PrototypeControlsComponent } from './features/prototype-controls/prototype-controls.component';
 import { PrototypeService } from './core/services/prototype/prototype.service';
+import { SsoService } from './core/services/sso.service';
 
 @Component({
   selector: 'app-root',
@@ -16,31 +16,34 @@ import { PrototypeService } from './core/services/prototype/prototype.service';
     CommonModule,
     RouterOutlet,
     HttpClientModule,
-    LayoutComponent,
     PrototypeControlsComponent
   ],
   template: `
-    <app-layout>
-      <router-outlet></router-outlet>
-    </app-layout>
+    <router-outlet></router-outlet>
     
     <!-- Controles de protótipo (visíveis apenas no modo protótipo) -->
     <app-prototype-controls *ngIf="isPrototypeMode"></app-prototype-controls>
   `,
-  styles: []
+  styles: [`
+    :host {
+      display: block;
+      height: 100%;
+    }
+  `]
 })
 export class AppComponent implements OnInit {
   isPrototypeMode = false;
-  
+
   constructor(
     private authService: AuthService,
-    private prototypeService: PrototypeService
-  ) {}
-  
+    private prototypeService: PrototypeService,
+    private ssoService: SsoService
+  ) { }
+
   ngOnInit() {
     // Verificar se há um token válido no localStorage
     this.authService.checkAuth();
-    
+
     // Verificar o modo protótipo
     this.prototypeService.isPrototypeMode$.subscribe((enabled: boolean) => {
       this.isPrototypeMode = enabled;

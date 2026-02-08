@@ -1,11 +1,14 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
+	"github.com/devdavidalonso/cecor/backend/internal/models"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // TokenType define o tipo de token JWT
@@ -56,10 +59,8 @@ func GenerateToken(userID int64, email, name string, roles []string, tokenType T
 }
 
 // ValidateToken valida um token JWT e retorna seus claims
-func ValidateToken(tokenString string) (jwt.MapClaims, error) {
-	// TODO: Obter segredo da configuração
-	// Por ora, usando um segredo fixo
-	secret := "sua_chave_secreta_muito_segura"
+func ValidateToken(tokenString string, cfg *config.Config) (jwt.MapClaims, error) {
+	secret := cfg.Auth.JwtSecret
 
 	// Analisar token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -88,10 +89,40 @@ func ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
+// ValidateSSOToken valida um token JWT do provedor SSO e retorna seus claims
+func ValidateSSOToken(ctx context.Context, tokenString string) (map[string]interface{}, error) {
+	if Provider == nil {
+		return nil, fmt.Errorf("OIDC provider not initialized")
+	}
+
+	// Configurar verifier
+	// Nota: Para tokens de acesso do Keycloak, pode ser necessário pular verificação de ClientID ou Issuer se não baterem exatamente.
+	// Mas o padrão é verificar.
+	verifier := Provider.Verifier(&oidc.Config{
+		ClientID:          "ceco-frontend", // O mesmo ID usado no frontend
+		SkipClientIDCheck: true,            // Descomente se necessário
+		SkipIssuerCheck:   true,
+	})
+
+	// Verificar token
+	idToken, err := verifier.Verify(ctx, tokenString)
+	if err != nil {
+		return nil, fmt.Errorf("falha na verificação do token OIDC: %w", err)
+	}
+
+	// Extrair claims
+	var claims map[string]interface{}
+	if err := idToken.Claims(&claims); err != nil {
+		return nil, fmt.Errorf("falha ao extrair claims: %w", err)
+	}
+
+	return claims, nil
+}
+
 // RefreshAccessToken gera um novo token de acesso a partir de um token de atualização válido
 func RefreshAccessToken(refreshToken string, cfg *config.Config) (string, error) {
 	// Validar token de atualização
-	claims, err := ValidateToken(refreshToken)
+	claims, err := ValidateToken(refreshToken, cfg)
 	if err != nil {
 		return "", fmt.Errorf("token de atualização inválido: %w", err)
 	}
@@ -126,4 +157,22 @@ func RefreshAccessToken(refreshToken string, cfg *config.Config) (string, error)
 	}
 
 	return accessToken, nil
+}
+
+// GenerateTokens gera tokens de acesso e atualização para um usuário
+func GenerateTokens(user *models.User, cfg *config.Config) (string, string, error) {
+	// TODO: Obter roles reais do usuário
+	roles := []string{}
+
+	accessToken, err := GenerateToken(int64(user.ID), user.Email, user.Name, roles, AccessToken, cfg)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken, err := GenerateToken(int64(user.ID), user.Email, user.Name, roles, RefreshToken, cfg)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }

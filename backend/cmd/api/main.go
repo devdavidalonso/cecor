@@ -18,10 +18,12 @@ import (
 
 	"github.com/devdavidalonso/cecor/backend/internal/api/handlers"
 	"github.com/devdavidalonso/cecor/backend/internal/api/routes"
+	"github.com/devdavidalonso/cecor/backend/internal/auth"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
-	"github.com/devdavidalonso/cecor/backend/internal/service/users" // Adicionar esta importação
+	"github.com/devdavidalonso/cecor/backend/internal/service/courses" // Adicionar importação de courses
+	"github.com/devdavidalonso/cecor/backend/internal/service/users"   // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
 )
 
@@ -62,6 +64,12 @@ func main() {
 		appLogger.Fatal("Failed to load configuration", "error", err)
 	}
 
+	// Initialize SSO Provider
+	// TODO: Use URL from config
+	if err := auth.InitProvider(context.Background(), "http://localhost:8081/realms/lar-sso"); err != nil {
+		appLogger.Fatal("Failed to initialize SSO provider", "error", err)
+	}
+
 	// Initialize database
 	db, err := postgres.InitDB(cfg)
 	if err != nil {
@@ -80,15 +88,21 @@ func main() {
 
 	// Initialize repositories
 	//studentRepo := postgres.NewStudentRepository(db)
-	userRepo := postgres.NewUserRepository(db) // Adicionar o repositório de usuários
+	userRepo := postgres.NewUserRepository(db)     // Adicionar o repositório de usuários
+	courseRepo := postgres.NewCourseRepository(db) // Adicionar repositório de cursos
 
 	// Initialize services
 	// studentService := students.NewStudentService(studentRepo)
-	userService := users.NewUserService(userRepo) // Adicionar o serviço de usuários
+	userService := users.NewUserService(userRepo)   // Adicionar o serviço de usuários
+	courseService := courses.NewService(courseRepo) // Adicionar serviço de cursos
+
+	// Initialize SSO Config
+	ssoConfig := auth.NewSSOConfig(cfg)
 
 	// Initialize handlers
 	// studentHandler := handlers.NewStudentHandler(studentService)
-	authHandler := handlers.NewAuthHandler(userService, cfg) // Adicionar o handler de autenticação
+	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig) // Adicionar o handler de autenticação
+	courseHandler := handlers.NewCourseHandler(courseService)           // Adicionar handler de cursos
 
 	// Create router
 	r := chi.NewRouter()
@@ -119,7 +133,7 @@ func main() {
 	})
 
 	// Registrar todas as rotas, incluindo autenticação
-	routes.Register(r, cfg, authHandler)
+	routes.Register(r, cfg, authHandler, courseHandler)
 
 	// API v1 routes (deixar comentado ou remover, pois já estamos usando routes.Register)
 	/*

@@ -3,8 +3,11 @@ package handlers
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
-	"log"
+	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -13,13 +16,10 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/service/users"
 	"github.com/devdavidalonso/cecor/backend/pkg/errors"
+	"golang.org/x/oauth2"
 )
 
-// LoginRequest representa uma requisição de login
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
+const ssoStateCookie = "sso_state"
 
 // RefreshTokenRequest representa uma requisição para renovação de token
 type RefreshTokenRequest struct {
@@ -33,142 +33,177 @@ type AuthResponse struct {
 	User         models.User `json:"user"`
 }
 
+// UserInfo represents the user information returned from the SSO's userinfo endpoint
+type UserInfo struct {
+	UserID      string `json:"sub"`
+	Email       string `json:"email"`
+	Name        string `json:"name"`
+	RealmAccess struct {
+		Roles []string `json:"roles"`
+	} `json:"realm_access"`
+}
+
 // AuthHandler implementa os handlers HTTP para autenticação
 type AuthHandler struct {
 	userService users.Service
 	cfg         *config.Config
+	ssoConfig   *oauth2.Config
 }
 
 // NewAuthHandler cria uma nova instância de AuthHandler
-func NewAuthHandler(userService users.Service, cfg *config.Config) *AuthHandler {
+func NewAuthHandler(userService users.Service, cfg *config.Config, ssoConfig *oauth2.Config) *AuthHandler {
 	return &AuthHandler{
 		userService: userService,
 		cfg:         cfg,
+		ssoConfig:   ssoConfig,
 	}
 }
 
-// Login autentica um usuário e retorna tokens JWT
-// @Summary Login de usuário
-// @Description Autentica um usuário e retorna token de acesso e refresh token
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param request body LoginRequest true "Credenciais de login"
-// @Success 200 {object} AuthResponse
-// @Failure 400 {object} errors.AppError
-// @Failure 401 {object} errors.AppError
-// @Failure 500 {object} errors.AppError
-// @Router /auth/login [post]
-func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	var req LoginRequest
-
-	// Verificar se as dependências estão inicializadas
-	if h.userService == nil {
-		log.Printf("ERRO CRÍTICO: userService é nil no AuthHandler")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Erro interno do servidor: serviço não inicializado"))
-		return
-	}
-
-	// Decodificar corpo da requisição
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		errors.RespondWithError(w, http.StatusBadRequest, "Formato de dados inválido")
-		return
-	}
-
-	// Validar campos
-	if req.Email == "" || req.Password == "" {
-		errors.RespondWithError(w, http.StatusBadRequest, "Email e senha são obrigatórios")
-		return
-	}
-
-	// Criar um contexto com timeout maior para a operação de autenticação
-	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
-	defer cancel()
-
-	// Autenticar usuário
-	user, err := h.userService.Authenticate(ctx, req.Email, req.Password)
+// SSOLogin redirects the user to the SSO provider for authentication.
+func (h *AuthHandler) SSOLogin(w http.ResponseWriter, r *http.Request) {
+	state, err := generateRandomState()
 	if err != nil {
-		errors.RespondWithError(w, http.StatusUnauthorized, "Credenciais inválidas")
+		errors.RespondWithError(w, http.StatusInternalServerError, "Failed to generate state for SSO")
 		return
 	}
 
-	// Extrair informações necessárias para o token
-	userRoles := make([]string, len(user.Profile))
-	for i, perfil := range user.Profile {
-		userRoles[i] = string(perfil)
-	}
+	// Store the state in a short-lived cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     ssoStateCookie,
+		Value:    state,
+		Path:     "/",
+		Expires:  time.Now().Add(10 * time.Minute),
+		HttpOnly: true,
+	})
 
-	// Gerar token de acesso
-	token, err := auth.GenerateToken(int64(user.ID), user.Email, user.Name, userRoles, auth.AccessToken, h.cfg)
+	// Redirect user to consent page to ask for permission
+	url := h.ssoConfig.AuthCodeURL(state)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+// SSOCallback handles the callback from the SSO provider.
+func (h *AuthHandler) SSOCallback(w http.ResponseWriter, r *http.Request) {
+	// Check state cookie
+	stateCookie, err := r.Cookie(ssoStateCookie)
 	if err != nil {
-		errors.RespondWithError(w, http.StatusInternalServerError, "Erro ao gerar token")
+		errors.RespondWithError(w, http.StatusBadRequest, "SSO state cookie not found")
 		return
 	}
 
-	// Gerar refresh token
-	refreshToken, err := auth.GenerateToken(int64(user.ID), user.Email, user.Name, userRoles, auth.RefreshToken, h.cfg)
+	if r.URL.Query().Get("state") != stateCookie.Value {
+		errors.RespondWithError(w, http.StatusBadRequest, "Invalid SSO state")
+		return
+	}
+
+	// Exchange authorization code for a token
+	code := r.URL.Query().Get("code")
+	fmt.Printf("Attempting to exchange code: %s\n", code)
+	token, err := h.ssoConfig.Exchange(context.Background(), code)
 	if err != nil {
-		errors.RespondWithError(w, http.StatusInternalServerError, "Erro ao gerar refresh token")
+		fmt.Printf("Error exchanging token: %v\n", err)
+		errors.RespondWithError(w, http.StatusInternalServerError, "Failed to exchange token with SSO provider")
+		return
+	}
+	fmt.Printf("Token exchanged successfully. Access Token: %s...\n", token.AccessToken[:10])
+
+	// Use the token to get user info
+	userInfo, err := h.getUserInfo(token)
+	if err != nil {
+		errors.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// Atualizar último login do usuário
-	now := time.Now()
-	user.LastLogin = &now
-	h.userService.UpdateLastLogin(r.Context(), user.ID)
-
-	// Preparar resposta
-	response := AuthResponse{
-		Token:        token,
-		RefreshToken: refreshToken,
-		User: models.User{
-			ID:      user.ID,
-			Name:    user.Name,
-			Email:   user.Email,
-			Profile: user.Profile, // Usando o perfil principal
-		},
+	// Extract the best matching role
+	var role string
+	if len(userInfo.RealmAccess.Roles) > 0 {
+		// Simple logic: pick the first relevant role found, or default to user
+		// You might want a priority list here if a user has multiple roles
+		for _, r := range userInfo.RealmAccess.Roles {
+			if r == "Administrador" || r == "admin" || r == "Gestor" || r == "Professor" || r == "Aluno" || r == "Responsável" {
+				role = r
+				break
+			}
+		}
+	}
+	if role == "" {
+		role = "user"
 	}
 
-	errors.RespondWithJSON(w, http.StatusOK, response)
+	// At this point, you have the user's email from the SSO provider.
+	// You can now find or create a user in your local database.
+	user, err := h.userService.FindOrCreateByEmail(context.Background(), userInfo.Email, userInfo.Name, role)
+	if err != nil {
+		errors.RespondWithError(w, http.StatusInternalServerError, "Failed to process user information")
+		return
+	}
+
+	// Generate your application's own JWT
+	accessToken, refreshToken, err := auth.GenerateTokens(user, h.cfg)
+	if err != nil {
+		errors.RespondWithError(w, http.StatusInternalServerError, "Failed to generate application tokens")
+		return
+	}
+
+	// Redirect to the frontend with the tokens
+	redirectURL := fmt.Sprintf("http://localhost:4201/auth/login/success?token=%s&refreshToken=%s", accessToken, refreshToken)
+	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+}
+
+func (h *AuthHandler) getUserInfo(token *oauth2.Token) (*UserInfo, error) {
+	client := h.ssoConfig.Client(context.Background(), token)
+	resp, err := client.Get("http://localhost:8081/realms/lar-sso/protocol/openid-connect/userinfo")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info from SSO provider: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("SSO provider returned non-200 status for user info: %s", resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read user info response body: %w", err)
+	}
+
+	var userInfo UserInfo
+	if err := json.Unmarshal(body, &userInfo); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal user info: %w", err)
+	}
+
+	return &userInfo, nil
 }
 
 // RefreshToken renova o token de acesso usando um refresh token
-// @Summary Renovar token
-// @Description Renova o token de acesso usando um refresh token válido
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param request body RefreshTokenRequest true "Refresh token"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} errors.AppError
-// @Failure 401 {object} errors.AppError
-// @Failure 500 {object} errors.AppError
-// @Router /auth/refresh [post]
 func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	var req RefreshTokenRequest
 
-	// Decodificar corpo da requisição
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		errors.RespondWithError(w, http.StatusBadRequest, "Formato de dados inválido")
 		return
 	}
 
-	// Validar campos
 	if req.RefreshToken == "" {
 		errors.RespondWithError(w, http.StatusBadRequest, "Refresh token é obrigatório")
 		return
 	}
 
-	// Renovar token
 	newToken, err := auth.RefreshAccessToken(req.RefreshToken, h.cfg)
 	if err != nil {
 		errors.RespondWithError(w, http.StatusUnauthorized, "Refresh token inválido ou expirado")
 		return
 	}
 
-	// Responder com novo token
 	errors.RespondWithJSON(w, http.StatusOK, map[string]string{
 		"token": newToken,
 	})
+}
+
+func generateRandomState() (string, error) {
+	b := make([]byte, 32)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(b), nil
 }

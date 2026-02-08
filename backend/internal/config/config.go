@@ -14,6 +14,7 @@ type Config struct {
 	Auth     AuthConfig
 	Redis    RedisConfig
 	RabbitMQ RabbitMQConfig
+	SSO      SSOConfig
 }
 
 // ServerConfig contém configurações do servidor HTTP
@@ -59,6 +60,15 @@ type RabbitMQConfig struct {
 	User     string
 	Password string
 	VHost    string
+}
+
+// SSOConfig contém as configurações para o cliente OAuth2 SSO
+type SSOConfig struct {
+	ClientID     string
+	ClientSecret string
+	RedirectURL  string
+	AuthURL      string
+	TokenURL     string
 }
 
 // Load carrega configurações a partir de variáveis de ambiente
@@ -116,9 +126,9 @@ func Load() (*Config, error) {
 			MongoDB:          getEnv("MONGO_DB", "cecor_flexible_data"),
 		},
 		Auth: AuthConfig{
-			JwtSecret:          getEnv("JWT_SECRET", "sua_chave_secreta_muito_segura"),
+			JwtSecret:          getEnv("JWT_SECRET", "sua_chave_secreta_muito_segura"), // WARNING: Default value for development only. Do not use in production.
 			JwtExpiryHours:     jwtExpiryHours,
-			RefreshSecret:      getEnv("REFRESH_SECRET", "outra_chave_secreta_muito_segura"),
+			RefreshSecret:      getEnv("REFRESH_SECRET", "outra_chave_secreta_muito_segura"), // WARNING: Default value for development only. Do not use in production.
 			RefreshExpiryHours: refreshExpiryHours,
 		},
 		Redis: RedisConfig{
@@ -133,6 +143,13 @@ func Load() (*Config, error) {
 			User:     getEnv("RABBITMQ_USER", "guest"),
 			Password: getEnv("RABBITMQ_PASSWORD", "guest"),
 			VHost:    getEnv("RABBITMQ_VHOST", "/"),
+		},
+		SSO: SSOConfig{
+			ClientID:     getEnv("SSO_CLIENT_ID", "lar-client"),
+			ClientSecret: getEnv("SSO_CLIENT_SECRET", "cecor-secret"), // WARNING: Default value for development only. Do not use in production.
+			RedirectURL:  getEnv("SSO_REDIRECT_URL", "http://localhost:8082/api/v1/auth/sso/callback"),
+			AuthURL:      getEnv("SSO_AUTH_URL", "http://localhost:8081/realms/lar-sso/protocol/openid-connect/auth"),
+			TokenURL:     getEnv("SSO_TOKEN_URL", "http://localhost:8081/realms/lar-sso/protocol/openid-connect/token"),
 		},
 	}, nil
 }

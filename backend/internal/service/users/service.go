@@ -29,4 +29,7 @@ type Service interface {
 
 	// UpdateLastLogin updates the last login timestamp
 	UpdateLastLogin(ctx context.Context, id uint) error
+
+	// FindOrCreateByEmail finds a user by email or creates a new one
+	FindOrCreateByEmail(ctx context.Context, email, name, profile string) (*models.User, error)
 }

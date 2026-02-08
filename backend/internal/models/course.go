@@ -9,6 +9,7 @@ type Course struct {
 	ID                  uint       `json:"id" gorm:"primaryKey"`
 	Name                string     `json:"name" gorm:"not null"`
 	ShortDescription    string     `json:"shortDescription"`
+	CoverImage          string     `json:"coverImage"` // URL to course banner
 	DetailedDescription string     `json:"detailedDescription" gorm:"type:text"`
 	Workload            int        `json:"workload" gorm:"not null"`
 	MaxStudents         int        `json:"maxStudents" gorm:"not null"`

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/devdavidalonso/cecor/backend/internal/auth"
+	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/pkg/errors"
 )
 
@@ -25,53 +26,56 @@ type contextKey string
 const userClaimsKey contextKey = "userClaims"
 
 // Authenticate verifica o token JWT de autenticação
-func Authenticate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Extrair token do cabeçalho Authorization
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			errors.RespondWithError(w, http.StatusUnauthorized, "Token de autenticação não fornecido")
-			return
-		}
+func Authenticate(cfg *config.Config) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Extrair token do cabeçalho Authorization
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				errors.RespondWithError(w, http.StatusUnauthorized, "Token de autenticação não fornecido")
+				return
+			}
 
-		// Verificar formato do token (Bearer token)
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			errors.RespondWithError(w, http.StatusUnauthorized, "Formato de token inválido")
-			return
-		}
+			// Verificar formato do token (Bearer token)
+			parts := strings.Split(authHeader, " ")
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				errors.RespondWithError(w, http.StatusUnauthorized, "Formato de token inválido")
+				return
+			}
 
-		// Validar token
-		claims, err := auth.ValidateToken(parts[1])
-		if err != nil {
-			errors.RespondWithError(w, http.StatusUnauthorized, fmt.Sprintf("Token inválido: %v", err))
-			return
-		}
+			// Validar token (Local HS256)
+			claims, err := auth.ValidateToken(parts[1], cfg)
+			if err != nil {
+				fmt.Printf("❌ Authentication Failed: %v\n", err)
+				errors.RespondWithError(w, http.StatusUnauthorized, fmt.Sprintf("Token inválido: %v", err))
+				return
+			}
 
-		// Extrair claims específicas do usuário
-		userClaims := &UserClaims{
-			UserID: int64(claims["userId"].(float64)),
-			Email:  claims["email"].(string),
-			Name:   claims["name"].(string),
-		}
+			// Extrair claims específicas do usuário
+			userClaims := &UserClaims{
+				UserID: int64(claims["userId"].(float64)),
+				Email:  claims["email"].(string),
+				Name:   claims["name"].(string),
+			}
 
-		// Extrair roles (pode ser opcional em alguns tokens)
-		if rolesInterface, ok := claims["roles"]; ok {
-			if rolesArray, ok := rolesInterface.([]interface{}); ok {
-				for _, role := range rolesArray {
-					if roleStr, ok := role.(string); ok {
-						userClaims.Roles = append(userClaims.Roles, roleStr)
+			// Extrair roles (pode ser opcional em alguns tokens)
+			if rolesInterface, ok := claims["roles"]; ok {
+				if rolesArray, ok := rolesInterface.([]interface{}); ok {
+					for _, role := range rolesArray {
+						if roleStr, ok := role.(string); ok {
+							userClaims.Roles = append(userClaims.Roles, roleStr)
+						}
 					}
 				}
 			}
-		}
 
-		// Adicionar claims ao contexto
-		ctx := context.WithValue(r.Context(), userClaimsKey, userClaims)
+			// Adicionar claims ao contexto
+			ctx := context.WithValue(r.Context(), userClaimsKey, userClaims)
 
-		// Chamar o próximo handler com o contexto atualizado
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			// Chamar o próximo handler com o contexto atualizado
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 // RequireAdmin verifica se o usuário tem papel de administrador

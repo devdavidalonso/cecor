@@ -61,10 +61,8 @@ import { AuthService } from '../../core/services/auth.service';
   `,
   styles: [`
     .header {
-      position: fixed;
+      position: sticky;
       top: 0;
-      left: 0;
-      right: 0;
       z-index: 2;
     }
     
@@ -93,9 +91,9 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class HeaderComponent {
   @Input() sidenav!: MatSidenav;
-  
-  constructor(public authService: AuthService) {}
-  
+
+  constructor(public authService: AuthService) { }
+
   logout(): void {
     this.authService.logout();
   }

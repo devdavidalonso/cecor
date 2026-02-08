@@ -218,3 +218,55 @@ func (s *userService) UpdateLastLogin(ctx context.Context, id uint) error {
 
 	return nil
 }
+
+// FindOrCreateByEmail finds a user by email or creates a new one
+func (s *userService) FindOrCreateByEmail(ctx context.Context, email, name, profile string) (*models.User, error) {
+	user, err := s.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("error finding user: %w", err)
+	}
+
+	// Map Keycloak profiles to local profiles
+	var localProfile string
+	switch profile {
+	case "Administrador", "admin":
+		localProfile = "admin"
+	case "Gestor":
+		localProfile = "manager"
+	case "Professor":
+		localProfile = "teacher"
+	case "Aluno":
+		localProfile = "student"
+	case "Responsável":
+		localProfile = "guardian"
+	default:
+		localProfile = "user"
+	}
+
+	if user != nil {
+		// Update user info if changed
+		if user.Name != name || user.Profile != localProfile {
+			user.Name = name
+			user.Profile = localProfile
+			if err := s.userRepo.Update(ctx, user); err != nil {
+				return nil, fmt.Errorf("error updating user info from SSO: %w", err)
+			}
+		}
+		return user, nil
+	}
+
+	// Create new user
+	newUser := &models.User{
+		Email:    email,
+		Name:     name,
+		Password: "", // No password for SSO users
+		Profile:  localProfile,
+		Active:   true,
+	}
+
+	if err := s.userRepo.Create(ctx, newUser); err != nil {
+		return nil, fmt.Errorf("error creating user: %w", err)
+	}
+
+	return newUser, nil
+}

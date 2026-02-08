@@ -4,6 +4,7 @@ import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/ro
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
+import { provideOAuthClient } from 'angular-oauth2-oidc';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -14,12 +15,17 @@ import { cursoServiceFactory } from './core/factories/curso-service.factory';
 import { CursoService } from './core/services/curso.service';
 import { MockCursoService } from './core/services/prototype/mock-curso.service';
 import { PrototypeService } from './core/services/prototype/prototype.service';
+import { APP_INITIALIZER } from '@angular/core';
+import { SsoService } from './core/services/sso.service';
+
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withEnabledBlockingInitialNavigation()),
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
+    provideOAuthClient(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
@@ -35,6 +41,8 @@ export const appConfig: ApplicationConfig = {
       useFactory: cursoServiceFactory
     },
     // Serviço de protótipo (sempre disponível)
+    // Serviço de protótipo (sempre disponível)
+    PrototypeService,
     PrototypeService
   ]
 };

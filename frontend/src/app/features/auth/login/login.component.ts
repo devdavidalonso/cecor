@@ -1,16 +1,17 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { SsoService } from '../../../core/services/sso.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -20,12 +21,11 @@ import { AuthService } from '../../../core/services/auth.service';
     RouterModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
-    MatSnackBarModule
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -37,64 +37,59 @@ import { AuthService } from '../../../core/services/auth.service';
           <mat-card-subtitle>Faça login para continuar</mat-card-subtitle>
         </mat-card-header>
         
-        <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-        
         <mat-card-content>
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>E-mail</mat-label>
-              <input matInput type="email" formControlName="email" placeholder="seu.email@exemplo.com" required>
-              <mat-icon matSuffix>email</mat-icon>
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email" placeholder="seu@email.com">
               <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-                E-mail é obrigatório
+                Email é obrigatório
               </mat-error>
               <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-                E-mail inválido
+                Formato de email inválido
               </mat-error>
             </mat-form-field>
-            
+
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Senha</mat-label>
-              <input 
-                matInput 
-                [type]="hidePassword ? 'password' : 'text'" 
-                formControlName="password" 
-                required
-              >
-              <button 
-                type="button"
-                mat-icon-button 
-                matSuffix 
-                (click)="hidePassword = !hidePassword" 
-                [attr.aria-label]="'Mostrar senha'" 
-                [attr.aria-pressed]="!hidePassword"
-              >
-                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
+              <input matInput formControlName="password" type="password">
               <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
                 Senha é obrigatória
               </mat-error>
             </mat-form-field>
-            
-            <div class="form-actions">
+
+            <div class="login-actions">
               <button 
                 mat-raised-button 
                 color="primary" 
-                type="submit" 
+                type="submit"
                 [disabled]="loginForm.invalid || loading"
                 class="full-width"
               >
-                Entrar
+                <span *ngIf="!loading">Entrar</span>
+                <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
               </button>
+              
+              <div class="mt-4 text-center">
+                <span class="text-gray-500 text-sm">ou</span>
+              </div>
+
+              <button 
+                type="button"
+                mat-stroked-button 
+                color="primary" 
+                class="full-width mt-4"
+                (click)="loginWithSso()"
+              >
+                Entrar com SSO (Keycloak)
+              </button>
+            </div>
+
+            <div *ngIf="errorMessage" class="error-message">
+              {{ errorMessage }}
             </div>
           </form>
         </mat-card-content>
-        
-        <mat-card-actions>
-          <a mat-button routerLink="/auth/forgot-password" class="full-width">
-            Esqueceu sua senha?
-          </a>
-        </mat-card-actions>
       </mat-card>
     </div>
   `,
@@ -108,7 +103,7 @@ import { AuthService } from '../../../core/services/auth.service';
     }
     
     .login-card {
-      max-width: 550px;
+      max-width: 400px;
       width: 90%;
       padding: 20px;
     }
@@ -136,67 +131,53 @@ import { AuthService } from '../../../core/services/auth.service';
     .full-width {
       width: 100%;
     }
-    
-    .form-actions {
-      margin-top: 20px;
+
+    .login-actions {
+      margin-top: 16px;
     }
-    
-    mat-progress-bar {
-      margin-bottom: 20px;
+
+    .error-message {
+      color: #f44336;
+      text-align: center;
+      margin-top: 16px;
     }
   `]
 })
-export class LoginComponent implements OnInit {
-  loginForm!: FormGroup;
+export class LoginComponent {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private ssoService = inject(SsoService);
+
+  loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
+  });
+
   loading = false;
-  hidePassword = true;
-  returnUrl: string = '/';
-  
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {}
-  
-  ngOnInit(): void {
-    // Inicializar formulário
-    this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
-    
-    // Obter URL de retorno dos parâmetros da rota ou usar padrão
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-  }
-  
+  errorMessage: string | null = null;
+
   onSubmit(): void {
-    // Verificar se o formulário é válido
-    if (this.loginForm.invalid) {
+    if (this.loginForm.invalid || this.loading) {
       return;
     }
-    
+
     this.loading = true;
-    this.cdr.detectChanges();
-    
+    this.errorMessage = null;
     const { email, password } = this.loginForm.value;
-    
-    this.authService.login(email, password)
-      .subscribe({
-        next: () => {
-          this.router.navigateByUrl(this.returnUrl);
-        },
-        error: (error) => {
-          this.snackBar.open(
-            error.message || 'Falha na autenticação. Verifique suas credenciais.',
-            'Fechar',
-            { duration: 5000 }
-          );
-          this.loading = false;
-          this.cdr.detectChanges();
+
+    this.authService.login(email!, password!)
+      .pipe(
+        finalize(() => this.loading = false)
+      )
+      .subscribe(success => {
+        if (!success) {
+          this.errorMessage = 'Email ou senha inválidos. Tente novamente.';
+          this.loginForm.get('password')?.reset();
         }
       });
+  }
+
+  loginWithSso(): void {
+    this.ssoService.login();
   }
 }

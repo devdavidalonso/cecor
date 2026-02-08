@@ -1,12 +1,15 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { AuthService } from '../../core/services/auth.service';
+import { User } from '../../core/models/user.model'; // Assuming User model is here
 
 interface MenuItem {
   text: string;
@@ -36,7 +39,7 @@ interface MenuItem {
       <mat-nav-list>
         <ng-container *ngFor="let item of menuItems">
           <!-- Verificar permissões -->
-          <ng-container *ngIf="!item.roles || checkRoles(item.roles)">
+          <ng-container *ngIf="hasRequiredRole(item.roles) | async">
             <!-- Item com subitens -->
             <mat-expansion-panel *ngIf="item.children && item.children.length" class="mat-elevation-z0">
               <mat-expansion-panel-header>
@@ -48,7 +51,7 @@ interface MenuItem {
               
               <mat-nav-list>
                 <ng-container *ngFor="let child of item.children">
-                  <ng-container *ngIf="!child.roles || checkRoles(child.roles)">
+                  <ng-container *ngIf="hasRequiredRole(child.roles) | async">
                     <a mat-list-item [routerLink]="child.route" routerLinkActive="active-link"
                       (click)="closeIfMobile()">
                       <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
@@ -105,7 +108,7 @@ interface MenuItem {
     }
   `]
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   @Input() sidenav!: MatSidenav;
   
   menuItems: MenuItem[] = [
@@ -190,10 +193,28 @@ export class SidebarComponent {
     }
   ];
   
+  currentUserRoles: string[] = [];
+
   constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUserRoles = user?.roles || [];
+    });
+  }
   
-  checkRoles(roles: string[]): boolean {
-    return roles.some(role => this.authService.hasRole(role));
+  hasRequiredRole(requiredRoles?: string[]): Observable<boolean> {
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return of(true); // No roles required, so always show
+    }
+    return this.authService.currentUser$.pipe(
+      map(user => {
+        if (!user || !user.roles) {
+          return false;
+        }
+        return requiredRoles.some(role => user.roles!.includes(role));
+      })
+    );
   }
   
   closeIfMobile(): void {

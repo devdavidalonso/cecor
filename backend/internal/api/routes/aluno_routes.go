@@ -3,11 +3,12 @@ package routes
 import (
 	"github.com/devdavidalonso/cecor/backend/internal/api/handlers"
 	"github.com/devdavidalonso/cecor/backend/internal/api/middleware"
+	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/go-chi/chi/v5"
 )
 
 // SetupStudentRoutes configures routes for student resources
-func SetupStudentRoutes(r chi.Router, handler *handlers.StudentHandler) {
+func SetupStudentRoutes(r chi.Router, cfg *config.Config, handler *handlers.StudentHandler) {
 	// Public routes if needed
 	r.Group(func(r chi.Router) {
 		// There are no public student-related routes
@@ -15,7 +16,7 @@ func SetupStudentRoutes(r chi.Router, handler *handlers.StudentHandler) {
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.Authenticate)
+		r.Use(middleware.Authenticate(cfg))
 
 		// Student routes
 		r.Route("/students", func(r chi.Router) {

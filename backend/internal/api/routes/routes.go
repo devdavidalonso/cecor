@@ -10,7 +10,7 @@ import (
 )
 
 // Register configura todas as rotas da API
-func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler) {
+func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler, courseHandler *handlers.CourseHandler) {
 	// Rota de saúde para verificação do servidor
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -21,14 +21,15 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 	r.Route("/api/v1", func(r chi.Router) {
 		// Rotas públicas (sem autenticação)
 		r.Group(func(r chi.Router) {
-			r.Post("/auth/login", authHandler.Login)          // Handler implementado
-			r.Post("/auth/refresh", authHandler.RefreshToken) // Handler implementado
+			r.Get("/auth/sso/login", authHandler.SSOLogin)       // Iniciar login SSO
+			r.Get("/auth/sso/callback", authHandler.SSOCallback) // Callback do SSO
+			r.Post("/auth/refresh", authHandler.RefreshToken)    // Handler implementado
 		})
 
 		// Rotas protegidas (com autenticação)
 		r.Group(func(r chi.Router) {
 			// Aplicar middleware de autenticação
-			r.Use(middleware.Authenticate)
+			r.Use(middleware.Authenticate(cfg))
 
 			// Alunos
 			r.Route("/alunos", func(r chi.Router) {
@@ -41,11 +42,11 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 
 			// Cursos
 			r.Route("/cursos", func(r chi.Router) {
-				r.Get("/", http.NotFound)        // TODO: Implementar handler
-				r.Post("/", http.NotFound)       // TODO: Implementar handler
-				r.Get("/{id}", http.NotFound)    // TODO: Implementar handler
-				r.Put("/{id}", http.NotFound)    // TODO: Implementar handler
-				r.Delete("/{id}", http.NotFound) // TODO: Implementar handler
+				r.Get("/", courseHandler.ListCourses)
+				r.Post("/", courseHandler.CreateCourse)
+				r.Get("/{id}", courseHandler.GetCourse)
+				r.Put("/{id}", courseHandler.UpdateCourse)
+				r.Delete("/{id}", courseHandler.DeleteCourse)
 			})
 
 			// Matrículas
