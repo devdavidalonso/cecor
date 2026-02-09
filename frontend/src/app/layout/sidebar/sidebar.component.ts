@@ -124,12 +124,12 @@ export class SidebarComponent implements OnInit {
         {
           text: 'Listar Alunos',
           icon: 'list',
-          route: '/alunos'
+          route: '/students'
         },
         {
           text: 'Cadastrar Aluno',
           icon: 'person_add',
-          route: '/alunos/cadastrar'
+          route: '/students/new'
         }
       ]
     },

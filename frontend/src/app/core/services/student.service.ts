@@ -45,7 +45,7 @@ export class StudentService {
     return this.http.get<Student>(`${this.API_URL}/${id}`);
   }
 
-  createStudent(student: Partial<Student>): Observable<Student> {
+  createStudent(student: any): Observable<Student> {
     return this.http.post<Student>(this.API_URL, student);
   }
 

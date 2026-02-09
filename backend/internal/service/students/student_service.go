@@ -7,18 +7,22 @@ import (
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository"
+	"github.com/devdavidalonso/cecor/backend/internal/service"
 )
 
 // studentService implements the Service interface
 type studentService struct {
 	studentRepo repository.StudentRepository
-	// You can add other repositories or services here if needed
+	keycloak    *service.KeycloakService
+	email       *service.EmailService
 }
 
 // NewStudentService creates a new instance of studentService
-func NewStudentService(studentRepo repository.StudentRepository) Service {
+func NewStudentService(studentRepo repository.StudentRepository, keycloak *service.KeycloakService, email *service.EmailService) Service {
 	return &studentService{
 		studentRepo: studentRepo,
+		keycloak:    keycloak,
+		email:       email,
 	}
 }
 
@@ -143,8 +147,72 @@ func (s *studentService) CreateStudent(ctx context.Context, student *models.Stud
 		student.Status = "active"
 	}
 
-	// Delegate to repository
-	return s.studentRepo.Create(ctx, student)
+	// Create student in database first
+	if err := s.studentRepo.Create(ctx, student); err != nil {
+		return err
+	}
+
+	// If Keycloak service is available, create user in Keycloak
+	if s.keycloak != nil {
+		// Generate temporary password
+		tempPassword, err := generateTemporaryPassword()
+		if err != nil {
+			// Log error but don't fail the operation
+			fmt.Printf("Warning: failed to generate temporary password: %v\n", err)
+			return nil
+		}
+
+		// Split name into first and last
+		nameParts := strings.Fields(student.User.Name)
+		firstName := nameParts[0]
+		lastName := ""
+		if len(nameParts) > 1 {
+			lastName = strings.Join(nameParts[1:], " ")
+		}
+
+		// Create user in Keycloak
+		keycloakUserID, err := s.keycloak.CreateUser(ctx, service.CreateUserRequest{
+			Username:      student.User.Email,
+			Email:         student.User.Email,
+			FirstName:     firstName,
+			LastName:      lastName,
+			Enabled:       true,
+			EmailVerified: false,
+		})
+
+		if err != nil {
+			// Log error but don't fail the operation
+			fmt.Printf("Warning: failed to create user in Keycloak: %v\n", err)
+			return nil
+		}
+
+		// Assign "aluno" role
+		if err := s.keycloak.AssignRole(ctx, keycloakUserID, "aluno"); err != nil {
+			fmt.Printf("Warning: failed to assign role to Keycloak user: %v\n", err)
+		}
+
+		// Set temporary password
+		if err := s.keycloak.SetTemporaryPassword(ctx, keycloakUserID, tempPassword); err != nil {
+			fmt.Printf("Warning: failed to set temporary password: %v\n", err)
+		}
+
+		// Update student with Keycloak user ID
+		student.User.KeycloakUserID = keycloakUserID
+		if err := s.studentRepo.Update(ctx, student); err != nil {
+			fmt.Printf("Warning: failed to update student with Keycloak ID: %v\n", err)
+		}
+
+		// Send welcome email with credentials
+		if s.email != nil {
+			if err := s.email.SendWelcomeEmail(student.User.Email, student.User.Name, tempPassword); err != nil {
+				fmt.Printf("Warning: failed to send welcome email: %v\n", err)
+			}
+		} else {
+			fmt.Printf("Email service not configured. Temporary password: %s\n", tempPassword)
+		}
+	}
+
+	return nil
 }
 
 // UpdateStudent updates an existing student

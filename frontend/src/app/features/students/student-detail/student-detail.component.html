@@ -1,0 +1,199 @@
+<div class="container-fluid py-4">
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    {{ error }}
+  </div>
+
+  <!-- Student Details -->
+  <div *ngIf="student && !loading">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+      <div>
+        <h2 class="mb-1">{{ student.user.name }}</h2>
+        <p class="text-muted mb-0">
+          Matrícula: {{ student.registrationNumber }}
+          <span [class]="getStatusClass(student.status)" class="ms-2">
+            {{ statusLabels[student.status] }}
+          </span>
+        </p>
+      </div>
+      <div class="d-flex gap-2">
+        <a [routerLink]="['/students', student.id, 'edit']" class="btn btn-primary">
+          <i class="bi bi-pencil me-2"></i>
+          Editar
+        </a>
+        <a routerLink="/students" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>
+          Voltar
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'personal'"
+          (click)="setActiveTab('personal')"
+          role="button"
+        >
+          <i class="bi bi-person me-2"></i>
+          Dados Pessoais
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'guardians'"
+          (click)="setActiveTab('guardians')"
+          role="button"
+        >
+          <i class="bi bi-people me-2"></i>
+          Responsáveis
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'documents'"
+          (click)="setActiveTab('documents')"
+          role="button"
+        >
+          <i class="bi bi-file-earmark me-2"></i>
+          Documentos
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'notes'"
+          (click)="setActiveTab('notes')"
+          role="button"
+        >
+          <i class="bi bi-journal-text me-2"></i>
+          Observações
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Personal Data Tab -->
+      <div *ngIf="activeTab === 'personal'" class="tab-pane active">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Informações Pessoais</h5>
+              </div>
+              <div class="card-body">
+                <dl class="row mb-0">
+                  <dt class="col-sm-4">Nome:</dt>
+                  <dd class="col-sm-8">{{ student.user.name }}</dd>
+
+                  <dt class="col-sm-4">CPF:</dt>
+                  <dd class="col-sm-8">{{ formatCPF(student.user.cpf) }}</dd>
+
+                  <dt class="col-sm-4">Email:</dt>
+                  <dd class="col-sm-8">{{ student.user.email }}</dd>
+
+                  <dt class="col-sm-4">Data de Nasc.:</dt>
+                  <dd class="col-sm-8">{{ formatDate(student.user.birthDate) }}</dd>
+
+                  <dt class="col-sm-4">Telefone:</dt>
+                  <dd class="col-sm-8">{{ student.user.phone }}</dd>
+
+                  <dt class="col-sm-4" *ngIf="student.additionalPhone1">Tel. Adicional:</dt>
+                  <dd class="col-sm-8" *ngIf="student.additionalPhone1">{{ student.additionalPhone1 }}</dd>
+
+                  <dt class="col-sm-4">Endereço:</dt>
+                  <dd class="col-sm-8">{{ student.user.address }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Informações do Aluno</h5>
+              </div>
+              <div class="card-body">
+                <dl class="row mb-0">
+                  <dt class="col-sm-5">Matrícula:</dt>
+                  <dd class="col-sm-7">{{ student.registrationNumber }}</dd>
+
+                  <dt class="col-sm-5">Status:</dt>
+                  <dd class="col-sm-7">
+                    <span [class]="getStatusClass(student.status)">
+                      {{ statusLabels[student.status] }}
+                    </span>
+                  </dd>
+
+                  <dt class="col-sm-5">Contato Emerg.:</dt>
+                  <dd class="col-sm-7">{{ student.emergencyContact || 'Não informado' }}</dd>
+
+                  <dt class="col-sm-5">Info. Médicas:</dt>
+                  <dd class="col-sm-7">{{ student.medicalInfo || 'Nenhuma' }}</dd>
+
+                  <dt class="col-sm-5" *ngIf="student.specialNeeds">Nec. Especiais:</dt>
+                  <dd class="col-sm-7" *ngIf="student.specialNeeds">{{ student.specialNeeds }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12" *ngIf="student.notes">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Observações</h5>
+              </div>
+              <div class="card-body">
+                <p class="mb-0">{{ student.notes }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guardians Tab -->
+      <div *ngIf="activeTab === 'guardians'" class="tab-pane active">
+        <div class="card">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-people fs-1 text-muted d-block mb-3"></i>
+            <p class="text-muted mb-0">Funcionalidade em desenvolvimento</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents Tab -->
+      <div *ngIf="activeTab === 'documents'" class="tab-pane active">
+        <div class="card">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-file-earmark fs-1 text-muted d-block mb-3"></i>
+            <p class="text-muted mb-0">Funcionalidade em desenvolvimento</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Tab -->
+      <div *ngIf="activeTab === 'notes'" class="tab-pane active">
+        <div class="card">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-journal-text fs-1 text-muted d-block mb-3"></i>
+            <p class="text-muted mb-0">Funcionalidade em desenvolvimento</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

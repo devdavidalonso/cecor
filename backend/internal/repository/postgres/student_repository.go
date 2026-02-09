@@ -40,7 +40,7 @@ func (r *studentRepository) FindAll(ctx context.Context, page int, pageSize int,
 	var total int64
 
 	// Start query with soft delete excluded
-	query := r.db.WithContext(ctx).Model(&models.Student{}).Where("deleted_at IS NULL")
+	query := r.db.WithContext(ctx).Model(&models.Student{}).Where("students.deleted_at IS NULL")
 
 	// Apply filters
 	for key, value := range filters {

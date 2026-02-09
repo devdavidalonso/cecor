@@ -1,0 +1,265 @@
+.student-form-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f5f7fa;
+  min-height: 80vh;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 900px;
+  padding: 20px;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.stepper-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Guardians Section */
+.guardians-container {
+  margin-top: 20px;
+}
+
+.guardians-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  
+  h3 {
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+  }
+}
+
+.guardian-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #3f51b5;
+    box-shadow: 0 4px 12px rgba(63, 81, 181, 0.1);
+  }
+}
+
+.guardian-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  
+  h4 {
+    margin: 0;
+    color: #3f51b5;
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
+.permissions-section {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  
+  h5 {
+    margin: 0 0 12px 0;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  
+  mat-checkbox {
+    font-size: 14px;
+  }
+}
+
+.no-guardians {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  
+  mat-icon {
+    font-size: 72px;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+  
+  p {
+    margin: 8px 0;
+    font-size: 16px;
+    
+    &.hint {
+      font-size: 14px;
+      color: #bbb;
+    }
+  }
+}
+
+/* Review Section */
+.review-container {
+  padding: 20px;
+  
+  h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 32px;
+    font-size: 24px;
+  }
+}
+
+.review-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  border-left: 4px solid #3f51b5;
+  
+  h4 {
+    margin: 0 0 16px 0;
+    color: #3f51b5;
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  
+  .review-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    
+    strong {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    span {
+      font-size: 14px;
+      color: #333;
+    }
+    
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.guardian-review {
+  padding: 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  strong {
+    color: #333;
+    font-size: 14px;
+  }
+  
+  .guardian-details {
+    font-size: 13px;
+    color: #666;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .student-form-container {
+    padding: 12px;
+  }
+  
+  .form-card {
+    padding: 16px;
+  }
+  
+  .row {
+    flex-direction: column;
+  }
+  
+  .guardians-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .permissions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .review-grid {
+    grid-template-columns: 1fr;
+    
+    .review-item.full-width {
+      grid-column: 1;
+    }
+  }
+}
+
+/* Material Overrides */
+::ng-deep {
+  .mat-stepper-horizontal {
+    background-color: transparent;
+  }
+  
+  .mat-step-header {
+    &.cdk-keyboard-focused,
+    &.cdk-program-focused,
+    &:hover {
+      background-color: rgba(63, 81, 181, 0.04);
+    }
+  }
+  
+  .mat-step-label-selected {
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,33 @@
+.nav-link {
+  cursor: pointer;
+  
+  &:hover {
+    color: #0056b3;
+  }
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  
+  h5 {
+    color: #495057;
+    font-weight: 600;
+  }
+}
+
+dl {
+  dt {
+    font-weight: 600;
+    color: #6c757d;
+  }
+  
+  dd {
+    color: #212529;
+  }
+}
+
+.badge {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}

@@ -7,6 +7,7 @@ import (
 // User represents a user in the system
 type User struct {
 	ID              uint       `json:"id" gorm:"primaryKey"`
+	KeycloakUserID  string     `json:"keycloakUserId,omitempty" gorm:"unique;index"` // Keycloak user ID for SSO integration
 	Name            string     `json:"name" gorm:"not null"`
 	Email           string     `json:"email" gorm:"not null;unique"`
 	Password        string     `json:"-" gorm:"not null"`       // Not exposed in JSON

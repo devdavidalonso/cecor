@@ -23,8 +23,10 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
-	"github.com/devdavidalonso/cecor/backend/internal/service/courses" // Adicionar importação de courses
-	"github.com/devdavidalonso/cecor/backend/internal/service/users"   // Adicionar esta importação
+	"github.com/devdavidalonso/cecor/backend/internal/service"
+	"github.com/devdavidalonso/cecor/backend/internal/service/courses"  // Adicionar importação de courses
+	"github.com/devdavidalonso/cecor/backend/internal/service/students" // Adicionar importação de students
+	"github.com/devdavidalonso/cecor/backend/internal/service/users"    // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
 )
 
@@ -89,20 +91,22 @@ func main() {
 	updateUserPassword(db, "maria.silva@cecor.org", "cecor2024!")
 
 	// Initialize repositories
-	//studentRepo := postgres.NewStudentRepository(db)
+	studentRepo := postgres.NewStudentRepository(db)
 	userRepo := postgres.NewUserRepository(db)     // Adicionar o repositório de usuários
 	courseRepo := postgres.NewCourseRepository(db) // Adicionar repositório de cursos
 
 	// Initialize services
-	// studentService := students.NewStudentService(studentRepo)
-	userService := users.NewUserService(userRepo)   // Adicionar o serviço de usuários
-	courseService := courses.NewService(courseRepo) // Adicionar serviço de cursos
+	keycloakService := service.NewKeycloakService()                                          // Inicializar Keycloak service
+	emailService := service.NewEmailService()                                                // Inicializar Email service
+	studentService := students.NewStudentService(studentRepo, keycloakService, emailService) // Inicializar student service com Keycloak e Email
+	userService := users.NewUserService(userRepo)                                            // Adicionar o serviço de usuários
+	courseService := courses.NewService(courseRepo)                                          // Adicionar serviço de cursos
 
 	// Initialize SSO Config
 	ssoConfig := auth.NewSSOConfig(cfg)
 
 	// Initialize handlers
-	// studentHandler := handlers.NewStudentHandler(studentService)
+	studentHandler := handlers.NewStudentHandler(studentService)
 	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig) // Adicionar o handler de autenticação
 	courseHandler := handlers.NewCourseHandler(courseService)           // Adicionar handler de cursos
 
@@ -136,6 +140,28 @@ func main() {
 
 	// Registrar todas as rotas, incluindo autenticação
 	routes.Register(r, cfg, authHandler, courseHandler)
+
+	// ROTA DE TESTE TEMPORÁRIA - SEM AUTENTICAÇÃO (remover após testes)
+	r.Route("/api/v1/test/students", func(r chi.Router) {
+		r.Post("/", studentHandler.CreateStudent)
+		r.Get("/", studentHandler.GetStudents)
+		r.Get("/{id}", studentHandler.GetStudent)
+	})
+
+	// Registrar rotas de students (COM autenticação via middleware do handler)
+	r.Route("/api/v1/students", func(r chi.Router) {
+		r.Get("/", studentHandler.GetStudents)
+		r.Post("/", studentHandler.CreateStudent)
+		r.Get("/{id}", studentHandler.GetStudent)
+		r.Put("/{id}", studentHandler.UpdateStudent)
+		r.Delete("/{id}", studentHandler.DeleteStudent)
+		r.Get("/{id}/guardians", studentHandler.GetGuardians)
+		r.Post("/{id}/guardians", studentHandler.AddGuardian)
+		r.Get("/{id}/documents", studentHandler.GetDocuments)
+		r.Post("/{id}/documents", studentHandler.AddDocument)
+		r.Get("/{id}/notes", studentHandler.GetNotes)
+		r.Post("/{id}/notes", studentHandler.AddNote)
+	})
 
 	// API v1 routes (deixar comentado ou remover, pois já estamos usando routes.Register)
 	/*

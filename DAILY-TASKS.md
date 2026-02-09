@@ -17,7 +17,7 @@
 ### SEMANA 2 - CRUD BÁSICO
 
 ```
-[✅] Dia 6  [░] Dia 7  [░] Dia 8  [░] Dia 9  [░] Dia 10
+[✅] Dia 6  [🔄] Dia 7  [🔄] Dia 8  [░] Dia 9  [░] Dia 10
 ```
 
 ### SEMANA 3 - FREQUÊNCIA
@@ -361,25 +361,71 @@ Aprendizados:
 
 #### 📅 DIA 7 - CRUD Alunos Backend
 
-**Data:** **_ / _** / 2026  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 08-09 / 02 / 2026  
+**Status:** [ ] Concluído [🔄] Em Desenvolvimento [ ] Não iniciado
+
+**Resumo:**
+
+```
+O que foi feito:
+- ✅ Implementado KeycloakService para provisionamento automático de usuários
+- ✅ Implementado EmailService para envio de credenciais de acesso
+- ✅ Integração completa: criação no DB + Keycloak + envio de email
+- ✅ Correção de erro SQL na listagem de alunos (deleted_at ambíguo)
+- ✅ Rollback automático em caso de falha
+- ⚠️ Erro 400 na criação de aluno (em investigação)
+
+Dificuldades:
+- Erro 400 persistente ao criar aluno via frontend
+- Erro de migração na tabela enrollments (não bloqueante)
+
+Aprendizados:
+- Integração Keycloak + Backend requer tratamento de erros robusto
+- Importância de qualificar colunas em queries com JOINs
+```
 
 **Commits:**
 
-- [ ] `git commit -m "feat: implementa CRUD de alunos no backend"`
+- [🔄] `git commit -m "feat: implementa integração Keycloak e Email no backend"`
+- [🔄] `git commit -m "fix: corrige query SQL ambígua em student_repository"`
 
 ---
 
 #### 📅 DIA 8 - CRUD Alunos Frontend
 
-**Data:** **_ / _** / 2026  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 09 / 02 / 2026  
+**Status:** [ ] Concluído [🔄] Em Desenvolvimento [ ] Não iniciado
+
+**Resumo:**
+
+```
+O que foi feito:
+- ✅ Modernizada lista de alunos com Material Design
+- ✅ Implementado Material Table com sorting e paginação
+- ✅ Criado dashboard com 4 cards de estatísticas
+- ✅ Status em chips coloridos (Ativo, Inativo, Suspenso)
+- ✅ Implementado formulário multi-etapas (4 steps) com Material Stepper
+- ✅ Etapa 1: Dados Pessoais (com auto-formatação CPF/telefone)
+- ✅ Etapa 2: Dados do Aluno
+- ✅ Etapa 3: Responsáveis (FormArray dinâmico com permissões)
+- ✅ Etapa 4: Revisão completa
+- ✅ Design 100% consistente com módulo de cursos
+
+Dificuldades:
+- Ajustes de tipos TypeScript para FormArray
+- Validações de CPF e telefone
+
+Aprendizados:
+- Material Stepper é excelente para formulários complexos
+- FormArray permite gerenciamento dinâmico de responsáveis
+- Consistência visual melhora muito a UX
+```
 
 **Commits:**
 
-- [ ] `git commit -m "feat: cria módulo de alunos no frontend"`
-- [ ] `git commit -m "feat: implementa listagem de alunos"`
-- [ ] `git commit -m "feat: implementa formulário de aluno"`
+- [🔄] `git commit -m "feat: moderniza lista de alunos com Material Design"`
+- [🔄] `git commit -m "feat: implementa formulário multi-etapas para alunos"`
+- [🔄] `git commit -m "feat: adiciona gestão de responsáveis no formulário"`
 
 ---
 

@@ -37,7 +37,7 @@ Keycloak (lar-sso) ← SSO
 ## 📊 PROGRESSO GERAL
 
 ```
-[█████░░░░░░░░░░░░░░░] 26% - Autenticação Completa (Frontend + Backend)
+[████████░░░░░░░░░░░░] 40% - Autenticação + CRUD Alunos (Em Desenvolvimento)
 ```
 
 ---
@@ -231,18 +231,21 @@ Keycloak (lar-sso) ← SSO
 
 ---
 
-### ✅ DIA 7 - CRUD Alunos - Backend
+### 🔄 DIA 7 - CRUD Alunos - Backend
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [🔄] Em Desenvolvimento
 
 #### Tarefas:
 
-- [ ] Criar struct `Aluno` em `internal/models/aluno.go`
-- [ ] Implementar repository `internal/repository/aluno_repository.go`
-- [ ] Implementar service `internal/service/aluno_service.go`
-- [ ] Criar handlers HTTP em `internal/api/handlers/aluno_handler.go`
-- [ ] Adicionar rotas em `cmd/api/main.go`
+- [✅] Criar struct `Student` em `internal/models/student.go`
+- [✅] Implementar repository `internal/repository/postgres/student_repository.go`
+- [✅] Implementar service `internal/service/students/student_service.go`
+- [✅] Criar KeycloakService para provisionamento automático
+- [✅] Criar EmailService para envio de credenciais
+- [✅] Criar handlers HTTP em `internal/api/handlers/student_handler.go`
+- [✅] Adicionar rotas em `cmd/api/main.go`
+- [⚠️] Resolver erro 400 na criação de aluno (em investigação)
 
 **Endpoints:**
 
@@ -259,18 +262,21 @@ Keycloak (lar-sso) ← SSO
 
 ---
 
-### ✅ DIA 8 - CRUD Alunos - Frontend
+### 🔄 DIA 8 - CRUD Alunos - Frontend
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [🔄] Em Desenvolvimento
 
 #### Tarefas:
 
-- [ ] Criar módulo `alunos` (lazy-loaded)
-- [ ] Criar componente `aluno-list` (tabela com Angular Material)
-- [ ] Criar componente `aluno-form` (formulário reativo)
-- [ ] Implementar service `aluno.service.ts`
-- [ ] Adicionar rotas no módulo
+- [✅] Criar módulo `students` (lazy-loaded)
+- [✅] Criar componente `student-list` com Material Table
+- [✅] Adicionar sorting, paginação e estatísticas
+- [✅] Criar componente `student-form` com Material Stepper (4 etapas)
+- [✅] Implementar FormArray para responsáveis com permissões
+- [✅] Implementar service `student.service.ts`
+- [✅] Adicionar rotas no módulo
+- [✅] Garantir consistência visual com módulo de cursos
 
 **Componentes:**
 
