@@ -11,7 +11,7 @@
 ### SEMANA 1 - FUNDAÇÃO
 
 ```
-[✅] Dia 1  [✅] Dia 2  [✅] Dia 3  [✅] Dia 4  [░] Dia 5
+[✅] Dia 1  [✅] Dia 2  [✅] Dia 3  [✅] Dia 4  [✅] Dia 5
 ```
 
 ### SEMANA 2 - CRUD BÁSICO
@@ -316,30 +316,33 @@ Aprendizados:
 
 #### 📅 DIA 5 - Testes de Integração
 
-**Data:** **_ / _** / 2026  
-**Horário:** **_:_** - **_:_**  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 08 / 02 / 2026  
+**Horário:** 20:52 - 21:25
+**Status:** [✅] Concluído [ ] Parcial [ ] Não iniciado
 
 **Resumo:**
 
 ```
 O que foi feito:
-
-
+- ✅ Verificação de usuários no Keycloak (prof.maria, aluno.pedro)
+- ✅ Teste de login com perfil Professor (sucesso, dashboard ok)
+- ✅ Teste de login com perfil Aluno (sucesso, dashboard ok)
+- ✅ Validação de fluxo de logout para todos os perfis
+- ✅ Verificação backend de roles e identidade (endpoint /verify)
+- ✅ Confirmação de que roles são mapeadas corretamente (frontend & backend)
 
 Dificuldades:
-
-
+- Nenhuma. O sistema se comportou exatamente como esperado após as correções do Dia 4.
 
 Aprendizados:
-
-
+- A arquitetura de autenticação centralizada provou-se robusta.
+- O uso de subagentes para testes E2E no navegador é muito eficiente.
 ```
 
 **Commits:**
 
-- [ ] `git commit -m "test: valida fluxo completo de autenticação"`
-- [ ] `git commit -m "docs: atualiza README com instruções de login"`
+- [✅] `git commit -m "docs: atualiza roadmap e tarefas com conclusão do dia 5"`
+- [ ] `git commit -m "docs: atualiza README com instruções de login"` (já feito no dia 4)
 
 ---
 

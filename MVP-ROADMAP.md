@@ -160,7 +160,7 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 5 - Teste de Integração Completa
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] **Concluído**
 
 #### Tarefas:
 
@@ -183,14 +183,14 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 6 - Modelo de Dados e Migrations
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] Não iniciado
 
 #### Tarefas:
 
-- [ ] Criar migration para tabela `alunos`
-- [ ] Criar migration para tabela `cursos`
-- [ ] Criar migration para tabela `matriculas`
-- [ ] Rodar migrations: `go run migrations/main.go up`
+- [✅] Criar migration para tabela `alunos`
+- [✅] Criar migration para tabela `cursos`
+- [✅] Criar migration para tabela `matriculas`
+- [✅] Rodar migrations: `go run migrations/main.go up`
 
 **Estrutura de tabelas:**
 
