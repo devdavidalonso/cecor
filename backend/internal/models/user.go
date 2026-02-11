@@ -10,8 +10,8 @@ type User struct {
 	KeycloakUserID  string     `json:"keycloakUserId,omitempty" gorm:"unique;index"` // Keycloak user ID for SSO integration
 	Name            string     `json:"name" gorm:"not null"`
 	Email           string     `json:"email" gorm:"not null;unique"`
-	Password        string     `json:"-" gorm:"not null"`       // Not exposed in JSON
-	Profile         string     `json:"profile" gorm:"not null"` // admin, manager, teacher, student, guardian
+	Password        string     `json:"password,omitempty" gorm:"not null"` // Exposed for creation, handled carefully in responses
+	Profile         string     `json:"profile" gorm:"not null"`            // admin, manager, teacher, student, guardian
 	CPF             string     `json:"cpf" gorm:"unique"`
 	BirthDate       time.Time  `json:"birthDate"`
 	Phone           string     `json:"phone"`

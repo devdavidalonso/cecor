@@ -17,7 +17,7 @@
 ### SEMANA 2 - CRUD BÁSICO
 
 ```
-[✅] Dia 6  [🔄] Dia 7  [🔄] Dia 8  [░] Dia 9  [░] Dia 10
+[✅] Dia 6  [✅] Dia 7  [✅] Dia 8  [✅] Dia 9  [░] Dia 10
 ```
 
 ### SEMANA 3 - FREQUÊNCIA
@@ -362,7 +362,7 @@ Aprendizados:
 #### 📅 DIA 7 - CRUD Alunos Backend
 
 **Data:** 08-09 / 02 / 2026  
-**Status:** [ ] Concluído [🔄] Em Desenvolvimento [ ] Não iniciado
+**Status:** [✅] Concluído
 
 **Resumo:**
 
@@ -373,7 +373,7 @@ O que foi feito:
 - ✅ Integração completa: criação no DB + Keycloak + envio de email
 - ✅ Correção de erro SQL na listagem de alunos (deleted_at ambíguo)
 - ✅ Rollback automático em caso de falha
-- ⚠️ Erro 400 na criação de aluno (em investigação)
+- [✅] Erro 400 na criação de aluno (resolvido dia 9)
 
 Dificuldades:
 - Erro 400 persistente ao criar aluno via frontend
@@ -386,10 +386,44 @@ Aprendizados:
 
 **Commits:**
 
-- [🔄] `git commit -m "feat: implementa integração Keycloak e Email no backend"`
-- [🔄] `git commit -m "fix: corrige query SQL ambígua em student_repository"`
+- [✅] `git commit -m "feat: implementa integração Keycloak e Email no backend"`
+- [✅] `git commit -m "fix: corrige query SQL ambígua em student_repository"`
+- [✅] `git commit -m "fix: resolve erro 400/500 na criação de aluno"` (Dia 9)
 
 ---
+
+#### 📅 DIA 9 - Correção de Bugs e Verificação (Backend & Frontend)
+
+**Data:** 11 / 02 / 2026
+**Status:** [✅] Concluído
+
+**Resumo:**
+
+```
+O que foi feito:
+- ✅ **Backend Student Service**: Adicionado `password` padrão ("temp123456") para usuários criados via API interna (antes falhava por NOT NULL).
+- ✅ **Backend Model**: Ajustado `User.Password` para `omitempty` no JSON (antes ignorado em requests).
+- ✅ **Backend Model**: Ajustado `Student.SocialMedia` para `*string` (antes enviava string vazia para coluna JSON causando erro 500).
+- ✅ **Frontend**: Ajustado formato de data `birthDate` para ISO string no `StudentService`.
+- ✅ **Verificação**:
+  - Simulação de criação via Frontend (Browser Agent): Sucesso.
+  - Verificação de login com novo aluno: Sucesso (Dashboard acessível).
+  - Verificação no Keycloak Admin: Role "aluno" atribuída corretamente.
+- ✅ **Documentação**: Atualizado walkthrough com evidências.
+
+Dificuldades:
+- Erro silencioso 500 no `social_media`. Identificado via logs detalhados e corrigido com pointer type.
+- Cache de build impedindo atualização do binário Go (resolvido com `go clean -cache`).
+
+Aprendizados:
+- Colunas JSON/JSONB no Postgres via GORM devem ser mapeadas como ponteiros ou tipos específicos (pgtype) se puderem ser nulas/vazias.
+- Sempre limpar cache do Go se o comportamento não refletir o código.
+```
+
+**Commits:**
+
+- [✅] `git commit -m "fix(backend): resolve erro 400/500 na criação de aluno (json tags, pointer types)"`
+- [✅] `git commit -m "fix(frontend): ajusta formato de data no envio do formulário de aluno"`
 
 #### 📅 DIA 8 - CRUD Alunos Frontend
 

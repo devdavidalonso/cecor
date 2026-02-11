@@ -147,6 +147,11 @@ func (s *studentService) CreateStudent(ctx context.Context, student *models.Stud
 		student.Status = "active"
 	}
 
+	// Set default password if not provided (to satisfy DB constraint)
+	if student.User.Password == "" {
+		student.User.Password = "temp123456" // Placeholder for DB constraint
+	}
+
 	// Create student in database first
 	if err := s.studentRepo.Create(ctx, student); err != nil {
 		return err

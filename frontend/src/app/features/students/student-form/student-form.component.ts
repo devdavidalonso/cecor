@@ -193,7 +193,7 @@ export class StudentFormComponent implements OnInit {
           name: this.personalDataForm.value.name,
           email: this.personalDataForm.value.email,
           cpf: this.personalDataForm.value.cpf,
-          birthDate: this.personalDataForm.value.birthDate,
+          birthDate: new Date(this.personalDataForm.value.birthDate).toISOString(),
           phone: this.personalDataForm.value.phone,
           address: this.personalDataForm.value.address,
           profile: 'student',

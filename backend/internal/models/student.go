@@ -16,7 +16,7 @@ type Student struct {
 	EmergencyContact   string     `json:"emergencyContact"`
 	AdditionalPhone1   string     `json:"additionalPhone1"`
 	AdditionalPhone2   string     `json:"additionalPhone2"`
-	SocialMedia        string     `json:"socialMedia" gorm:"type:json"`
+	SocialMedia        *string    `json:"socialMedia" gorm:"type:json"`
 	Notes              string     `json:"notes"`
 	CreatedAt          time.Time  `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt          time.Time  `json:"updatedAt" gorm:"autoUpdateTime"`

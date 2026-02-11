@@ -37,7 +37,7 @@ Keycloak (lar-sso) ← SSO
 ## 📊 PROGRESSO GERAL
 
 ```
-[████████░░░░░░░░░░░░] 40% - Autenticação + CRUD Alunos (Em Desenvolvimento)
+[████████████████░░░░] 80% - Autenticação + CRUD Alunos (Concluído)
 ```
 
 ---
@@ -234,7 +234,7 @@ Keycloak (lar-sso) ← SSO
 ### 🔄 DIA 7 - CRUD Alunos - Backend
 
 **Tempo estimado:** 4h  
-**Status:** [🔄] Em Desenvolvimento
+**Status:** [✅] **Concluído**
 
 #### Tarefas:
 
@@ -245,7 +245,7 @@ Keycloak (lar-sso) ← SSO
 - [✅] Criar EmailService para envio de credenciais
 - [✅] Criar handlers HTTP em `internal/api/handlers/student_handler.go`
 - [✅] Adicionar rotas em `cmd/api/main.go`
-- [⚠️] Resolver erro 400 na criação de aluno (em investigação)
+- [✅] Resolver erro 400 na criação de aluno (resolvido dia 9)
 
 **Endpoints:**
 
@@ -265,7 +265,7 @@ Keycloak (lar-sso) ← SSO
 ### 🔄 DIA 8 - CRUD Alunos - Frontend
 
 **Tempo estimado:** 4h  
-**Status:** [🔄] Em Desenvolvimento
+**Status:** [✅] **Concluído**
 
 #### Tarefas:
 
