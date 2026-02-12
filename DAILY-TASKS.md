@@ -17,13 +17,13 @@
 ### SEMANA 2 - CRUD BÁSICO
 
 ```
-[✅] Dia 6  [✅] Dia 7  [✅] Dia 8  [✅] Dia 9  [░] Dia 10
+[✅] Dia 6  [✅] Dia 7  [✅] Dia 8  [✅] Dia 9  [✅] Dia 10
 ```
 
 ### SEMANA 3 - FREQUÊNCIA
 
 ```
-[✅] Dia 11  [✅] Dia 12  [✅] Dia 13  [░] Dia 14  [░] Dia 15
+[✅] Dia 11  [✅] Dia 12  [✅] Dia 13  [✅] Dia 14  [░] Dia 15
 ```
 
 ---
@@ -494,7 +494,7 @@ Aprendizados:
 
 **Commits:**
 
-- [ ] `git commit -m "feat: implementa sistema de matrícula"`
+- [✅] `git commit -m "feat: implementa sistema de matrícula"`
 
 ---
 

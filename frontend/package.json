@@ -25,6 +25,8 @@
         "@angular/service-worker": "^17.0.0",
         "angular-oauth2-oidc": "^17.0.2",
         "date-fns": "^2.30.0",
+        "jspdf": "^4.1.0",
+        "jspdf-autotable": "^5.0.7",
         "ngx-mask": "^16.0.0",
         "rxjs": "~7.8.0",
         "tslib": "^2.3.0",

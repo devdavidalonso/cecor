@@ -37,7 +37,7 @@ Keycloak (lar-sso) ← SSO
 ## 📊 PROGRESSO GERAL
 
 ```
-[██████████████████░░] 90% - Frequência: Backend & Frontend (Em andamento)
+[███████████████████░] 95% - Frequência: Relatórios e PDF (Concluído)
 ```
 
 ---
@@ -321,14 +321,14 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 10 - Matrícula Simples
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] Concluído
 
 #### Tarefas:
 
-- [ ] Backend: Implementar lógica de matrícula
-- [ ] Validar se aluno já está matriculado no curso
-- [ ] Frontend: Tela de matrícula (select de aluno + select de curso)
-- [ ] Listar matrículas ativas
+- [✅] Backend: Implementar lógica de matrícula
+- [✅] Validar se aluno já está matriculado no curso
+- [✅] Frontend: Tela de matrícula (select de aluno + select de curso)
+- [✅] Listar matrículas ativas
 
 **Endpoint adicional:**
 

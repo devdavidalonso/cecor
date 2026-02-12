@@ -10,7 +10,7 @@ import (
 )
 
 // Register configura todas as rotas da API
-func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler, courseHandler *handlers.CourseHandler, enrollmentHandler *handlers.EnrollmentHandler, attendanceHandler *handlers.AttendanceHandler) {
+func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler, courseHandler *handlers.CourseHandler, enrollmentHandler *handlers.EnrollmentHandler, attendanceHandler *handlers.AttendanceHandler, reportHandler *handlers.ReportHandler) {
 	// Rota de saúde para verificação do servidor
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -79,9 +79,10 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 
 			// Reports
 			r.Route("/relatorios", func(r chi.Router) {
-				r.Get("/frequencia/{cursoId}", http.NotFound) // TODO: Implementar handler
-				r.Get("/alunos", http.NotFound)               // TODO: Implementar handler
-				r.Get("/cursos", http.NotFound)               // TODO: Implementar handler
+				r.Get("/frequencia/curso/{id}", reportHandler.GetCourseAttendanceReport)
+				r.Get("/frequencia/aluno/{id}", reportHandler.GetStudentAttendanceReport)
+				r.Get("/alunos", http.NotFound) // TODO: Implementar handler
+				r.Get("/cursos", http.NotFound) // TODO: Implementar handler
 			})
 
 			// Entrevistas
