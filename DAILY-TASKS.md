@@ -23,12 +23,12 @@
 ### SEMANA 3 - FREQUÊNCIA
 
 ```
-[░] Dia 11  [░] Dia 12  [░] Dia 13  [░] Dia 14  [░] Dia 15
+[✅] Dia 11  [✅] Dia 12  [✅] Dia 13  [░] Dia 14  [░] Dia 15
 ```
 
 ---
 
-## 🎯 DIA ATUAL: \_\_\_
+## 🎯 DIA ATUAL: 13/02/2026 - DIA 13 - Tela de Chamada - Frontend
 
 ### 📋 TAREFA DO DIA
 
@@ -36,9 +36,9 @@
 
 **Exemplo:**
 
-- [ ] Subtarefa 1
-- [ ] Subtarefa 2
-- [ ] Subtarefa 3
+- [✅] Frontend: Criar componente `chamada-list`
+- [✅] Frontend: Exibir lista de alunos matriculados
+- [✅] Frontend: Salvar chamada em lote via API
 
 ---
 
@@ -129,7 +129,9 @@ Se parcial/não, motivo:
 
 
 Commits realizados hoje:
--
+- feat(frontend): implementa interface de registro de presença com dados reais
+- feat(frontend): atualiza attendance service para integração com backend
+- fix(frontend): resolve erros de tipo e lint no componente de presença
 
 
 Próxima sessão vai começar em:
@@ -477,10 +479,18 @@ Aprendizados:
 
 ---
 
-#### 📅 DIA 10 - Matrícula
+#### 📅 DIA 10 - Matrículas
 
-**Data:** **_ / _** / 2026  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 12 / 02 / 2026  
+**Status:** [✅] Concluído
+
+**Resumo:**
+
+- ✅ Implementado Repositório, Serviço e Handler de matrículas (backend).
+- ✅ Implementada lógica de prevenção de duplicidade (backend).
+- ✅ Criado EnrollmentService com rota adaptada (`/matriculas`).
+- ✅ Implementada lista de matrículas com Material Design.
+- ✅ Implementado formulário de matrícula com seletores de aluno e curso.
 
 **Commits:**
 
@@ -488,26 +498,61 @@ Aprendizados:
 
 ---
 
+#### 📅 DIA 11 - Modelo de Frequência
+
+**Data:** 12 / 02 / 2026  
+**Status:** [✅] Concluído
+
+**Resumo:**
+
+- ✅ Atualizado modelo `Attendance` para incluir `EnrollmentID`.
+- ✅ Criado Repositório e Serviço de presenças (backend).
+- ✅ Configurada injeção de dependência no `main.go`.
+- ✅ Build verificado com sucesso.
+
+---
+
+#### 📅 DIA 12 - Registro de Frequência - Backend
+
+**Data:** 12 / 02 / 2026  
+**Status:** [✅] Concluído
+
+**Resumo:**
+
+- ✅ Implementado Handler de presenças com registro em lote.
+- ✅ Criados endpoints para consulta de frequência por curso e portal do aluno.
+- ✅ Implementada lógica de cálculo de percentual de presença.
+- ✅ Build verificado com sucesso.
+
+---
+
 ### SEMANA 3
 
 #### 📅 DIA 11 - Modelo Frequência
 
-**Data:** **_ / _** / 2026  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 12 / 02 / 2026  
+**Status:** [✅] Concluído
 
 ---
 
 #### 📅 DIA 12 - Registro Backend
 
-**Data:** **_ / _** / 2026  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 12 / 02 / 2026  
+**Status:** [✅] Concluído
 
 ---
 
 #### 📅 DIA 13 - Tela de Chamada
 
-**Data:** **_ / _** / 2026  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 12 / 02 / 2026  
+**Status:** [✅] Concluído
+
+**Resumo:**
+
+- ✅ Refatorado `RegistroPresencaComponent` para integração completa com backend.
+- ✅ Implementado `AttendanceService` com endpoints reais de registro em lote e consulta.
+- ✅ Resolvido problema de dados mockados, agora carregando cursos, alunos e matrículas reais.
+- ✅ Implementada lógica de salvamento em lote funcional.
 
 ---
 

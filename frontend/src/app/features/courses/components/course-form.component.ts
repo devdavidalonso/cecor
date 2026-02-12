@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CourseService, Course } from '../../../core/services/course.service';
 
 @Component({
@@ -36,8 +36,8 @@ import { CourseService, Course } from '../../../core/services/course.service';
     <div class="course-form-container">
       <mat-card class="form-card">
         <mat-card-header>
-          <mat-card-title>Create New Course</mat-card-title>
-          <mat-card-subtitle>Fill in the details to publish a new course</mat-card-subtitle>
+          <mat-card-title>{{ isEditMode ? 'Edit Course' : 'Create New Course' }}</mat-card-title>
+          <mat-card-subtitle>{{ isEditMode ? 'Update the details of the course' : 'Fill in the details to publish a new course' }}</mat-card-subtitle>
         </mat-card-header>
         
         <mat-card-content>
@@ -57,6 +57,16 @@ import { CourseService, Course } from '../../../core/services/course.service';
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Short Description</mat-label>
                     <input matInput formControlName="shortDescription" placeholder="Brief summary">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Professor</mat-label>
+                    <mat-select formControlName="professorId">
+                      <mat-option *ngFor="let prof of professors" [value]="prof.id">
+                        {{ prof.firstName }} {{ prof.lastName }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matSuffix>person</mat-icon>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="full-width">
@@ -310,17 +320,22 @@ export class CourseFormComponent implements OnInit {
   detailsForm: FormGroup;
   scheduleForm: FormGroup;
   isSubmitting = false;
+  isEditMode = false;
+  courseId: number | null = null;
+  professors: any[] = [];
 
   constructor(
     private _formBuilder: FormBuilder,
     private courseService: CourseService,
     private router: Router,
+    private route: ActivatedRoute,
     private snackBar: MatSnackBar
   ) {
     this.basicInfoForm = this._formBuilder.group({
       name: ['', Validators.required],
       shortDescription: [''],
-      coverImage: ['']
+      coverImage: [''],
+      professorId: ['']
     });
 
     this.detailsForm = this._formBuilder.group({
@@ -342,7 +357,62 @@ export class CourseFormComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.loadProfessors();
+    this.checkEditMode();
+  }
+
+  loadProfessors() {
+    this.courseService.getProfessors().subscribe({
+      next: (profs) => this.professors = profs,
+      error: (err) => console.error('Error loading professors', err)
+    });
+  }
+
+  checkEditMode() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode = true;
+      this.courseId = +id;
+      this.loadCourseData(this.courseId);
+    }
+  }
+
+  loadCourseData(id: number) {
+    this.courseService.getCourse(id).subscribe({
+      next: (course) => {
+        this.basicInfoForm.patchValue({
+          name: course.name,
+          shortDescription: course.shortDescription,
+          coverImage: course.coverImage,
+          professorId: course.professorId
+        });
+
+        this.detailsForm.patchValue({
+          detailedDescription: course.detailedDescription,
+          difficultyLevel: course.difficultyLevel,
+          targetAudience: course.targetAudience,
+          prerequisites: course.prerequisites
+        });
+
+        const weekDays = course.weekDays ? course.weekDays.split(',') : [];
+        this.scheduleForm.patchValue({
+          workload: course.workload,
+          maxStudents: course.maxStudents,
+          duration: course.duration,
+          weekDays: weekDays,
+          startTime: course.startTime,
+          endTime: course.endTime,
+          startDate: course.startDate,
+          endDate: course.endDate
+        });
+      },
+      error: (err) => {
+        this.snackBar.open('Error loading course data.', 'Close', { duration: 3000 });
+        this.router.navigate(['/courses']);
+      }
+    });
+  }
 
   onImageError(event: any) {
     event.target.src = 'https://via.placeholder.com/800x400?text=No+Image';
@@ -356,18 +426,22 @@ export class CourseFormComponent implements OnInit {
         ...this.basicInfoForm.value,
         ...this.detailsForm.value,
         ...this.scheduleForm.value,
-        weekDays: this.scheduleForm.value.weekDays.join(','), // Convert array to string
+        weekDays: this.scheduleForm.value.weekDays ? this.scheduleForm.value.weekDays.join(',') : '', // Convert array to string
         status: 'active'
       };
 
-      this.courseService.createCourse(courseData).subscribe({
+      const request = this.isEditMode && this.courseId
+        ? this.courseService.updateCourse(this.courseId, courseData)
+        : this.courseService.createCourse(courseData);
+
+      request.subscribe({
         next: (res: Course) => {
-          this.snackBar.open('Course created successfully!', 'Close', { duration: 3000 });
-          this.router.navigate(['/courses']); // Assuming a list route exists
+          this.snackBar.open(this.isEditMode ? 'Course updated successfully!' : 'Course created successfully!', 'Close', { duration: 3000 });
+          this.router.navigate(['/courses']);
         },
         error: (err: any) => {
           console.error(err);
-          this.snackBar.open('Error creating course. Please try again.', 'Close', { duration: 5000 });
+          this.snackBar.open(`Error ${this.isEditMode ? 'updating' : 'creating'} course. Please try again.`, 'Close', { duration: 5000 });
           this.isSubmitting = false;
         }
       });

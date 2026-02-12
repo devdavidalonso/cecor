@@ -2,6 +2,7 @@
 export interface Attendance {
     id: number;
     studentId: number;
+    enrollmentId: number;
     courseId: number;
     date: Date;
     status: AttendanceStatus;

@@ -187,3 +187,19 @@ func (s *KeycloakService) SetTemporaryPassword(ctx context.Context, userID, pass
 
 	return nil
 }
+
+// GetUsersByRole fetches users who have a specific realm role
+func (s *KeycloakService) GetUsersByRole(ctx context.Context, roleName string) ([]*gocloak.User, error) {
+	// Authenticate first
+	if err := s.authenticate(ctx); err != nil {
+		return nil, err
+	}
+
+	// Get users with the specified role
+	users, err := s.client.GetUsersByRoleName(ctx, s.accessToken, s.realm, roleName, gocloak.GetUsersByRoleParams{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get users with role '%s': %w", roleName, err)
+	}
+
+	return users, nil
+}

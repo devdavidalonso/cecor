@@ -8,6 +8,7 @@ import (
 type Attendance struct {
 	ID             uint      `json:"id" gorm:"primaryKey"`
 	StudentID      uint      `json:"studentId" gorm:"not null;index"`
+	EnrollmentID   uint      `json:"enrollmentId" gorm:"not null;index"`
 	CourseID       uint      `json:"courseId" gorm:"not null;index"`
 	Date           time.Time `json:"date" gorm:"not null;index"`
 	Status         string    `json:"status" gorm:"not null"` // present, absent, partial

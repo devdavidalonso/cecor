@@ -10,7 +10,7 @@ import { PaginatedResponse } from '@core/models/paginated-response.model';
   providedIn: 'root'
 })
 export class EnrollmentService {
-  private readonly API_URL = `${environment.apiUrl}/enrollments`;
+  private readonly API_URL = `${environment.apiUrl}/matriculas`;
 
   constructor(private http: HttpClient) {}
 

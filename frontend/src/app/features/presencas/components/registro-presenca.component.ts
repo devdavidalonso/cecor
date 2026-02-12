@@ -21,9 +21,16 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
+import { CourseService, Course as CourseModel } from '@core/services/course.service';
+import { StudentService } from '@core/services/student.service';
+import { EnrollmentService } from '@core/services/enrollment.service';
+import { AttendanceService } from '@core/services/attendance.service';
+import { Attendance, AttendanceFilters, AttendanceStatus } from '@core/models/attendance.model';
+import { forkJoin } from 'rxjs';
 
 interface Aluno {
   id: number;
+  enrollmentId: number;
   nome: string;
   idade: number;
   foto?: string;
@@ -582,7 +589,11 @@ export class RegistroPresencaComponent implements OnInit {
   
   constructor(
     private formBuilder: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private courseService: CourseService,
+    private studentService: StudentService,
+    private enrollmentService: EnrollmentService,
+    private attendanceService: AttendanceService
   ) {
     // Inicializar formulário de filtro
     this.filtroForm = this.formBuilder.group({
@@ -590,9 +601,27 @@ export class RegistroPresencaComponent implements OnInit {
       data: [new Date(), Validators.required]
     });
   }
-  
+
   ngOnInit(): void {
-    // Inicialização adicional, se necessário
+    this.loadCourses();
+  }
+
+  loadCourses(): void {
+    this.courseService.getCourses().subscribe({
+      next: (courses: CourseModel[]) => {
+        this.cursos = courses.map(c => ({
+          id: c.id || 0,
+          nome: c.name,
+          diasSemana: c.weekDays || 'A combinar',
+          horario: c.startTime && c.endTime ? `${c.startTime} - ${c.endTime}` : 'A definir',
+          modulos: []
+        }));
+      },
+      error: (err) => {
+        console.error('Error loading courses', err);
+        this.snackBar.open('Erro ao carregar cursos', 'OK', { duration: 3000 });
+      }
+    });
   }
   
   // Quando o curso muda, atualiza o curso selecionado
@@ -606,154 +635,72 @@ export class RegistroPresencaComponent implements OnInit {
     if (this.filtroForm.invalid) return;
     
     const { cursoId, data } = this.filtroForm.value;
+    const dateStr = data.toISOString().split('T')[0]; // YYYY-MM-DD
     
     this.isLoading = true;
     this.buscaRealizada = true;
+    this.alunos = [];
     
-    // Simulando uma chamada de API
-    setTimeout(() => {
-      // Dados de exemplo
-      if (cursoId === 1) {
-        this.alunos = [
-          {
-            id: 1,
-            nome: 'Maria da Silva',
-            idade: 15,
-            foto: 'https://i.pravatar.cc/150?img=1',
-            dataMatricula: new Date(2023, 1, 15),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 0
-          },
-          {
-            id: 2,
-            nome: 'João Oliveira',
-            idade: 14,
-            foto: 'https://i.pravatar.cc/150?img=2',
-            dataMatricula: new Date(2023, 2, 10),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 2,
-            justificativa: 'Aluno avisou que está doente e apresentará atestado médico.'
-          },
-          {
-            id: 3,
-            nome: 'Ana Costa',
-            idade: 16,
-            foto: 'https://i.pravatar.cc/150?img=5',
-            dataMatricula: new Date(2023, 1, 5),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 0
-          },
-          {
-            id: 4,
-            nome: 'Pedro Santos',
-            idade: 15,
-            dataMatricula: new Date(2023, 3, 20),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 3
-          }
-        ];
-      } else if (cursoId === 2) {
-        this.alunos = [
-          {
-            id: 5,
-            nome: 'Carla Souza',
-            idade: 35,
-            foto: 'https://i.pravatar.cc/150?img=9',
-            dataMatricula: new Date(2023, 2, 15),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 0
-          },
-          {
-            id: 6,
-            nome: 'Márcia Lima',
-            idade: 42,
-            foto: 'https://i.pravatar.cc/150?img=10',
-            dataMatricula: new Date(2023, 1, 20),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 1
-          }
-        ];
-      } else if (cursoId === 3) {
-        this.alunos = [
-          {
-            id: 7,
-            nome: 'Lucas Ferreira',
-            idade: 10,
-            foto: 'https://i.pravatar.cc/150?img=16',
-            dataMatricula: new Date(2023, 3, 5),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 0
-          },
-          {
-            id: 8,
-            nome: 'Gabriela Martins',
-            idade: 11,
-            foto: 'https://i.pravatar.cc/150?img=17',
-            dataMatricula: new Date(2023, 3, 5),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 0
-          },
-          {
-            id: 9,
-            nome: 'Thiago Almeida',
-            idade: 9,
-            foto: 'https://i.pravatar.cc/150?img=18',
-            dataMatricula: new Date(2023, 3, 5),
-            status: 'pendente',
-            modulos: this.cursoSelecionado?.modulos.map(m => ({ 
-              id: m.id, 
-              nome: m.nome, 
-              status: 'pendente' 
-            })) || [],
-            faltasConsecutivas: 1
-          }
-        ];
-      } else {
-        this.alunos = [];
+    forkJoin({
+      enrollments: this.enrollmentService.getEnrollments(1, 100, { curso_id: cursoId }),
+      students: this.studentService.getStudents(1, 100, { courseId: cursoId }),
+      attendance: this.attendanceService.getClassAttendance(cursoId, dateStr)
+    }).subscribe({
+      next: (result) => {
+        const enrollments = Array.isArray(result.enrollments) ? result.enrollments : (result.enrollments as any).data || [];
+        const students = Array.isArray(result.students) ? result.students : (result.students as any).data || [];
+        const attendanceRecords = result.attendance || [];
+
+        this.alunos = enrollments.map((enrollment: any) => {
+          const student = students.find((s: any) => s.id === enrollment.studentId);
+          const attendance = attendanceRecords.find((a: any) => a.enrollmentId === enrollment.id);
+          
+          let status: 'presente' | 'ausente' | 'parcial' | 'pendente' = 'pendente';
+          if (attendance?.status === 'present') status = 'presente';
+          else if (attendance?.status === 'absent') status = 'ausente';
+          else if (attendance?.status === 'partial') status = 'parcial';
+
+          return {
+            id: student?.id || 0,
+            enrollmentId: enrollment.id,
+            nome: student?.user?.name || 'Desconhecido',
+            idade: student?.user?.birthDate ? this.calculateAge(new Date(student.user.birthDate)) : 0,
+            foto: undefined,
+            dataMatricula: new Date(enrollment.enrollmentDate),
+            status: status,
+            modulos: this.cursoSelecionado?.modulos.map(m => {
+              let moduloStatus: 'presente' | 'ausente' | 'pendente' = 'pendente';
+              if (status === 'presente') moduloStatus = 'presente';
+              else if (status === 'ausente') moduloStatus = 'ausente';
+              
+              return { 
+                id: m.id, 
+                nome: m.nome, 
+                status: moduloStatus
+              };
+            }) || [],
+            faltasConsecutivas: 0 // Fetch from backend if available in future
+          };
+        });
+        
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching data', err);
+        this.isLoading = false;
+        this.snackBar.open('Erro ao buscar alunos ou presenças', 'OK', { duration: 3000 });
       }
-      
-      this.isLoading = false;
-    }, 1000);
+    });
+  }
+
+  private calculateAge(birthDate: Date): number {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
   }
   
   // Atualiza o status geral do aluno
@@ -839,25 +786,45 @@ export class RegistroPresencaComponent implements OnInit {
   
   // Salvar todas as presenças
   salvarPresencas(): void {
-    // Verificar se todas as presenças foram marcadas
     const pendentes = this.alunos.filter(a => a.status === 'pendente');
     
     if (pendentes.length > 0) {
-      this.snackBar.open(`Há ${pendentes.length} alunos com presença não marcada. Deseja continuar?`, 'Sim', { 
-        duration: 5000,
-        panelClass: 'warning-snackbar'
+      this.snackBar.open(`Há ${pendentes.length} alunos com presença não marcada. Marque todos antes de salvar.`, 'OK', { 
+        duration: 5000
       });
       return;
     }
     
-    // Simular o envio para o servidor
+    if (this.filtroForm.invalid) return;
+    const { cursoId, data } = this.filtroForm.value;
+    
     this.isLoading = true;
     
-    setTimeout(() => {
-      this.isLoading = false;
-      this.snackBar.open('Presenças salvas com sucesso!', 'OK', { duration: 3000 });
-      
-      // Em uma implementação real, redirecionaria para a página de listagem ou dashboard
-    }, 1500);
+    const attendances = this.alunos.map(aluno => {
+      let status: AttendanceStatus = AttendanceStatus.PARTIAL;
+      if (aluno.status === 'presente') status = AttendanceStatus.PRESENT;
+      else if (aluno.status === 'ausente') status = AttendanceStatus.ABSENT;
+
+      return {
+        studentId: aluno.id,
+        enrollmentId: aluno.enrollmentId,
+        courseId: cursoId,
+        date: data,
+        status: status,
+        notes: aluno.justificativa
+      };
+    });
+
+    this.attendanceService.registerBatch(attendances).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.snackBar.open('Presenças salvas com sucesso!', 'OK', { duration: 3000 });
+      },
+      error: (err: any) => {
+        console.error('Error saving attendance', err);
+        this.isLoading = false;
+        this.snackBar.open('Erro ao salvar presenças', 'OK', { duration: 3000 });
+      }
+    });
   }
 }

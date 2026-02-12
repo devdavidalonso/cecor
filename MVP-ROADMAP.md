@@ -37,7 +37,7 @@ Keycloak (lar-sso) ← SSO
 ## 📊 PROGRESSO GERAL
 
 ```
-[████████████████░░░░] 80% - Autenticação + CRUD Alunos (Concluído)
+[██████████████████░░] 90% - Frequência: Backend & Frontend (Em andamento)
 ```
 
 ---
@@ -348,7 +348,7 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 11 - Modelo de Frequência
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] Concluído
 
 #### Tarefas:
 
@@ -374,7 +374,7 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 12 - Registro de Frequência - Backend
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] Concluído
 
 #### Tarefas:
 
@@ -398,15 +398,15 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 13 - Tela de Chamada - Frontend
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] Concluído
 
 #### Tarefas:
 
-- [ ] Criar componente `chamada-list`
-- [ ] Exibir lista de alunos matriculados no curso
-- [ ] Checkboxes para marcar presença/falta
-- [ ] Botão "Salvar Chamada"
-- [ ] Exibir % de frequência de cada aluno
+- [✅] Criar componente `chamada-list` (RegistroPresencaComponent)
+- [✅] Exibir lista de alunos matriculados no curso
+- [✅] Checkboxes para marcar presença/falta
+- [✅] Botão "Salvar Chamada"
+- [✅] Exibir % de frequência de cada aluno (via AttendanceService)
 
 **Critério de sucesso:**
 ✅ Professor vê lista de alunos  

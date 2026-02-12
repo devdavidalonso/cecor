@@ -24,9 +24,11 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
 	"github.com/devdavidalonso/cecor/backend/internal/service"
-	"github.com/devdavidalonso/cecor/backend/internal/service/courses"  // Adicionar importação de courses
-	"github.com/devdavidalonso/cecor/backend/internal/service/students" // Adicionar importação de students
-	"github.com/devdavidalonso/cecor/backend/internal/service/users"    // Adicionar esta importação
+	"github.com/devdavidalonso/cecor/backend/internal/service/courses"    // Adicionar importação de courses
+	"github.com/devdavidalonso/cecor/backend/internal/service/matriculas" // Adicionar importação de matriculas
+	"github.com/devdavidalonso/cecor/backend/internal/service/presencas"  // Adicionar importação de presencas
+	"github.com/devdavidalonso/cecor/backend/internal/service/students"   // Adicionar importação de students
+	"github.com/devdavidalonso/cecor/backend/internal/service/users"      // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
 )
 
@@ -92,8 +94,10 @@ func main() {
 
 	// Initialize repositories
 	studentRepo := postgres.NewStudentRepository(db)
-	userRepo := postgres.NewUserRepository(db)     // Adicionar o repositório de usuários
-	courseRepo := postgres.NewCourseRepository(db) // Adicionar repositório de cursos
+	userRepo := postgres.NewUserRepository(db)             // Adicionar o repositório de usuários
+	courseRepo := postgres.NewCourseRepository(db)         // Adicionar repositório de cursos
+	enrollmentRepo := postgres.NewEnrollmentRepository(db) // Adicionar repositório de matrículas
+	attendanceRepo := postgres.NewAttendanceRepository(db) // Adicionar repositório de presenças
 
 	// Initialize services
 	keycloakService := service.NewKeycloakService()                                          // Inicializar Keycloak service
@@ -101,14 +105,18 @@ func main() {
 	studentService := students.NewStudentService(studentRepo, keycloakService, emailService) // Inicializar student service com Keycloak e Email
 	userService := users.NewUserService(userRepo)                                            // Adicionar o serviço de usuários
 	courseService := courses.NewService(courseRepo)                                          // Adicionar serviço de cursos
+	enrollmentService := matriculas.NewService(enrollmentRepo)                               // Adicionar serviço de matrículas
+	attendanceService := presencas.NewService(attendanceRepo)                                // Adicionar serviço de presenças
 
 	// Initialize SSO Config
 	ssoConfig := auth.NewSSOConfig(cfg)
 
 	// Initialize handlers
 	studentHandler := handlers.NewStudentHandler(studentService)
-	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig) // Adicionar o handler de autenticação
-	courseHandler := handlers.NewCourseHandler(courseService)           // Adicionar handler de cursos
+	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig)        // Adicionar o handler de autenticação
+	courseHandler := handlers.NewCourseHandler(courseService, keycloakService) // Adicionar handler de cursos
+	enrollmentHandler := handlers.NewEnrollmentHandler(enrollmentService)      // Adicionar handler de matrículas
+	attendanceHandler := handlers.NewAttendanceHandler(attendanceService)      // Adicionar handler de presenças
 
 	// Create router
 	r := chi.NewRouter()
@@ -139,7 +147,7 @@ func main() {
 	})
 
 	// Registrar todas as rotas, incluindo autenticação
-	routes.Register(r, cfg, authHandler, courseHandler)
+	routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler)
 
 	// ROTA DE TESTE TEMPORÁRIA - SEM AUTENTICAÇÃO (remover após testes)
 	r.Route("/api/v1/test/students", func(r chi.Router) {

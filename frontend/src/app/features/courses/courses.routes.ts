@@ -19,5 +19,10 @@ export const COURSES_ROUTES: Routes = [
     path: ':id',
     component: CourseDetailsComponent,
     title: 'Course Details'
+  },
+  {
+    path: ':id/edit',
+    component: CourseFormComponent,
+    title: 'Edit Course'
   }
 ];

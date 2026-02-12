@@ -10,7 +10,7 @@ import (
 )
 
 // Register configura todas as rotas da API
-func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler, courseHandler *handlers.CourseHandler) {
+func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler, courseHandler *handlers.CourseHandler, enrollmentHandler *handlers.EnrollmentHandler, attendanceHandler *handlers.AttendanceHandler) {
 	// Rota de saúde para verificação do servidor
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -54,20 +54,19 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 
 			// Matrículas
 			r.Route("/matriculas", func(r chi.Router) {
-				r.Get("/", http.NotFound)        // TODO: Implementar handler
-				r.Post("/", http.NotFound)       // TODO: Implementar handler
-				r.Get("/{id}", http.NotFound)    // TODO: Implementar handler
-				r.Put("/{id}", http.NotFound)    // TODO: Implementar handler
-				r.Delete("/{id}", http.NotFound) // TODO: Implementar handler
+				r.Get("/", enrollmentHandler.ListEnrollments)
+				r.Post("/", enrollmentHandler.EnrollStudent)
+				r.Get("/{id}", enrollmentHandler.GetEnrollment)
+				r.Put("/{id}", enrollmentHandler.UpdateEnrollment)
+				r.Delete("/{id}", enrollmentHandler.DeleteEnrollment)
 			})
 
 			// Presenças
 			r.Route("/presencas", func(r chi.Router) {
-				r.Get("/", http.NotFound)                            // TODO: Implementar handler
-				r.Post("/", http.NotFound)                           // TODO: Implementar handler
-				r.Get("/{id}", http.NotFound)                        // TODO: Implementar handler
-				r.Put("/{id}", http.NotFound)                        // TODO: Implementar handler
-				r.Get("/curso/{cursoId}/data/{data}", http.NotFound) // TODO: Implementar handler
+				r.Post("/registrar", attendanceHandler.RecordBatch)
+				r.Get("/curso/{id}/data/{data}", attendanceHandler.GetClassAttendance)
+				r.Get("/aluno/{id}", attendanceHandler.GetStudentHistory)
+				r.Get("/aluno/{id}/percentual", attendanceHandler.GetStudentPercentage)
 			})
 
 			// Notificações
@@ -104,8 +103,9 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 			// Usuários e Permissões (admin)
 			r.Route("/usuarios", func(r chi.Router) {
 				r.Use(middleware.RequireAdmin)
-				r.Get("/", http.NotFound)        // TODO: Implementar handler
-				r.Post("/", http.NotFound)       // TODO: Implementar handler
+				r.Get("/", http.NotFound)  // TODO: Implementar handler
+				r.Post("/", http.NotFound) // TODO: Implementar handler
+				r.Get("/professores", courseHandler.ListProfessors)
 				r.Get("/{id}", http.NotFound)    // TODO: Implementar handler
 				r.Put("/{id}", http.NotFound)    // TODO: Implementar handler
 				r.Delete("/{id}", http.NotFound) // TODO: Implementar handler

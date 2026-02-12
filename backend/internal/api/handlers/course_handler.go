@@ -6,16 +6,21 @@ import (
 	"strconv"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
+	"github.com/devdavidalonso/cecor/backend/internal/service"
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"
 	"github.com/go-chi/chi/v5"
 )
 
 type CourseHandler struct {
-	service courses.Service
+	service         courses.Service
+	keycloakService *service.KeycloakService
 }
 
-func NewCourseHandler(service courses.Service) *CourseHandler {
-	return &CourseHandler{service: service}
+func NewCourseHandler(service courses.Service, keycloakService *service.KeycloakService) *CourseHandler {
+	return &CourseHandler{
+		service:         service,
+		keycloakService: keycloakService,
+	}
 }
 
 func (h *CourseHandler) CreateCourse(w http.ResponseWriter, r *http.Request) {
@@ -103,4 +108,15 @@ func (h *CourseHandler) DeleteCourse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *CourseHandler) ListProfessors(w http.ResponseWriter, r *http.Request) {
+	professors, err := h.keycloakService.GetUsersByRole(r.Context(), "professor")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(professors)
 }
