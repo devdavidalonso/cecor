@@ -67,15 +67,13 @@ func (s *KeycloakService) CreateUser(ctx context.Context, req CreateUserRequest)
 	enabled := req.Enabled
 	emailVerified := req.EmailVerified
 	user := gocloak.User{
-		Username:      gocloak.StringP(req.Username),
-		Email:         gocloak.StringP(req.Email),
-		FirstName:     gocloak.StringP(req.FirstName),
-		LastName:      gocloak.StringP(req.LastName),
-		Enabled:       &enabled,
-		EmailVerified: &emailVerified,
-		RequiredActions: &[]string{
-			"UPDATE_PASSWORD", // Force user to set password on first login
-		},
+		Username:        gocloak.StringP(req.Username),
+		Email:           gocloak.StringP(req.Email),
+		FirstName:       gocloak.StringP(req.FirstName),
+		LastName:        gocloak.StringP(req.LastName),
+		Enabled:         &enabled,
+		EmailVerified:   &emailVerified,
+		RequiredActions: &[]string{},
 	}
 
 	// Create user in Keycloak
@@ -181,7 +179,7 @@ func (s *KeycloakService) SetTemporaryPassword(ctx context.Context, userID, pass
 		return err
 	}
 
-	temporary := true
+	temporary := false
 	err := s.client.SetPassword(ctx, s.accessToken, userID, s.realm, password, temporary)
 	if err != nil {
 		return fmt.Errorf("failed to set temporary password: %w", err)

@@ -8,6 +8,12 @@ import { provideOAuthClient } from 'angular-oauth2-oidc';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
+
+registerLocaleData(localePt);
 
 // Provider Factory para serviços que precisam de versões mockadas no modo protótipo
 import { cursoServiceFactory } from './core/factories/curso-service.factory';
@@ -48,6 +54,8 @@ export const appConfig: ApplicationConfig = {
       useFactory: cursoServiceFactory
     },
     // Serviço de protótipo (sempre disponível)
-    PrototypeService
+    PrototypeService,
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' }
   ]
 };

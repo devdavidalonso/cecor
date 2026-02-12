@@ -175,6 +175,19 @@ export class StudentFormComponent implements OnInit {
     form.get(controlName)?.setValue(value, { emitEvent: false });
   }
 
+  formatBirthDate(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length > 8) value = value.slice(0, 8);
+    
+    if (value.length >= 5) {
+      value = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
+    } else if (value.length >= 3) {
+      value = `${value.slice(0, 2)}/${value.slice(2)}`;
+    }
+    
+    this.personalDataForm.get('birthDate')?.setValue(value, { emitEvent: true });
+  }
+
   displayCPF(cpf: string): string {
     if (!cpf) return '';
     const cleaned = cpf.replace(/\D/g, '');

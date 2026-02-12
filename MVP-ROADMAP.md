@@ -2,7 +2,7 @@
 
 ## Sistema de Controle de Frequência para Lar do Alvorecer
 
-**Última atualização:** 08/02/2026  
+**Última atualização:** 11/02/2026  
 **Dedicação diária:** 4 horas  
 **Prazo estimado:** 3 semanas (15 dias úteis)
 

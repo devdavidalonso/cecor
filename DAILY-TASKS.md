@@ -409,6 +409,9 @@ O que foi feito:
   - Simulação de criação via Frontend (Browser Agent): Sucesso.
   - Verificação de login com novo aluno: Sucesso (Dashboard acessível).
   - Verificação no Keycloak Admin: Role "aluno" atribuída corretamente.
+  - ✅ **Fix Crítico Keycloak**: Removido `Required Action: UPDATE_PASSWORD` na criação de usuário, permitindo login direto.
+  - ✅ **Frontend Locale**: Configurado `pt-BR` (`LOCALE_ID`, `MAT_DATE_LOCALE`) para corrigir input de data (`DD/MM/YYYY`).
+  - ✅ **Validação**: Cadastro de aluno via seletor de calendário verificado com sucesso.
 - ✅ **Documentação**: Atualizado walkthrough com evidências.
 
 Dificuldades:
@@ -428,7 +431,7 @@ Aprendizados:
 #### 📅 DIA 8 - CRUD Alunos Frontend
 
 **Data:** 09 / 02 / 2026  
-**Status:** [ ] Concluído [🔄] Em Desenvolvimento [ ] Não iniciado
+**Status:** [✅] Concluído
 
 **Resumo:**
 

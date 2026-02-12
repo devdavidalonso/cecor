@@ -35,7 +35,8 @@
 
                 <mat-form-field appearance="outline">
                   <mat-label>Data de Nascimento</mat-label>
-                  <input matInput [matDatepicker]="pickerBirth" formControlName="birthDate">
+                  <input matInput [matDatepicker]="pickerBirth" formControlName="birthDate"
+                         placeholder="DD/MM/AAAA" (input)="formatBirthDate($event)" maxlength="10">
                   <mat-datepicker-toggle matSuffix [for]="pickerBirth"></mat-datepicker-toggle>
                   <mat-datepicker #pickerBirth></mat-datepicker>
                   <mat-error *ngIf="personalDataForm.get('birthDate')?.hasError('required')">Data é obrigatória</mat-error>
