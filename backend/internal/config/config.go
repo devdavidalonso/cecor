@@ -13,6 +13,7 @@ type Config struct {
 	Database DatabaseConfig
 	Auth     AuthConfig
 	SSO      SSOConfig
+	Env      string
 }
 
 // ServerConfig contém configurações do servidor HTTP
@@ -102,6 +103,7 @@ func Load() (*Config, error) {
 			TokenURL:     getEnv("SSO_TOKEN_URL", "http://localhost:8080/realms/cecor/protocol/openid-connect/token"),
 			UserInfoURL:  getEnv("SSO_USER_INFO_URL", "http://localhost:8080/realms/cecor/protocol/openid-connect/userinfo"),
 		},
+		Env: getEnv("APP_ENV", "development"),
 	}, nil
 }
 

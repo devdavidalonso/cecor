@@ -27,6 +27,7 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"    // Adicionar importação de courses
 	"github.com/devdavidalonso/cecor/backend/internal/service/matriculas" // Adicionar importação de matriculas
 	"github.com/devdavidalonso/cecor/backend/internal/service/presencas"  // Adicionar importação de presencas
+	"github.com/devdavidalonso/cecor/backend/internal/service/professors" // Adicionar importação de professors
 	"github.com/devdavidalonso/cecor/backend/internal/service/relatorios" // Adicionar importação de relatorios
 	"github.com/devdavidalonso/cecor/backend/internal/service/students"   // Adicionar importação de students
 	"github.com/devdavidalonso/cecor/backend/internal/service/users"      // Adicionar esta importação
@@ -106,6 +107,7 @@ func main() {
 	emailService := service.NewEmailService()                                                // Inicializar Email service
 	studentService := students.NewStudentService(studentRepo, keycloakService, emailService) // Inicializar student service com Keycloak e Email
 	userService := users.NewUserService(userRepo)                                            // Adicionar o serviço de usuários
+	professorService := professors.NewService(userRepo, keycloakService, emailService)       // Adicionar serviço de professores/
 	courseService := courses.NewService(courseRepo)                                          // Adicionar serviço de cursos
 	enrollmentService := matriculas.NewService(enrollmentRepo)                               // Adicionar serviço de matrículas
 	attendanceService := presencas.NewService(attendanceRepo)                                // Adicionar serviço de presenças
@@ -117,6 +119,7 @@ func main() {
 	// Initialize handlers
 	studentHandler := handlers.NewStudentHandler(studentService)
 	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig)        // Adicionar o handler de autenticação
+	professorHandler := handlers.NewProfessorHandler(professorService)         // Adicionar handler de professores
 	courseHandler := handlers.NewCourseHandler(courseService, keycloakService) // Adicionar handler de cursos
 	enrollmentHandler := handlers.NewEnrollmentHandler(enrollmentService)      // Adicionar handler de matrículas
 	attendanceHandler := handlers.NewAttendanceHandler(attendanceService)      // Adicionar handler de presenças
@@ -151,7 +154,7 @@ func main() {
 	})
 
 	// Registrar todas as rotas, incluindo autenticação
-	routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler, reportHandler)
+	routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler, reportHandler, professorHandler)
 
 	// ROTA DE TESTE TEMPORÁRIA - SEM AUTENTICAÇÃO (remover após testes)
 	r.Route("/api/v1/test/students", func(r chi.Router) {
@@ -174,21 +177,6 @@ func main() {
 		r.Get("/{id}/notes", studentHandler.GetNotes)
 		r.Post("/{id}/notes", studentHandler.AddNote)
 	})
-
-	// API v1 routes (deixar comentado ou remover, pois já estamos usando routes.Register)
-	/*
-		r.Route("/api/v1", func(r chi.Router) {
-			// Setup student routes
-			routes.SetupStudentRoutes(r, studentHandler)
-
-			// Setup other routes
-			// routes.SetupCourseRoutes(r, courseHandler)
-			// routes.SetupEnrollmentRoutes(r, enrollmentHandler)
-			// routes.SetupAttendanceRoutes(r, attendanceHandler)
-			// routes.SetupReportRoutes(r, reportHandler)
-			// routes.SetupInterviewRoutes(r, interviewHandler)
-		})
-	*/
 
 	// Get server port
 	port := cfg.Server.Port

@@ -418,13 +418,13 @@ Keycloak (lar-sso) ← SSO
 ### ✅ DIA 14 - Relatórios Básicos
 
 **Tempo estimado:** 4h  
-**Status:** [ ] Não iniciado
+**Status:** [✅] **Concluído**
 
 #### Tarefas:
 
-- [ ] Backend: Endpoint de relatório de frequência
-- [ ] Frontend: Tela de relatório com filtros
-- [ ] Exportar para PDF usando biblioteca (ex: jsPDF)
+- [✅] Backend: Endpoint de relatório de frequência
+- [✅] Frontend: Tela de relatório com filtros
+- [✅] Exportar para PDF usando biblioteca (ex: jsPDF)
 
 **Relatórios:**
 

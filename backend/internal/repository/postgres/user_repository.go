@@ -146,3 +146,18 @@ func (r *userRepository) UpdateLastLogin(ctx context.Context, id uint, timestamp
 
 	return nil
 }
+
+// FindByProfile finds users by profile
+func (r *userRepository) FindByProfile(ctx context.Context, profile string) ([]models.User, error) {
+	var users []models.User
+
+	result := r.db.WithContext(ctx).
+		Where("profile = ? AND deleted_at IS NULL", profile).
+		Find(&users)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("error finding users by profile: %w", result.Error)
+	}
+
+	return users, nil
+}

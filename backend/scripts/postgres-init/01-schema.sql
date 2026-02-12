@@ -91,8 +91,12 @@ CREATE TABLE IF NOT EXISTS enrollments (
     student_id INTEGER NOT NULL,
     course_id INTEGER NOT NULL,
     status VARCHAR(20) NOT NULL, -- 'ativa', 'concluida', 'cancelada' ou 'active', 'completed', 'canceled' (para compatibilidade)
+    enrollment_number VARCHAR(255) NOT NULL UNIQUE,
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     start_date DATE NOT NULL,
     end_date DATE,
+    cancellation_reason TEXT,
+    agreement_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
@@ -121,6 +125,7 @@ CREATE TABLE IF NOT EXISTS registrations (
 CREATE TABLE IF NOT EXISTS attendances (
     id SERIAL PRIMARY KEY,
     student_id INTEGER NOT NULL,
+    enrollment_id INTEGER REFERENCES enrollments(id),
     course_id INTEGER NOT NULL,
     date DATE NOT NULL,
     status VARCHAR(20) NOT NULL, -- 'present', 'absent', 'partial'

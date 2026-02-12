@@ -29,4 +29,7 @@ type UserRepository interface {
 
 	// UpdateLastLogin updates the last login date
 	UpdateLastLogin(ctx context.Context, id uint, timestamp time.Time) error
+
+	// FindByProfile finds users by profile
+	FindByProfile(ctx context.Context, profile string) ([]models.User, error)
 }

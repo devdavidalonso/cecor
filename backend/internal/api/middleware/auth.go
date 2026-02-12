@@ -44,6 +44,33 @@ func Authenticate(cfg *config.Config) func(next http.Handler) http.Handler {
 			}
 
 			// Validar token (OIDC Keycloak)
+			// SIMULATION MODE: Em desenvolvimento, aceitar tokens de simulação
+			if cfg.Env == "development" && strings.HasPrefix(parts[1], "simulation-") {
+				// Simular usuário baseado no token
+				var userClaims *UserClaims
+				if parts[1] == "simulation-admin" {
+					userClaims = &UserClaims{
+						Name:  "Admin Simulado",
+						Email: "admin@cecor.org",
+						Roles: []string{"admin"},
+					}
+				} else if parts[1] == "simulation-professor" {
+					userClaims = &UserClaims{
+						Name:  "Professor Simulado",
+						Email: "professor@cecor.org",
+						Roles: []string{"professor"},
+					}
+				} else {
+					errors.RespondWithError(w, http.StatusUnauthorized, "Token de simulação desconhecido")
+					return
+				}
+
+				fmt.Printf("⚠️  Modo Simulação: Autenticado como %s (%s)\n", userClaims.Name, userClaims.Roles[0])
+				ctx := context.WithValue(r.Context(), userClaimsKey, userClaims)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+
 			claims, err := auth.ValidateOIDCToken(r.Context(), parts[1])
 			if err != nil {
 				fmt.Printf("❌ Authentication Failed: %v\n", err)

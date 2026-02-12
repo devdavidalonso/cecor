@@ -1,163 +1,109 @@
 # Sistema de Gestão Educacional CECOR
 
-Sistema de gestão educacional para o CECOR (Lar do Alvorecer), projetado para administrar alunos, cursos, matrículas e frequências.
+Sistema de gestão educacional para o CECOR (Lar do Alvorecer), projetado para administrar alunos, cursos, matrículas e frequências de forma integrada e segura.
 
-## Arquitetura (MVP)
+## 🚀 Funcionalidades do MVP
 
-O sistema MVP utiliza uma arquitetura simplificada focada em entregar valor rapidamente:
+O sistema está dividido em módulos funcionais acessíveis conforme o perfil do usuário:
 
-- **Frontend**: Angular 17 com Material Design
-- **Backend**: Go com padrão arquitetural hexagonal (Clean Architecture)
-- **Banco de dados**: PostgreSQL 15
-- **Autenticação**: Keycloak (SSO remoto)
+### 🎓 Gestão Acadêmica (Admin)
 
-## Estrutura do Projeto
+- **Alunos**: Cadastro completo com dados pessoais, responsáveis e contato.
+- **Cursos**: Criação e edição de cursos, definição de carga horária e atribuição de professores.
+- **Matrículas**: Inscrição de alunos em cursos com validação de duplicidade.
+
+### 📅 Controle de Frequência (Professor)
+
+- **Chamada Online**: Lista de alunos por turma para registro rápido de presença/falta.
+- **Histórico**: Visualização de chamadas anteriores.
+- **Cálculo Automático**: Percentual de frequência calculado em tempo real.
+
+### 📊 Relatórios e Análises
+
+- **Relatório por Curso**: Visão geral da turma com totais de aulas e presenças.
+- **Relatório por Aluno**: Detalhamento da frequência do aluno em cada disciplina.
+- **Exportação PDF**: Geração de documentos oficiais de frequência para impressão.
+
+## 🏗️ Arquitetura
+
+O projeto segue uma arquitetura moderna e escalável:
+
+- **Frontend**: Angular 17 com Material Design (Componentes autônomos, Signals).
+- **Backend**: Go (Golang) seguindo Clean Architecture (Hexagonal).
+- **Banco de Dados**: PostgreSQL 15.
+- **Autenticação**: Keycloak (OIDC/OAuth2) para gestão de identidade e acesso (IAM).
+
+## 🛠️ Instalação e Configuração
+
+### Pré-requisitos
+
+- Docker e Docker Compose instalado.
+- Git.
+- Acesso à internet (para conectar ao Keycloak remoto).
+
+### Passo a Passo
+
+1. **Clone o repositório:**
+
+   ```bash
+   git clone https://github.com/seu-usuario/cecor.git
+   cd cecor
+   ```
+
+2. **Configure o ambiente:**
+   O projeto já vem com configurações padrão para desenvolvimento. Certifique-se de que as portas `4201` (Frontend), `8081` (Backend) e `5433` (PostgreSQL) estejam livres.
+
+3. **Inicie os serviços:**
+
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. **Acesse o sistema:**
+   - **Frontend**: [http://localhost:4201](http://localhost:4201)
+   - **API Backend**: [http://localhost:8081/health](http://localhost:8081/health)
+
+## 👤 Perfis de Acesso (Teste)
+
+O sistema utiliza o Keycloak para autenticação. Utilize as credenciais abaixo para testar os diferentes perfis:
+
+| Perfil            | Usuário       | Senha      | Descrição                                       |
+| ----------------- | ------------- | ---------- | ----------------------------------------------- |
+| **Administrador** | `admin.cecor` | `admin123` | Acesso total: cria alunos, cursos e matrículas. |
+| **Professor**     | `prof.maria`  | `prof123`  | Registra chamadas e visualiza suas turmas.      |
+| **Aluno**         | `aluno.pedro` | `aluno123` | Visualiza sua própria frequência.               |
+
+## 🧩 Estrutura do Projeto
 
 ```
 CECOR/
-├── frontend/                  # Aplicação Angular
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── core/          # Serviços singleton, guards, interceptors
-│   │   │   ├── shared/        # Componentes, pipes, diretivas compartilhadas
-│   │   │   ├── features/      # Módulos de funcionalidade (lazy-loaded)
-│   │   │   └── layout/        # Componentes de layout
-│   │   └── assets/            # Recursos estáticos
-│   ├── Dockerfile
-│   └── nginx.conf
-│
-├── backend/
-│   ├── cmd/
-│   │   └── api/               # Ponto de entrada da aplicação
-│   ├── internal/
-│   │   ├── auth/              # Autenticação e autorização (OIDC)
-│   │   ├── config/            # Configuração da aplicação
-│   │   ├── models/            # Modelos de dados
-│   │   ├── repository/        # Camada de acesso a dados
-│   │   ├── service/           # Lógica de negócios
-│   │   └── api/               # Handlers HTTP e middlewares
-│   ├── pkg/                   # Bibliotecas reutilizáveis
-│   └── Dockerfile
-│
-└── docker-compose.yml         # Configuração de contêineres
+├── backend/                # API REST em Go
+│   ├── cmd/api/            # Entrypoint
+│   ├── internal/           # Domínio, Serviços, Repositórios (Core)
+│   └── migrations/         # Scripts de banco de dados
+├── frontend/               # SPA Angular
+│   ├── src/app/core/       # Guardas, Interceptors, Serviços Globais
+│   ├── src/app/features/   # Módulos: Alunos, Cursos, Relatórios
+│   └── src/app/shared/     # Componentes reutilizáveis
+└── docker-compose.yml      # Orquestração dos containers
 ```
 
-## Requisitos
+## ❓ Troubleshooting
 
-- Docker e Docker Compose
-- Node.js 18+ (para desenvolvimento frontend)
-- Go 1.22+ (para desenvolvimento backend)
-- Acesso à Internet (conecta ao Keycloak remoto)
+### Problemas Comuns
 
-## Configuração de Desenvolvimento
+1. **Erro de Conexão com Keycloak (CORS/Redirect Loop):**
+   - Verifique se o relógio do seu sistema está sincronizado. Tokens JWT dependem de precisão temporal.
+   - Limpe o cache do navegador ou teste em aba anônima.
 
-### Iniciar com Docker Compose
+2. **Banco de Dados não conecta:**
+   - Verifique se o container `cecor-db` está rodando: `docker ps`.
+   - Se alterou configurações de porta, ajuste o `docker-compose.yml` e o `config.yaml` do backend.
 
-O modo mais fácil de executar todo o ambiente é usando Docker Compose:
+3. **Backend não inicia (panic):**
+   - Verifique os logs: `docker-compose logs backend`.
+   - Geralmente indica falha na conexão com o Banco ou Keycloak indisponível.
 
-```bash
-# Construir as imagens
-docker-compose build
+## 📄 Licença
 
-# Iniciar os contêineres
-docker-compose up -d
-
-# Verificar logs
-docker-compose logs -f
-```
-
-Isso iniciará os serviços:
-
-- **Frontend**: http://localhost:4201
-- **Backend API**: http://localhost:8081
-- **PostgreSQL**: localhost:5433
-
-### Desenvolvimento Frontend (Angular)
-
-Para desenvolvimento do frontend fora do Docker:
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-A aplicação estará disponível em http://localhost:4200.
-
-### Desenvolvimento Backend (Go)
-
-Para desenvolvimento do backend fora do Docker:
-
-```bash
-cd backend
-go mod download
-go run cmd/api/main.go
-```
-
-## Autenticação
-
-O sistema utiliza **Keycloak** para autenticação centralizada (OIDC):
-
-- **Keycloak URL**: https://lar-sso-keycloak.hrbsys.tech
-- **Realm**: `cecor`
-- **Clients**:
-  - `cecor-frontend` (Public) - para o Angular
-  - `cecor-backend` (Confidential) - para validação de tokens
-
-### Fluxo de Login
-
-1. Usuário acessa rota protegida no frontend
-2. Redireciona para Keycloak (se não autenticado)
-3. Após login, retorna com Authorization Code
-4. Frontend troca código por token JWT (PKCE)
-5. Token é enviado automaticamente nas requisições ao backend
-6. Backend valida o token via OIDC
-
-**Status de Implementação:**
-
-- ✅ **Frontend:** `angular-oauth2-oidc` configurado com OIDC mode
-- ✅ **Backend:** Middleware JWT com validação JWKS
-- ✅ **Logout:** Fluxo completo funcionando
-- ✅ **Proteção de rotas:** AuthGuard no frontend + middleware no backend
-
-## Rotas API Principais
-
-- **Health**: GET /health
-- **Auth Verification**: GET /api/v1/auth/verify (protegido)
-- **Alunos**: /api/v1/alunos (a implementar)
-- **Cursos**: /api/v1/cursos (a implementar)
-- **Matrículas**: /api/v1/matriculas (a implementar)
-- **Presenças**: /api/v1/presencas (a implementar)
-
-## Perfis de Usuário
-
-- **Administrador**: Acesso total ao sistema
-- **Professor**: Registro de frequências e acompanhamento de alunos
-- **Aluno**: Visualização da própria frequência
-
-## Usuários de Teste
-
-| Perfil        | Usuário       | Senha      |
-| ------------- | ------------- | ---------- |
-| Administrador | `admin.cecor` | `admin123` |
-| Professor     | `prof.maria`  | `prof123`  |
-| Aluno         | `aluno.pedro` | `aluno123` |
-
-## Documentação Adicional
-
-- [INTEGRATION-GUIDE.md](./INTEGRATION-GUIDE.md) - Guia de integração com Keycloak
-- [KEYCLOAK-CONFIG.md](./KEYCLOAK-CONFIG.md) - Configuração do Keycloak
-- [MVP-ROADMAP.md](./MVP-ROADMAP.md) - Roadmap de desenvolvimento
-- [DAILY-TASKS.md](./DAILY-TASKS.md) - Tarefas diárias
-- [GIT-CONVENTIONS.md](./GIT-CONVENTIONS.md) - Convenções de commits
-
-## Contribuição
-
-1. Crie um branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
-2. Commit suas mudanças seguindo [GIT-CONVENTIONS.md](./GIT-CONVENTIONS.md)
-3. Push para o branch (`git push origin feature/nova-funcionalidade`)
-4. Abra um Pull Request
-
-## Licença
-
-Este projeto é propriedade de CECOR e seu uso é restrito.
+Este projeto é desenvolvido para o Lar do Alvorecer (CECOR). Uso restrito.

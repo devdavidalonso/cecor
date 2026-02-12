@@ -29,7 +29,7 @@ func (r *reportRepository) GetCourseAttendanceStats(ctx context.Context, courseI
 		`).
 		Joins("JOIN students ON students.id = enrollments.student_id").
 		Joins("JOIN users ON users.id = students.user_id").
-		Joins("LEFT JOIN attendances ON attendances.enrollment_id = enrollments.id").
+		Joins("LEFT JOIN attendances ON attendances.student_id = students.user_id AND attendances.course_id = enrollments.course_id").
 		Where("enrollments.course_id = ?", courseID).
 		Where("attendances.date BETWEEN ? AND ?", startDate, endDate).
 		Group("enrollments.student_id, users.name").
@@ -60,7 +60,8 @@ func (r *reportRepository) GetStudentAttendanceStats(ctx context.Context, studen
 			SUM(CASE WHEN attendances.status = 'absent' THEN 1 ELSE 0 END) as absent_count
 		`).
 		Joins("JOIN courses ON courses.id = enrollments.course_id").
-		Joins("LEFT JOIN attendances ON attendances.enrollment_id = enrollments.id").
+		Joins("JOIN students ON students.id = enrollments.student_id").
+		Joins("LEFT JOIN attendances ON attendances.student_id = students.user_id AND attendances.course_id = enrollments.course_id").
 		Where("enrollments.student_id = ?", studentID).
 		Where("attendances.date BETWEEN ? AND ?", startDate, endDate).
 		Group("enrollments.course_id, courses.name").

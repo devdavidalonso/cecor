@@ -558,8 +558,16 @@ Aprendizados:
 
 #### 📅 DIA 14 - Relatórios
 
-**Data:** **_ / _** / 2026  
-**Status:** [ ] Concluído [ ] Parcial [ ] Não iniciado
+**Data:** 13 / 02 / 2026  
+**Status:** [✅] Concluído
+
+**Resumo:**
+
+- ✅ Backend: Implementado `ReportService`, `ReportRepository` e Handlers.
+- ✅ Backend: Endpoints para relatórios de frequência por aluno e por curso.
+- ✅ Frontend: Criado `ReportService` e `ReportsListComponent`.
+- ✅ Frontend: Implementado filtros por curso, aluno e período.
+- ✅ Frontend: Exportação para PDF com `jspdf` e `jspdf-autotable`.
 
 ---
 

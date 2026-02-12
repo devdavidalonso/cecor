@@ -38,6 +38,12 @@ export const routes: Routes = [
         path: 'reports',
         loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
       },
+      {
+        path: 'professores',
+        loadChildren: () => import('./features/professors/professor.routes').then(m => m.PROFESSOR_ROUTES),
+        canActivate: [AuthGuard],
+        data: { roles: ['admin'] } 
+      },
     ]
   },
   {
