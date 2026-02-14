@@ -181,15 +181,16 @@ export class SidebarComponent implements OnInit {
       route: '/entrevistas'
     },
     {
-      text: 'Voluntariado',
-      icon: 'volunteer_activism',
-      route: '/voluntariado'
+      text: 'Professores',
+      icon: 'supervisor_account',
+      route: '/professores',
+      roles: ['admin', 'administrador']
     },
     {
       text: 'Administração',
       icon: 'admin_panel_settings',
       route: '/administracao',
-      roles: ['admin']
+      roles: ['admin', 'administrador']
     }
   ];
   

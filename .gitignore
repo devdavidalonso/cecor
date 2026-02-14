@@ -52,3 +52,6 @@ desktop.ini
 
 # Arquivos específicos do Angular
 .angular/*
+
+# Arquivos de dependências do backend
+.env

@@ -8,7 +8,7 @@ export const GestorGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   
   // Verifica se o usuário está autenticado e tem o papel de gestor ou admin
-  if (authService.checkAuth() && (authService.hasRole('gestor') || authService.hasRole('admin'))) {
+  if (authService.checkAuth() && (authService.hasRole('gestor') || authService.hasRole('admin') || authService.hasRole('administrador'))) {
     return true;
   }
   

@@ -81,7 +81,19 @@ export class SsoService {
 
     public getUserRoles(): string[] {
         const claims: any = this.identityClaims;
-        return claims?.realm_access?.roles || [];
+        let roles = claims?.realm_access?.roles || [];
+
+        // If no roles in identity claims, try to get them from access token
+        if (roles.length === 0 && this.accessToken) {
+            try {
+                const payload = JSON.parse(atob(this.accessToken.split('.')[1]));
+                roles = payload?.realm_access?.roles || [];
+            } catch (e) {
+                console.warn('⚠️ [SSO] Erro ao decodificar Access Token para obter roles:', e);
+            }
+        }
+        
+        return roles;
     }
 
     public getUserName(): string {

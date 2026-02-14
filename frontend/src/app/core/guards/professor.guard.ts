@@ -8,7 +8,7 @@ export const ProfessorGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   
   // Verifica se o usuário está autenticado e tem o papel de professor ou admin
-  if (authService.checkAuth() && (authService.hasRole('professor') || authService.hasRole('admin'))) {
+  if (authService.checkAuth() && (authService.hasRole('professor') || authService.hasRole('admin') || authService.hasRole('administrador'))) {
     return true;
   }
   
