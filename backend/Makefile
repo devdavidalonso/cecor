@@ -1,36 +1,22 @@
-.PHONY: build run dev clean deps test
+# ===================================
+# CECOR - Backend Docker Helper
+# ===================================
 
-# Variáveis
-APP_NAME=cecor-backend
-GO_FILES=$(shell find . -name "*.go" -not -path "./vendor/*")
+COMPOSE=docker compose -f ../docker-compose.yml
 
-# Tarefas
-dev:
-	go run cmd/api/main.go
+.PHONY: up logs down restart clean
 
-build:
-	CGO_ENABLED=0 go build -o $(APP_NAME) ./cmd/api
+up:
+	$(COMPOSE) up --build -d backend
 
-run: build
-	./$(APP_NAME)
+logs:
+	$(COMPOSE) logs -f backend
 
-deps:
-	go mod download
-	go mod tidy
+down:
+	$(COMPOSE) stop backend
+
+restart:
+	$(COMPOSE) restart backend
 
 clean:
-	rm -f $(APP_NAME)
-	go clean -cache
-
-test:
-	go test -v ./...
-
-help:
-	@echo "Comandos disponíveis:"
-	@echo "  make dev      - Executa o servidor em modo de desenvolvimento"
-	@echo "  make build    - Compila o servidor"
-	@echo "  make run      - Compila e executa o servidor"
-	@echo "  make deps     - Baixa e atualiza dependências"
-	@echo "  make clean    - Remove arquivos compilados e limpa cache"
-	@echo "  make test     - Executa os testes"
-	@echo "  make help     - Exibe esta ajuda"
+	$(COMPOSE) rm -f backend
