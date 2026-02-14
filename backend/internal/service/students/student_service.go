@@ -202,7 +202,7 @@ func (s *studentService) CreateStudent(ctx context.Context, student *models.Stud
 		}
 
 		// Update student with Keycloak user ID
-		student.User.KeycloakUserID = keycloakUserID
+		student.User.KeycloakUserID = &keycloakUserID
 		if err := s.studentRepo.Update(ctx, student); err != nil {
 			fmt.Printf("Warning: failed to update student with Keycloak ID: %v\n", err)
 		}

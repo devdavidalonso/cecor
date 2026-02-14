@@ -1,78 +1,262 @@
 <div class="student-form-container">
   <mat-card class="form-card">
     <mat-card-header>
-      <mat-card-title>{{ isEditMode ? 'Editar Aluno' : 'Cadastrar Novo Aluno' }}</mat-card-title>
-      <mat-card-subtitle>Preencha os dados para {{ isEditMode ? 'atualizar' : 'cadastrar' }} o aluno</mat-card-subtitle>
+      <mat-card-title>{{
+        isEditMode ? "Editar Aluno" : "Cadastrar Novo Aluno"
+      }}</mat-card-title>
+      <mat-card-subtitle
+        >Preencha os dados para {{ isEditMode ? "atualizar" : "cadastrar" }} o
+        aluno</mat-card-subtitle
+      >
     </mat-card-header>
-    
+
     <mat-card-content>
       <mat-stepper [linear]="true" #stepper>
-        
         <!-- Step 1: Dados Pessoais -->
         <mat-step [stepControl]="personalDataForm">
           <form [formGroup]="personalDataForm">
             <ng-template matStepLabel>Dados Pessoais</ng-template>
-            
+
             <div class="form-grid">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Nome Completo</mat-label>
-                <input matInput formControlName="name" placeholder="Ex: João da Silva">
+                <input
+                  matInput
+                  formControlName="name"
+                  placeholder="Ex: João da Silva"
+                />
                 <mat-icon matSuffix>person</mat-icon>
-                <mat-error *ngIf="personalDataForm.get('name')?.hasError('required')">Nome é obrigatório</mat-error>
-                <mat-error *ngIf="personalDataForm.get('name')?.hasError('minlength')">Mínimo 3 caracteres</mat-error>
+                <mat-error
+                  *ngIf="personalDataForm.get('name')?.hasError('required')"
+                  >Nome é obrigatório</mat-error
+                >
+                <mat-error
+                  *ngIf="personalDataForm.get('name')?.hasError('minlength')"
+                  >Mínimo 3 caracteres</mat-error
+                >
               </mat-form-field>
 
               <div class="row">
                 <mat-form-field appearance="outline">
                   <mat-label>CPF</mat-label>
-                  <input matInput formControlName="cpf" placeholder="000.000.000-00" 
-                         (input)="formatCPF($event, 'cpf')" maxlength="14">
+                  <input
+                    matInput
+                    formControlName="cpf"
+                    placeholder="000.000.000-00"
+                    (input)="formatCPF($event, 'cpf')"
+                    maxlength="14"
+                  />
                   <mat-icon matSuffix>badge</mat-icon>
-                  <mat-hint>{{ displayCPF(personalDataForm.get('cpf')?.value) }}</mat-hint>
-                  <mat-error *ngIf="personalDataForm.get('cpf')?.hasError('required')">CPF é obrigatório</mat-error>
-                  <mat-error *ngIf="personalDataForm.get('cpf')?.hasError('pattern')">CPF inválido</mat-error>
+                  <mat-hint>{{
+                    displayCPF(personalDataForm.get("cpf")?.value)
+                  }}</mat-hint>
+                  <mat-error
+                    *ngIf="personalDataForm.get('cpf')?.hasError('required')"
+                    >CPF é obrigatório</mat-error
+                  >
+                  <mat-error
+                    *ngIf="personalDataForm.get('cpf')?.hasError('pattern')"
+                    >CPF inválido</mat-error
+                  >
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Data de Nascimento</mat-label>
-                  <input matInput [matDatepicker]="pickerBirth" formControlName="birthDate"
-                         placeholder="DD/MM/AAAA" (input)="formatBirthDate($event)" maxlength="10">
-                  <mat-datepicker-toggle matSuffix [for]="pickerBirth"></mat-datepicker-toggle>
+                  <input
+                    matInput
+                    [matDatepicker]="pickerBirth"
+                    formControlName="birthDate"
+                    placeholder="DD/MM/AAAA"
+                    (input)="formatBirthDate($event)"
+                    maxlength="10"
+                  />
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="pickerBirth"
+                  ></mat-datepicker-toggle>
                   <mat-datepicker #pickerBirth></mat-datepicker>
-                  <mat-error *ngIf="personalDataForm.get('birthDate')?.hasError('required')">Data é obrigatória</mat-error>
+                  <mat-error
+                    *ngIf="
+                      personalDataForm.get('birthDate')?.hasError('required')
+                    "
+                    >Data é obrigatória</mat-error
+                  >
                 </mat-form-field>
               </div>
 
               <div class="row">
                 <mat-form-field appearance="outline">
                   <mat-label>Email</mat-label>
-                  <input matInput type="email" formControlName="email" placeholder="exemplo@email.com">
+                  <input
+                    matInput
+                    type="email"
+                    formControlName="email"
+                    placeholder="exemplo@email.com"
+                  />
                   <mat-icon matSuffix>email</mat-icon>
-                  <mat-error *ngIf="personalDataForm.get('email')?.hasError('required')">Email é obrigatório</mat-error>
-                  <mat-error *ngIf="personalDataForm.get('email')?.hasError('email')">Email inválido</mat-error>
+                  <mat-error
+                    *ngIf="personalDataForm.get('email')?.hasError('required')"
+                    >Email é obrigatório</mat-error
+                  >
+                  <mat-error
+                    *ngIf="personalDataForm.get('email')?.hasError('email')"
+                    >Email inválido</mat-error
+                  >
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Telefone</mat-label>
-                  <input matInput formControlName="phone" placeholder="(00) 00000-0000"
-                         (input)="formatPhone($event, 'phone')" maxlength="15">
+                  <input
+                    matInput
+                    formControlName="phone"
+                    placeholder="(00) 00000-0000"
+                    (input)="formatPhone($event, 'phone')"
+                    maxlength="15"
+                  />
                   <mat-icon matSuffix>phone</mat-icon>
-                  <mat-error *ngIf="personalDataForm.get('phone')?.hasError('required')">Telefone é obrigatório</mat-error>
-                  <mat-error *ngIf="personalDataForm.get('phone')?.hasError('pattern')">Telefone inválido</mat-error>
+                  <mat-error
+                    *ngIf="personalDataForm.get('phone')?.hasError('required')"
+                    >Telefone é obrigatório</mat-error
+                  >
+                  <mat-error
+                    *ngIf="personalDataForm.get('phone')?.hasError('pattern')"
+                    >Telefone inválido</mat-error
+                  >
                 </mat-form-field>
               </div>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Endereço Completo</mat-label>
-                <textarea matInput formControlName="address" rows="2" placeholder="Rua, número, bairro, cidade - UF"></textarea>
-                <mat-icon matSuffix>home</mat-icon>
-                <mat-error *ngIf="personalDataForm.get('address')?.hasError('required')">Endereço é obrigatório</mat-error>
-              </mat-form-field>
+              <div formGroupName="address" class="address-group">
+                <h3>Endereço</h3>
+
+                <div class="row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>CEP</mat-label>
+                    <input
+                      matInput
+                      formControlName="cep"
+                      placeholder="00000-000"
+                    />
+                    <mat-error
+                      *ngIf="
+                        personalDataForm
+                          .get('address.cep')
+                          ?.hasError('required')
+                      "
+                      >CEP é obrigatório</mat-error
+                    >
+                    <mat-error
+                      *ngIf="
+                        personalDataForm.get('address.cep')?.hasError('pattern')
+                      "
+                      >CEP inválido</mat-error
+                    >
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="flex-grow">
+                    <mat-label>Cidade</mat-label>
+                    <input
+                      matInput
+                      formControlName="city"
+                      placeholder="Cidade"
+                    />
+                    <mat-error
+                      *ngIf="
+                        personalDataForm
+                          .get('address.city')
+                          ?.hasError('required')
+                      "
+                      >Cidade é obrigatória</mat-error
+                    >
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" style="width: 80px">
+                    <mat-label>UF</mat-label>
+                    <input
+                      matInput
+                      formControlName="state"
+                      placeholder="UF"
+                      maxlength="2"
+                    />
+                    <mat-error
+                      *ngIf="
+                        personalDataForm
+                          .get('address.state')
+                          ?.hasError('required')
+                      "
+                      >UF obrigatória</mat-error
+                    >
+                  </mat-form-field>
+                </div>
+
+                <div class="row">
+                  <mat-form-field appearance="outline" class="flex-grow">
+                    <mat-label>Rua/Logradouro</mat-label>
+                    <input
+                      matInput
+                      formControlName="street"
+                      placeholder="Rua, Avenida..."
+                    />
+                    <mat-error
+                      *ngIf="
+                        personalDataForm
+                          .get('address.street')
+                          ?.hasError('required')
+                      "
+                      >Rua é obrigatória</mat-error
+                    >
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" style="width: 100px">
+                    <mat-label>Número</mat-label>
+                    <input matInput formControlName="number" placeholder="Nº" />
+                    <mat-error
+                      *ngIf="
+                        personalDataForm
+                          .get('address.number')
+                          ?.hasError('required')
+                      "
+                      >Número é obrigatório</mat-error
+                    >
+                  </mat-form-field>
+                </div>
+
+                <div class="row">
+                  <mat-form-field appearance="outline" class="flex-grow">
+                    <mat-label>Complemento</mat-label>
+                    <input
+                      matInput
+                      formControlName="complement"
+                      placeholder="Apto, Bloco..."
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="flex-grow">
+                    <mat-label>Bairro</mat-label>
+                    <input
+                      matInput
+                      formControlName="neighborhood"
+                      placeholder="Bairro"
+                    />
+                    <mat-error
+                      *ngIf="
+                        personalDataForm
+                          .get('address.neighborhood')
+                          ?.hasError('required')
+                      "
+                      >Bairro é obrigatório</mat-error
+                    >
+                  </mat-form-field>
+                </div>
+              </div>
             </div>
 
             <div class="stepper-actions">
-              <button mat-button color="warn" routerLink="/students">Cancelar</button>
-              <button mat-raised-button color="primary" matStepperNext>Próximo</button>
+              <button mat-button color="warn" routerLink="/students">
+                Cancelar
+              </button>
+              <button mat-raised-button color="primary" matStepperNext>
+                Próximo
+              </button>
             </div>
           </form>
         </mat-step>
@@ -81,74 +265,87 @@
         <mat-step [stepControl]="studentDataForm">
           <form [formGroup]="studentDataForm">
             <ng-template matStepLabel>Dados do Aluno</ng-template>
-            
+
             <div class="form-grid">
               <div class="row">
                 <mat-form-field appearance="outline">
                   <mat-label>Número de Matrícula</mat-label>
-                  <input matInput formControlName="registrationNumber" placeholder="Ex: 2024001">
+                  <input
+                    matInput
+                    formControlName="registrationNumber"
+                    placeholder="Ex: 2024001"
+                  />
                   <mat-icon matSuffix>confirmation_number</mat-icon>
-                  <mat-error *ngIf="studentDataForm.get('registrationNumber')?.hasError('required')">Matrícula é obrigatória</mat-error>
+                  <mat-error
+                    *ngIf="
+                      studentDataForm
+                        .get('registrationNumber')
+                        ?.hasError('required')
+                    "
+                    >Matrícula é obrigatória</mat-error
+                  >
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                   <mat-label>Status</mat-label>
                   <mat-select formControlName="status">
-                    <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                    <mat-option
+                      *ngFor="let status of statusOptions"
+                      [value]="status.value"
+                    >
                       {{ status.label }}
                     </mat-option>
                   </mat-select>
-                  <mat-error *ngIf="studentDataForm.get('status')?.hasError('required')">Status é obrigatório</mat-error>
+                  <mat-error
+                    *ngIf="studentDataForm.get('status')?.hasError('required')"
+                    >Status é obrigatório</mat-error
+                  >
                 </mat-form-field>
               </div>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Contato de Emergência</mat-label>
-                <input matInput formControlName="emergencyContact" placeholder="Nome e telefone">
-                <mat-icon matSuffix>emergency</mat-icon>
-                <mat-hint>Ex: Maria Silva - (11) 98888-7777</mat-hint>
-                <mat-error *ngIf="studentDataForm.get('emergencyContact')?.hasError('required')">Contato de emergência é obrigatório</mat-error>
-              </mat-form-field>
+              <!-- Emergency Contact removed (handled by Guardians) -->
 
-              <div class="row">
-                <mat-form-field appearance="outline">
-                  <mat-label>Telefone Adicional 1</mat-label>
-                  <input matInput formControlName="additionalPhone1" placeholder="(00) 00000-0000">
-                  <mat-icon matSuffix>phone</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>Telefone Adicional 2</mat-label>
-                  <input matInput formControlName="additionalPhone2" placeholder="(00) 00000-0000">
-                  <mat-icon matSuffix>phone</mat-icon>
-                </mat-form-field>
-              </div>
+              <!-- Additional Phones removed -->
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Informações Médicas</mat-label>
-                <textarea matInput formControlName="medicalInfo" rows="3" 
-                          placeholder="Alergias, medicações, condições médicas..."></textarea>
+                <textarea
+                  matInput
+                  formControlName="medicalInfo"
+                  rows="3"
+                  placeholder="Alergias, medicações, condições médicas..."
+                ></textarea>
                 <mat-icon matSuffix>medical_services</mat-icon>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Necessidades Especiais</mat-label>
-                <textarea matInput formControlName="specialNeeds" rows="2" 
-                          placeholder="Acessibilidade, adaptações necessárias..."></textarea>
+                <textarea
+                  matInput
+                  formControlName="specialNeeds"
+                  rows="2"
+                  placeholder="Acessibilidade, adaptações necessárias..."
+                ></textarea>
                 <mat-icon matSuffix>accessible</mat-icon>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Observações</mat-label>
-                <textarea matInput formControlName="notes" rows="2" 
-                          placeholder="Informações adicionais relevantes..."></textarea>
+                <textarea
+                  matInput
+                  formControlName="notes"
+                  rows="2"
+                  placeholder="Informações adicionais relevantes..."
+                ></textarea>
                 <mat-icon matSuffix>note</mat-icon>
               </mat-form-field>
             </div>
 
             <div class="stepper-actions">
               <button mat-button matStepperPrevious>Voltar</button>
-              <button mat-raised-button color="primary" matStepperNext>Próximo</button>
+              <button mat-raised-button color="primary" matStepperNext>
+                Próximo
+              </button>
             </div>
           </form>
         </mat-step>
@@ -157,23 +354,36 @@
         <mat-step [stepControl]="guardiansForm">
           <form [formGroup]="guardiansForm">
             <ng-template matStepLabel>Responsáveis</ng-template>
-            
+
             <div class="guardians-container">
               <div class="guardians-header">
                 <h3>Responsáveis pelo Aluno</h3>
-                <button mat-raised-button color="accent" type="button" (click)="addGuardian()">
+                <button
+                  mat-raised-button
+                  color="accent"
+                  type="button"
+                  (click)="addGuardian()"
+                >
                   <mat-icon>add</mat-icon>
                   Adicionar Responsável
                 </button>
               </div>
 
               <div formArrayName="guardians">
-                <div *ngFor="let guardian of guardians.controls; let i = index" class="guardian-card">
+                <div
+                  *ngFor="let guardian of guardians.controls; let i = index"
+                  class="guardian-card"
+                >
                   <div [formGroupName]="i">
                     <div class="guardian-header">
                       <h4>Responsável {{ i + 1 }}</h4>
-                      <button mat-icon-button color="warn" type="button" (click)="removeGuardian(i)" 
-                              matTooltip="Remover responsável">
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        type="button"
+                        (click)="removeGuardian(i)"
+                        matTooltip="Remover responsável"
+                      >
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -181,7 +391,11 @@
                     <div class="form-grid">
                       <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Nome Completo</mat-label>
-                        <input matInput formControlName="name" placeholder="Nome do responsável">
+                        <input
+                          matInput
+                          formControlName="name"
+                          placeholder="Nome do responsável"
+                        />
                         <mat-error>Nome é obrigatório</mat-error>
                       </mat-form-field>
 
@@ -189,7 +403,10 @@
                         <mat-form-field appearance="outline">
                           <mat-label>Parentesco</mat-label>
                           <mat-select formControlName="relationship">
-                            <mat-option *ngFor="let rel of relationshipOptions" [value]="rel.value">
+                            <mat-option
+                              *ngFor="let rel of relationshipOptions"
+                              [value]="rel.value"
+                            >
                               {{ rel.label }}
                             </mat-option>
                           </mat-select>
@@ -198,8 +415,13 @@
 
                         <mat-form-field appearance="outline">
                           <mat-label>CPF</mat-label>
-                          <input matInput formControlName="cpf" placeholder="000.000.000-00"
-                                 (input)="formatCPF($event, 'cpf', guardian)" maxlength="14">
+                          <input
+                            matInput
+                            formControlName="cpf"
+                            placeholder="000.000.000-00"
+                            (input)="formatCPF($event, 'cpf', guardian)"
+                            maxlength="14"
+                          />
                           <mat-error>CPF é obrigatório</mat-error>
                         </mat-form-field>
                       </div>
@@ -207,36 +429,69 @@
                       <div class="row">
                         <mat-form-field appearance="outline">
                           <mat-label>Telefone</mat-label>
-                          <input matInput formControlName="phone" placeholder="(00) 00000-0000"
-                                 (input)="formatPhone($event, 'phone', guardian)" maxlength="15">
+                          <input
+                            matInput
+                            formControlName="phone"
+                            placeholder="(00) 00000-0000"
+                            (input)="formatPhone($event, 'phone', guardian)"
+                            maxlength="15"
+                          />
                           <mat-error>Telefone é obrigatório</mat-error>
                         </mat-form-field>
 
                         <mat-form-field appearance="outline">
                           <mat-label>Email</mat-label>
-                          <input matInput type="email" formControlName="email" placeholder="exemplo@email.com">
-                          <mat-error *ngIf="guardian.get('email')?.hasError('email')">Email inválido</mat-error>
+                          <input
+                            matInput
+                            type="email"
+                            formControlName="email"
+                            placeholder="exemplo@email.com"
+                          />
+                          <mat-error
+                            *ngIf="guardian.get('email')?.hasError('email')"
+                            >Email inválido</mat-error
+                          >
                         </mat-form-field>
                       </div>
 
                       <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Endereço</mat-label>
-                        <textarea matInput formControlName="address" rows="2"></textarea>
-                        <button mat-icon-button matSuffix type="button" (click)="copyStudentAddress(i)"
-                                matTooltip="Copiar endereço do aluno">
+                        <textarea
+                          matInput
+                          formControlName="address"
+                          rows="2"
+                        ></textarea>
+                        <button
+                          mat-icon-button
+                          matSuffix
+                          type="button"
+                          (click)="copyStudentAddress(i)"
+                          matTooltip="Copiar endereço do aluno"
+                        >
                           <mat-icon>content_copy</mat-icon>
                         </button>
                       </mat-form-field>
 
                       <mat-divider></mat-divider>
 
-                      <div formGroupName="permissions" class="permissions-section">
+                      <div
+                        formGroupName="permissions"
+                        class="permissions-section"
+                      >
                         <h5>Permissões</h5>
                         <div class="permissions-grid">
-                          <mat-checkbox formControlName="canPickup">Pode buscar o aluno</mat-checkbox>
-                          <mat-checkbox formControlName="canAuthorizeLeave">Pode autorizar saídas</mat-checkbox>
-                          <mat-checkbox formControlName="receivesNotifications">Recebe notificações</mat-checkbox>
-                          <mat-checkbox formControlName="portalAccess">Acesso ao portal</mat-checkbox>
+                          <mat-checkbox formControlName="canPickup"
+                            >Pode buscar o aluno</mat-checkbox
+                          >
+                          <mat-checkbox formControlName="canAuthorizeLeave"
+                            >Pode autorizar saídas</mat-checkbox
+                          >
+                          <mat-checkbox formControlName="receivesNotifications"
+                            >Recebe notificações</mat-checkbox
+                          >
+                          <mat-checkbox formControlName="portalAccess"
+                            >Acesso ao portal</mat-checkbox
+                          >
                         </div>
                       </div>
                     </div>
@@ -246,14 +501,18 @@
                 <div *ngIf="guardians.length === 0" class="no-guardians">
                   <mat-icon>family_restroom</mat-icon>
                   <p>Nenhum responsável adicionado ainda.</p>
-                  <p class="hint">Clique em "Adicionar Responsável" para começar.</p>
+                  <p class="hint">
+                    Clique em "Adicionar Responsável" para começar.
+                  </p>
                 </div>
               </div>
             </div>
 
             <div class="stepper-actions">
               <button mat-button matStepperPrevious>Voltar</button>
-              <button mat-raised-button color="primary" matStepperNext>Revisar</button>
+              <button mat-raised-button color="primary" matStepperNext>
+                Revisar
+              </button>
             </div>
           </form>
         </mat-step>
@@ -261,36 +520,57 @@
         <!-- Step 4: Revisão -->
         <mat-step>
           <ng-template matStepLabel>Revisão</ng-template>
-          
+
           <div class="review-container">
             <h3>Revisar Dados do Aluno</h3>
-            
+
             <div class="review-section">
               <h4>Dados Pessoais</h4>
               <div class="review-grid">
                 <div class="review-item">
                   <strong>Nome:</strong>
-                  <span>{{ personalDataForm.get('name')?.value }}</span>
+                  <span>{{ personalDataForm.get("name")?.value }}</span>
                 </div>
                 <div class="review-item">
                   <strong>CPF:</strong>
-                  <span>{{ displayCPF(personalDataForm.get('cpf')?.value) }}</span>
+                  <span>{{
+                    displayCPF(personalDataForm.get("cpf")?.value)
+                  }}</span>
                 </div>
                 <div class="review-item">
                   <strong>Email:</strong>
-                  <span>{{ personalDataForm.get('email')?.value }}</span>
+                  <span>{{ personalDataForm.get("email")?.value }}</span>
                 </div>
                 <div class="review-item">
                   <strong>Data de Nascimento:</strong>
-                  <span>{{ personalDataForm.get('birthDate')?.value | date:'dd/MM/yyyy' }}</span>
+                  <span>{{
+                    personalDataForm.get("birthDate")?.value
+                      | date: "dd/MM/yyyy"
+                  }}</span>
                 </div>
                 <div class="review-item">
                   <strong>Telefone:</strong>
-                  <span>{{ personalDataForm.get('phone')?.value }}</span>
+                  <span>{{ personalDataForm.get("phone")?.value }}</span>
                 </div>
                 <div class="review-item full-width">
                   <strong>Endereço:</strong>
-                  <span>{{ personalDataForm.get('address')?.value }}</span>
+                  <span>
+                    {{ personalDataForm.get("address.street")?.value }},
+                    {{ personalDataForm.get("address.number")?.value }}
+                    {{
+                      personalDataForm.get("address.complement")?.value
+                        ? "- " +
+                          personalDataForm.get("address.complement")?.value
+                        : ""
+                    }}
+                    <br />
+                    {{ personalDataForm.get("address.neighborhood")?.value }} -
+                    {{ personalDataForm.get("address.city")?.value }}/{{
+                      personalDataForm.get("address.state")?.value
+                    }}
+                    <br />
+                    CEP: {{ personalDataForm.get("address.cep")?.value }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -302,17 +582,21 @@
               <div class="review-grid">
                 <div class="review-item">
                   <strong>Matrícula:</strong>
-                  <span>{{ studentDataForm.get('registrationNumber')?.value }}</span>
+                  <span>{{
+                    studentDataForm.get("registrationNumber")?.value
+                  }}</span>
                 </div>
                 <div class="review-item">
                   <strong>Status:</strong>
-                  <span>{{ studentDataForm.get('status')?.value === 'active' ? 'Ativo' : 
-                          studentDataForm.get('status')?.value === 'inactive' ? 'Inativo' : 'Suspenso' }}</span>
+                  <span>{{
+                    studentDataForm.get("status")?.value === "active"
+                      ? "Ativo"
+                      : studentDataForm.get("status")?.value === "inactive"
+                        ? "Inativo"
+                        : "Suspenso"
+                  }}</span>
                 </div>
-                <div class="review-item full-width">
-                  <strong>Contato de Emergência:</strong>
-                  <span>{{ studentDataForm.get('emergencyContact')?.value }}</span>
-                </div>
+                <!-- Emergency Contact removed from review -->
               </div>
             </div>
 
@@ -320,25 +604,34 @@
 
             <div class="review-section" *ngIf="guardians.length > 0">
               <h4>Responsáveis ({{ guardians.length }})</h4>
-              <div *ngFor="let guardian of guardians.controls; let i = index" class="guardian-review">
-                <strong>{{ i + 1 }}. {{ guardian.get('name')?.value }}</strong>
+              <div
+                *ngFor="let guardian of guardians.controls; let i = index"
+                class="guardian-review"
+              >
+                <strong>{{ i + 1 }}. {{ guardian.get("name")?.value }}</strong>
                 <span class="guardian-details">
-                  {{ guardian.get('relationship')?.value | titlecase }} - 
-                  {{ guardian.get('phone')?.value }}
+                  {{ guardian.get("relationship")?.value | titlecase }} -
+                  {{ guardian.get("phone")?.value }}
                 </span>
               </div>
             </div>
 
             <div class="stepper-actions">
               <button mat-button matStepperPrevious>Voltar</button>
-              <button mat-raised-button color="accent" (click)="submit()" [disabled]="isSubmitting">
-                <mat-icon>{{ isSubmitting ? 'hourglass_empty' : 'check_circle' }}</mat-icon>
-                {{ isSubmitting ? 'Cadastrando...' : 'Cadastrar Aluno' }}
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="submit()"
+                [disabled]="isSubmitting"
+              >
+                <mat-icon>{{
+                  isSubmitting ? "hourglass_empty" : "check_circle"
+                }}</mat-icon>
+                {{ isSubmitting ? "Cadastrando..." : "Cadastrar Aluno" }}
               </button>
             </div>
           </div>
         </mat-step>
-
       </mat-stepper>
     </mat-card-content>
   </mat-card>

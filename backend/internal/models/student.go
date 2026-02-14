@@ -13,9 +13,6 @@ type Student struct {
 	Status             string     `json:"status" gorm:"not null;default:'active'"` // active, inactive, suspended
 	SpecialNeeds       string     `json:"specialNeeds"`
 	MedicalInfo        string     `json:"medicalInfo"`
-	EmergencyContact   string     `json:"emergencyContact"`
-	AdditionalPhone1   string     `json:"additionalPhone1"`
-	AdditionalPhone2   string     `json:"additionalPhone2"`
 	SocialMedia        *string    `json:"socialMedia" gorm:"type:json"`
 	Notes              string     `json:"notes"`
 	CreatedAt          time.Time  `json:"createdAt" gorm:"autoCreateTime"`

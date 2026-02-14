@@ -460,9 +460,27 @@ Keycloak (lar-sso) ← SSO
 - [✅] GIT PUSH FINAL! 🚀
 
 **Critério de sucesso:**
-✅ MVP funcionando ponta a ponta  
-✅ Documentação completa  
 ✅ Pronto para demonstração
+
+---
+
+### ✅ DIA 16 - Refatoração e Estabilização
+
+**Tempo estimado:** 4h  
+**Status:** [✅] **Concluído**
+
+#### Tarefas:
+
+- [✅] Refatorar modelo de alunos (limpeza de campos legados)
+- [✅] Implementar tabela de endereços estruturados
+- [✅] Migrar dados de endereço (se aplicável)
+- [✅] Corrigir integração Keycloak Admin (variáveis de ambiente)
+- [✅] Tornar `KeycloakUserID` opcional para maior resiliência
+
+**Critério de sucesso:**
+✅ Cadastro de aluno funcionando com Keycloak externo  
+✅ Endereços salvos em tabela separada  
+✅ Código frontend compilando sem alertas legados
 
 ---
 

@@ -67,6 +67,7 @@ func MigrateDB(db *gorm.DB) error {
 		// User related models
 		&models.User{},
 		&models.UserProfile{},
+		&models.Address{},
 
 		// Student related models
 		&models.Student{},

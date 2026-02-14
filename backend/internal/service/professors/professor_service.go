@@ -101,7 +101,7 @@ func (s *professorService) CreateProfessor(ctx context.Context, professor *model
 			}
 
 			// Update user with Keycloak ID
-			professor.KeycloakUserID = keycloakID
+			professor.KeycloakUserID = &keycloakID
 			s.userRepo.Update(ctx, professor)
 
 			// Send email

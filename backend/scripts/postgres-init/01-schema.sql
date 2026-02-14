@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS users (
     cpf VARCHAR(14) UNIQUE,
     birth_date DATE,
     phone VARCHAR(20),
-    address TEXT,
     photo_url VARCHAR(255),
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -25,6 +24,23 @@ CREATE TABLE IF NOT EXISTS students (
     user_id INTEGER NOT NULL,
     registration_number VARCHAR(50) NOT NULL,
     status VARCHAR(20) NOT NULL, -- 'ativo', 'inativo', 'suspenso' ou 'active', 'inactive' (para compatibilidade)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Tabela de endereços (nova)
+CREATE TABLE IF NOT EXISTS addresses (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL UNIQUE,
+    cep VARCHAR(10),
+    street VARCHAR(255),
+    number VARCHAR(20),
+    complement VARCHAR(100),
+    neighborhood VARCHAR(100),
+    city VARCHAR(100),
+    state VARCHAR(2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,

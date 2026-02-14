@@ -112,11 +112,18 @@
                   <dt class="col-sm-4">Telefone:</dt>
                   <dd class="col-sm-8">{{ student.user.phone }}</dd>
 
-                  <dt class="col-sm-4" *ngIf="student.additionalPhone1">Tel. Adicional:</dt>
-                  <dd class="col-sm-8" *ngIf="student.additionalPhone1">{{ student.additionalPhone1 }}</dd>
-
                   <dt class="col-sm-4">Endereço:</dt>
-                  <dd class="col-sm-8">{{ student.user.address }}</dd>
+                  <dd class="col-sm-8">
+                    <span *ngIf="student.user.address">
+                      {{ student.user.address.street }}, {{ student.user.address.number }}
+                      <span *ngIf="student.user.address.complement"> - {{ student.user.address.complement }}</span>
+                      <br>
+                      {{ student.user.address.neighborhood }} - {{ student.user.address.city }}/{{ student.user.address.state }}
+                      <br>
+                      CEP: {{ student.user.address.cep }}
+                    </span>
+                    <span *ngIf="!student.user.address">Não informado</span>
+                  </dd>
                 </dl>
               </div>
             </div>
@@ -138,9 +145,6 @@
                       {{ statusLabels[student.status] }}
                     </span>
                   </dd>
-
-                  <dt class="col-sm-5">Contato Emerg.:</dt>
-                  <dd class="col-sm-7">{{ student.emergencyContact || 'Não informado' }}</dd>
 
                   <dt class="col-sm-5">Info. Médicas:</dt>
                   <dd class="col-sm-7">{{ student.medicalInfo || 'Nenhuma' }}</dd>

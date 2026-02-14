@@ -20,15 +20,15 @@
 [✅] Dia 6  [✅] Dia 7  [✅] Dia 8  [✅] Dia 9  [✅] Dia 10
 ```
 
-### SEMANA 3 - FREQUÊNCIA
+### SEMANA 4 - REFINAMENTO
 
 ```
-[✅] Dia 11  [✅] Dia 12  [✅] Dia 13  [✅] Dia 14  [✅] Dia 15
+[✅] Dia 16  [ ] Dia 17  [ ] Dia 18  [ ] Dia 19  [ ] Dia 20
 ```
 
 ---
 
-## 🎯 DIA ATUAL: 13/02/2026 - DIA 15 - Finalização e Entrega
+## 🎯 DIA ATUAL: 14/02/2026 - DIA 16 - Refatoração e Keycloak
 
 ### 📋 TAREFA DO DIA
 
@@ -584,6 +584,38 @@ Aprendizados:
 - ✅ Testes: Executada Simulação Integrada (fluxo completo de ponta a ponta).
 - ✅ Docs: Atualizado Manual do Usuário e Finalizado Roadmap.
 - ✅ Git: Push final realizado com sucesso. 🚀
+
+---
+
+#### 📅 DIA 16 - Refatoração e Keycloak
+
+**Data:** 14 / 02 / 2026  
+**Status:** [✅] Concluído
+
+**Resumo:**
+
+```bash
+O que foi feito:
+- ✅ Refatorado modelo Student: remoção de additionalPhone1 e emergencyContact.
+- ✅ Implementado sistema de endereços estruturados (tabela addresses + FK no User).
+- ✅ Atualizado Frontend (Angular): StudentFormComponent e StudentDetail para o novo formato.
+- ✅ Fix Keycloak: Configurado credenciais Admin no .env.docker e KeycloakUserID como ponteiro (nullable).
+- ✅ Simulação: Executada simulação via Browser subagent com sucesso absoluto.
+
+Dificuldades:
+- Erro 404 "Realm not found" no Keycloak devido a credenciais admin ausentes no Docker.
+- Build erro no frontend por campos removidos no HTML.
+
+Aprendizados:
+- Sempre conferir se as variáveis do .env local estão sincronizadas com o .env.docker.
+- O uso de ponteiros em modelos Go/GORM é essencial para campos opcionais no banco (NULL).
+```
+
+**Commits:**
+
+- [✅] `feat(backend): implementa endereços estruturados e refatora Student`
+- [✅] `feat(frontend): atualiza formulários para novo esquema de endereços`
+- [✅] `fix(backend): resolve integração Keycloak admin e nullable IDs`
 
 ---
 

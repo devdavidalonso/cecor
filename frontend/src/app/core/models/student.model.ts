@@ -1,5 +1,16 @@
 // src/app/core/models/student.model.ts
 
+export interface Address {
+  id?: number;
+  cep: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+}
+
 export interface User {
   id?: number;
   keycloakUserId?: string;
@@ -8,7 +19,7 @@ export interface User {
   cpf: string;
   birthDate: string;
   phone: string;
-  address: string;
+  address?: Address;
   profile: "student" | "admin" | "professor";
   active: boolean;
   createdAt?: string;
@@ -23,9 +34,7 @@ export interface Student {
   status: "active" | "inactive" | "suspended";
   specialNeeds?: string;
   medicalInfo?: string;
-  emergencyContact?: string;
-  additionalPhone1?: string;
-  additionalPhone2?: string;
+  // Deprecated fields removed
   notes?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -38,7 +47,7 @@ export interface CreateStudentRequest {
     cpf: string;
     birthDate: string;
     phone: string;
-    address: string;
+    address: Address;
     profile: "student";
     active: boolean;
     password: string;
@@ -47,9 +56,6 @@ export interface CreateStudentRequest {
   status: "active" | "inactive" | "suspended";
   specialNeeds?: string;
   medicalInfo?: string;
-  emergencyContact?: string;
-  additionalPhone1?: string;
-  additionalPhone2?: string;
   notes?: string;
 }
 
@@ -59,9 +65,6 @@ export interface UpdateStudentRequest {
   status?: "active" | "inactive" | "suspended";
   specialNeeds?: string;
   medicalInfo?: string;
-  emergencyContact?: string;
-  additionalPhone1?: string;
-  additionalPhone2?: string;
   notes?: string;
 }
 
