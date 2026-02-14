@@ -1,22 +1,22 @@
 # 📋 CHECKLIST DE TESTE - CECOR MVP (Por Perfil de Usuário)
 
 > **Objetivo:** Documentar todos os problemas e melhorias necessárias no sistema CECOR durante testes de usabilidade, testando CADA PERFIL DE USUÁRIO separadamente.
-> 
-> **Data de Início:** ___/___/______
-> 
+>
+> **Data de Início:** 14/02/2026
+>
 > **Testador:** David Alonso
-> 
+>
 > **Ambiente:** Desenvolvimento Local
 
 ---
 
 ## 📊 RESUMO EXECUTIVO POR PERFIL
 
-| Perfil | Login Testado | ✅ Funcionalidades OK | ⚠️ Problemas | 🐛 Bugs Críticos |
-|--------|---------------|----------------------|--------------|------------------|
-| **👤 Admin** | admin.cecor | - | - | - |
-| **👨‍🏫 Professor** | ____________ | - | - | - |
-| **🎓 Aluno** | ____________ | - | - | - |
+| Perfil           | Login Testado        | ✅ Funcionalidades OK | ⚠️ Problemas | 🐛 Bugs Críticos |
+| ---------------- | -------------------- | --------------------- | ------------ | ---------------- |
+| **👤 Admin**     | admin.cecor          | -                     | -            | -                |
+| **👨‍🏫 Professor** | \***\*\_\_\_\_\*\*** | -                     | -            | -                |
+| **🎓 Aluno**     | \***\*\_\_\_\_\*\*** | -                     | -            | -                |
 
 ---
 
@@ -25,13 +25,15 @@
 ### Usuários Disponíveis para Teste
 
 **Administrador:**
+
 ```
 Usuário: admin.cecor
-Senha: _______________
-Email: _______________
+Senha: admin123
+Email: dev.david.garcia.alonso@gmail.com
 ```
 
 **Professor:**
+
 ```
 Usuário: _______________
 Senha: _______________
@@ -39,6 +41,7 @@ Email: _______________
 ```
 
 **Aluno:**
+
 ```
 Usuário: _______________
 Senha: _______________
@@ -50,7 +53,7 @@ Email: _______________
 # 👤 PARTE 1: TESTE COM PERFIL ADMINISTRADOR
 
 > **Login:** admin.cecor
-> 
+>
 > **Permissões Esperadas:** ACESSO TOTAL a todas as funcionalidades
 
 ---
@@ -58,40 +61,46 @@ Email: _______________
 ## 🔐 1. AUTENTICAÇÃO - ADMIN
 
 ### Login
-- [ ] Consegue fazer login com admin.cecor
-- [ ] Token JWT é gerado corretamente
-- [ ] Redirecionamento após login está correto
-- [ ] Para onde redireciona? ___________________________
+
+- [✅] Consegue fazer login com admin.cecor
+- [✅] Token JWT é gerado corretamente
+- [✅] Redirecionamento após login está correto
+- [✅] Para onde redireciona? [\***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\***](http://localhost:4201/dashboard?iss=https:%2F%2Flar-sso-keycloak.hrbsys.tech%2Frealms%2Fcecor)
 
 ### Dashboard Inicial
-- [ ] Dashboard do Admin carrega
-- [ ] Quais widgets/cards aparecem?
+
+- [✅] Dashboard do Admin carrega
+- [✅] Quais widgets/cards aparecem?
 
 **Widgets visíveis:**
+
 ```
-1. ____________________
-2. ____________________
-3. ____________________
-4. ____________________
+1. Alunos
+2. Cursos
+3. Professores
+4. Matrículas
 ```
 
 ### Menu de Navegação
-- [ ] Menu lateral/superior está visível
-- [ ] Quais itens de menu aparecem?
+
+- [✅] Menu lateral/superior está visível
+- [✅] Quais itens de menu aparecem?
 
 **Itens de Menu Visíveis:**
+
 ```
-[ ] Dashboard
-[ ] Alunos (Students)
-[ ] Cursos (Courses)
-[ ] Matrículas (Enrollments)
-[ ] Professores (Teachers/Volunteers)
-[ ] Relatórios (Reports)
+[✅] Dashboard
+[✅] Alunos (Students)
+[✅] Cursos (Courses)
+[✅] Matrículas (Enrollments)
+[✅] Professores (Teachers/Volunteers)
+[✅] Relatórios (Reports)
 [ ] Configurações (Settings)
-[ ] Outros: _______________
+[✅] Outros: Admimistração
 ```
 
 **✍️ Problemas - Autenticação Admin:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -103,12 +112,13 @@ _______________________________________________________________________________
 
 ### 2.1 Lista de Alunos
 
-- [ ] Admin consegue ver a lista de alunos
-- [ ] Quantos alunos aparecem? _________
-- [ ] Paginação funciona? **SIM** / **NÃO**
-- [ ] Filtros/busca disponíveis? **SIM** / **NÃO**
+- [✅] Admin consegue ver a lista de alunos
+- [✅] Quantos alunos aparecem? \***\*\10 de 25\_\*\***
+- [✅] Paginação funciona? **SIM** / **NÃO**
+- [❌] Filtros/busca disponíveis? **SIM** / **NÃO**
 
 **Colunas visíveis na tabela:**
+
 ```
 1. ____________________
 2. ____________________
@@ -118,16 +128,20 @@ _______________________________________________________________________________
 ```
 
 **Ações disponíveis por aluno:**
+
 ```
-[ ] Visualizar
-[ ] Editar
-[ ] Excluir
-[ ] Outras: _______________
+[✅] Visualizar
+[❌] Editar
+[❌] Excluir
+[❌] Outras: _______________
 ```
 
 **✍️ Problemas:**
+
 ```
-_______________________________________________________________________________
+O layout não está responsivo, não consigo ver todas as colunas na tabela.
+Para editar Não estão sendo carregados os dados do aluno.
+Para excluir não retorna uma mensagem amigavel dizendo que teve sucesso e não recarrega a lista novamente. E indica que o aluno foi excluído mas ele continua aparecendo na lista.
 _______________________________________________________________________________
 ```
 
@@ -135,57 +149,68 @@ _______________________________________________________________________________
 
 ### 2.2 Cadastro de Aluno - ADMIN
 
-- [ ] Botão "Novo Aluno" está visível
-- [ ] Consegue acessar o formulário
-- [ ] Formulário carrega corretamente
+- [✅] Botão "Novo Aluno" está visível
+- [✅] Consegue acessar o formulário
+- [✅] Formulário carrega corretamente
 
 **Campos que aparecem no formulário:**
 
 **Dados Pessoais:**
+
 ```
-[ ] Nome Completo
-[ ] Data de Nascimento
-[ ] Idade (calculada?)
-[ ] CPF
-[ ] Email
-[ ] Telefone
-[ ] Foto
+[✅] Nome Completo
+[✅ ] Data de Nascimento
+[❌] Idade (calculada?)
+[✅] CPF
+[✅] Email
+[✅] Telefone
+[❌] Foto
 ```
 
 **🚨 Campos que NÃO deveriam aparecer:**
+
 ```
 [ ] ❌ Número de Matrícula (enrollment_number)
 [ ] ❌ Status
 ```
 
 **Endereço:**
+
 ```
-[ ] CEP
-[ ] Rua
-[ ] Número
-[ ] Complemento
-[ ] Bairro
-[ ] Cidade
-[ ] Estado
+[❌] CEP
+[❌] Rua
+[❌] Número
+[❌] Complemento
+[❌] Bairro
+[❌] Cidade
+[❌] Estado
 ```
 
 **Responsáveis:**
+
 ```
-[ ] Consegue adicionar responsável
-[ ] Quantos permite? _________
-[ ] Todos os campos necessários aparecem?
+[❌] Consegue adicionar responsável
+[❌] Quantos permite? _________
+[❌] Todos os campos necessários aparecem?
 ```
 
 **Ações de Salvamento:**
-- [ ] Botão "Salvar" funciona
-- [ ] Validações funcionam
-- [ ] Aluno é cadastrado com sucesso
-- [ ] Mensagem de sucesso aparece
-- [ ] Redirecionamento correto
+
+- [❌] Botão "Salvar" funciona
+- [❌] Validações funcionam
+- [❌] Aluno é cadastrado com sucesso
+- [❌] Mensagem de sucesso aparece
+- [❌] Redirecionamento correto
 
 **✍️ Problemas - Cadastro Admin:**
+
 ```
+Para cadastro do mesmo existente não ha mensagens amigaveis informando que o mesmo ja existe.
+Não há modelos tabela de endereços para colcoar na pagina mais de um endereço
+Precimos elimar da base dados a coluna adress da tabele user e criar uma tabela de endereços separada.
+Precisamos eleminar as colunas da tabela student chamada emergency_contact, emergency_contact_phone1 e emergency_contact_phone2, pois não serão utilizadas.
 _______________________________________________________________________________
+
 _______________________________________________________________________________
 _______________________________________________________________________________
 ```
@@ -194,12 +219,13 @@ _______________________________________________________________________________
 
 ### 2.3 Edição de Aluno - ADMIN
 
-- [ ] Admin consegue editar qualquer aluno
-- [ ] Formulário carrega com dados
-- [ ] Alterações podem ser salvas
-- [ ] Edição de responsáveis funciona
+- [❌] Admin consegue editar qualquer aluno
+- [❌] Formulário carrega com dados
+- [❌] Alterações podem ser salvas
+- [❌] Edição de responsáveis funciona
 
 **✍️ Problemas - Edição Admin:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -209,12 +235,13 @@ _______________________________________________________________________________
 
 ### 2.4 Exclusão de Aluno - ADMIN
 
-- [ ] Botão de exclusão está disponível
-- [ ] Pede confirmação antes de excluir?
-- [ ] Exclusão funciona (soft delete ou física?)
-- [ ] Aluno some da lista após exclusão
+- [❌] Botão de exclusão está disponível
+- [❌] Pede confirmação antes de excluir?
+- [❌] Exclusão funciona (soft delete ou física?)
+- [❌] Aluno some da lista após exclusão
 
 **✍️ Problemas - Exclusão Admin:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -231,6 +258,7 @@ _______________________________________________________________________________
 - [ ] Filtros? **SIM** / **NÃO**
 
 **Informações exibidas por curso:**
+
 ```
 1. ____________________
 2. ____________________
@@ -239,6 +267,7 @@ _______________________________________________________________________________
 ```
 
 **Ações disponíveis:**
+
 ```
 [ ] Visualizar
 [ ] Editar
@@ -247,6 +276,7 @@ _______________________________________________________________________________
 ```
 
 **✍️ Problemas:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -264,6 +294,7 @@ _______________________________________________________________________________
 - [ ] Salvar funciona
 
 **✍️ Problemas - Cadastro Curso:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -278,6 +309,7 @@ _______________________________________________________________________________
 - [ ] Alterações são salvas
 
 **✍️ Problemas:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -294,6 +326,7 @@ _______________________________________________________________________________
 - [ ] Informações relevantes aparecem
 
 **Filtros disponíveis:**
+
 ```
 [ ] Por Aluno
 [ ] Por Curso
@@ -302,6 +335,7 @@ _______________________________________________________________________________
 ```
 
 **✍️ Problemas:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -312,11 +346,13 @@ _______________________________________________________________________________
 ### 4.2 Nova Matrícula - ADMIN (⚠️ CRÍTICO)
 
 **Seleção de Aluno:**
+
 - [ ] Como seleciona o aluno?
 - [ ] É fácil encontrar?
 - [ ] Busca funciona?
 
 **Método de seleção:**
+
 ```
 ( ) Dropdown com todos os alunos
 ( ) Busca/autocomplete
@@ -325,11 +361,13 @@ _______________________________________________________________________________
 ```
 
 **Seleção de Curso:**
+
 - [ ] Como seleciona o curso?
 - [ ] Mostra vagas disponíveis?
 - [ ] Informações do curso aparecem?
 
 **Campos da Matrícula:**
+
 ```
 [ ] Data de matrícula
 [ ] Data de início
@@ -337,18 +375,21 @@ _______________________________________________________________________________
 ```
 
 **🚨 Campos que NÃO devem aparecer:**
+
 ```
 [ ] ❌ Número de Matrícula
 [ ] ❌ Status
 ```
 
 **Salvamento:**
+
 - [ ] Consegue salvar
 - [ ] Número de matrícula gerado automaticamente
 - [ ] Status definido como 'ativa'
 - [ ] Mensagem de sucesso
 
 **✍️ PROBLEMAS CRÍTICOS - Matrícula Admin:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -365,6 +406,7 @@ _______________________________________________________________________________
 - [ ] Consegue trocar aluno de curso
 
 **✍️ Problemas:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -381,6 +423,7 @@ _______________________________________________________________________________
 - [ ] Admin pode excluir/desativar professor
 
 **✍️ Problemas - Professores:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -394,6 +437,7 @@ _______________________________________________________________________________
 - [ ] Quais relatórios estão disponíveis?
 
 **Relatórios disponíveis:**
+
 ```
 [ ] Alunos cadastrados
 [ ] Matrículas ativas
@@ -402,6 +446,7 @@ _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Relatórios:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -417,6 +462,7 @@ _______________________________________________________________________________
 - [ ] Auditoria de logs disponível
 
 **✍️ Problemas - Configurações:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -427,6 +473,7 @@ _______________________________________________________________________________
 ## 🔒 8. PERMISSÕES GERAIS - ADMIN
 
 **Admin DEVE ter acesso a:**
+
 ```
 [ ] Criar alunos
 [ ] Editar qualquer aluno
@@ -444,11 +491,13 @@ _______________________________________________________________________________
 ```
 
 **Admin NÃO deve ter restrições em:**
+
 ```
 _______________________________________________________________________________
 ```
 
 **✍️ Problemas de Permissões - Admin:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -458,8 +507,8 @@ _______________________________________________________________________________
 
 # 👨‍🏫 PARTE 2: TESTE COM PERFIL PROFESSOR
 
-> **Login:** _______________
-> 
+> **Login:** **\*\***\_\_\_**\*\***
+>
 > **Permissões Esperadas:** Acesso LIMITADO - apenas aos seus cursos e alunos
 
 ---
@@ -467,15 +516,18 @@ _______________________________________________________________________________
 ## 🔐 1. AUTENTICAÇÃO - PROFESSOR
 
 ### Login
+
 - [ ] Consegue fazer login
 - [ ] Token JWT funciona
 - [ ] Redirecionamento correto
 
 ### Dashboard Inicial
+
 - [ ] Dashboard do Professor carrega
 - [ ] Quais informações aparecem?
 
 **Widgets visíveis:**
+
 ```
 1. ____________________
 2. ____________________
@@ -485,6 +537,7 @@ _______________________________________________________________________________
 ### Menu de Navegação - PROFESSOR
 
 **Itens que DEVEM aparecer:**
+
 ```
 [ ] Dashboard
 [ ] Meus Cursos
@@ -494,6 +547,7 @@ _______________________________________________________________________________
 ```
 
 **Itens que NÃO devem aparecer:**
+
 ```
 [ ] ❌ Configurações do Sistema
 [ ] ❌ Gestão de Usuários
@@ -502,12 +556,14 @@ _______________________________________________________________________________
 ```
 
 **Menu atual do Professor:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Autenticação Professor:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -524,6 +580,7 @@ _______________________________________________________________________________
 - [ ] Consegue ver detalhes dos seus cursos
 
 **Cursos listados:**
+
 ```
 Curso: ____________________  Está correto? ( ) Sim ( ) Não
 Curso: ____________________  Está correto? ( ) Sim ( ) Não
@@ -531,6 +588,7 @@ Curso: ____________________  Está correto? ( ) Sim ( ) Não
 ```
 
 **Ações disponíveis:**
+
 ```
 [ ] Visualizar curso
 [ ] Ver lista de alunos matriculados
@@ -538,6 +596,7 @@ Curso: ____________________  Está correto? ( ) Sim ( ) Não
 ```
 
 **Ações que NÃO deve ter:**
+
 ```
 [ ] ❌ Editar curso
 [ ] ❌ Excluir curso
@@ -545,6 +604,7 @@ Curso: ____________________  Está correto? ( ) Sim ( ) Não
 ```
 
 **✍️ Problemas - Meus Cursos:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -560,12 +620,14 @@ _______________________________________________________________________________
 - [ ] Lista está correta
 
 **Alunos listados:**
+
 ```
 Total de alunos: _________
 Estão corretos (apenas dos meus cursos)? ( ) Sim ( ) Não
 ```
 
 **Informações visíveis por aluno:**
+
 ```
 [ ] Nome
 [ ] CPF
@@ -576,6 +638,7 @@ Estão corretos (apenas dos meus cursos)? ( ) Sim ( ) Não
 ```
 
 **Ações disponíveis:**
+
 ```
 [ ] Visualizar detalhes
 [ ] Ver frequência
@@ -583,6 +646,7 @@ Estão corretos (apenas dos meus cursos)? ( ) Sim ( ) Não
 ```
 
 **Ações que NÃO deve ter:**
+
 ```
 [ ] ❌ Editar dados pessoais do aluno
 [ ] ❌ Excluir aluno
@@ -590,6 +654,7 @@ Estão corretos (apenas dos meus cursos)? ( ) Sim ( ) Não
 ```
 
 **✍️ Problemas - Meus Alunos:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -604,6 +669,7 @@ _______________________________________________________________________________
 - [ ] Quais informações aparecem?
 
 **Informações visíveis:**
+
 ```
 [ ] Nome completo
 [ ] Data de nascimento
@@ -617,18 +683,21 @@ _______________________________________________________________________________
 ```
 
 **Informações que NÃO deve ver:**
+
 ```
 [ ] ❌ Dados sensíveis de outros cursos?
 [ ] ❌ Informações financeiras?
 ```
 
 **Professor pode editar:**
+
 ```
 [ ] Observações sobre o aluno
 [ ] Notas de acompanhamento
 ```
 
 **Professor NÃO pode editar:**
+
 ```
 [ ] ❌ Dados pessoais (nome, CPF, etc.)
 [ ] ❌ Dados de responsáveis
@@ -636,6 +705,7 @@ _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Detalhes Aluno:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -654,15 +724,18 @@ _______________________________________________________________________________
 ### 4.2 Seleção de Curso e Data
 
 **Seleção de Curso:**
+
 - [ ] Professor seleciona APENAS entre seus cursos
 - [ ] Cursos de outros professores NÃO aparecem
 
 **Seleção de Data:**
+
 - [ ] Consegue selecionar data da aula
 - [ ] Data padrão é hoje?
 - [ ] Consegue selecionar datas passadas?
 
 **✍️ Problemas - Seleção:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -676,6 +749,7 @@ _______________________________________________________________________________
 - [ ] Lista está completa e correta
 
 **Informações visíveis por aluno na chamada:**
+
 ```
 [ ] Nome
 [ ] Idade
@@ -686,6 +760,7 @@ _______________________________________________________________________________
 ```
 
 **Interface de marcação:**
+
 ```
 ( ) Checkbox simples (Presente/Ausente)
 ( ) Botões (Presente/Ausente/Justificado)
@@ -693,12 +768,14 @@ _______________________________________________________________________________
 ```
 
 **Funcionalidades:**
+
 - [ ] Marcar presença
 - [ ] Marcar ausência
 - [ ] Marcar ausência justificada
 - [ ] Adicionar observação da aula
 
 **✍️ Problemas - Lista de Chamada:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -715,6 +792,7 @@ _______________________________________________________________________________
 - [ ] Presença é registrada no sistema
 
 **Comportamento após salvar:**
+
 ```
 ( ) Retorna para lista de cursos
 ( ) Permanece na tela de presença
@@ -722,6 +800,7 @@ _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Salvamento Presença:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -736,6 +815,7 @@ _______________________________________________________________________________
 - [ ] Alterações são salvas
 
 **✍️ Problemas - Edição Presença:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -748,6 +828,7 @@ _______________________________________________________________________________
 ### 5.1 Relatórios Disponíveis
 
 **Relatórios que o Professor DEVE ter acesso:**
+
 ```
 [ ] Frequência dos alunos dos seus cursos
 [ ] Lista de alunos por curso
@@ -756,6 +837,7 @@ _______________________________________________________________________________
 ```
 
 **Relatórios que NÃO deve ter acesso:**
+
 ```
 [ ] ❌ Relatórios gerais de toda a instituição
 [ ] ❌ Dados financeiros
@@ -763,12 +845,14 @@ _______________________________________________________________________________
 ```
 
 **Relatórios atualmente disponíveis:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Relatórios Professor:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -825,6 +909,7 @@ Resultado: ( ) Bloqueado ✅  ( ) Permitido ❌
 ```
 
 **✍️ Problemas de Permissões - Professor:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -835,8 +920,8 @@ _______________________________________________________________________________
 
 # 🎓 PARTE 3: TESTE COM PERFIL ALUNO
 
-> **Login:** _______________
-> 
+> **Login:** **\*\***\_\_\_**\*\***
+>
 > **Permissões Esperadas:** Acesso MUITO LIMITADO - apenas dados próprios
 
 ---
@@ -844,15 +929,18 @@ _______________________________________________________________________________
 ## 🔐 1. AUTENTICAÇÃO - ALUNO
 
 ### Login
+
 - [ ] Aluno consegue fazer login
 - [ ] Token JWT funciona
 - [ ] Redirecionamento correto
 
 ### Dashboard Inicial
+
 - [ ] Dashboard do Aluno carrega
 - [ ] Informações personalizadas aparecem
 
 **Widgets visíveis:**
+
 ```
 1. ____________________
 2. ____________________
@@ -862,6 +950,7 @@ _______________________________________________________________________________
 ### Menu de Navegação - ALUNO
 
 **Itens que DEVEM aparecer:**
+
 ```
 [ ] Dashboard / Início
 [ ] Meu Perfil
@@ -871,6 +960,7 @@ _______________________________________________________________________________
 ```
 
 **Itens que NÃO devem aparecer:**
+
 ```
 [ ] ❌ Gestão de Alunos
 [ ] ❌ Gestão de Cursos
@@ -881,12 +971,14 @@ _______________________________________________________________________________
 ```
 
 **Menu atual do Aluno:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Autenticação Aluno:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -902,6 +994,7 @@ _______________________________________________________________________________
 - [ ] Informações estão corretas
 
 **Dados visíveis:**
+
 ```
 [ ] Nome
 [ ] Data de nascimento
@@ -914,10 +1007,12 @@ _______________________________________________________________________________
 ```
 
 **Dados de responsáveis:**
+
 - [ ] Aluno vê dados dos responsáveis?
 - [ ] Quais informações aparecem?
 
 **✍️ Problemas - Meu Perfil:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -928,6 +1023,7 @@ _______________________________________________________________________________
 ### 2.2 Edição de Dados - ALUNO
 
 **O que o aluno PODE editar:**
+
 ```
 [ ] Email (se permitido)
 [ ] Telefone (se permitido)
@@ -936,6 +1032,7 @@ _______________________________________________________________________________
 ```
 
 **O que o aluno NÃO deve poder editar:**
+
 ```
 [ ] ❌ Nome
 [ ] ❌ CPF
@@ -945,6 +1042,7 @@ _______________________________________________________________________________
 ```
 
 **Teste de edição:**
+
 - [ ] Consegue alterar email?
 - [ ] Consegue alterar telefone?
 - [ ] Consegue alterar foto?
@@ -952,6 +1050,7 @@ _______________________________________________________________________________
 - [ ] Alterações são salvas?
 
 **✍️ Problemas - Edição Perfil:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -967,6 +1066,7 @@ _______________________________________________________________________________
 - [ ] Lista está correta
 
 **Cursos listados:**
+
 ```
 Curso 1: ____________________
 Curso 2: ____________________
@@ -974,6 +1074,7 @@ Curso 3: ____________________
 ```
 
 **Informações por curso:**
+
 ```
 [ ] Nome do curso
 [ ] Professor(es)
@@ -984,6 +1085,7 @@ Curso 3: ____________________
 ```
 
 **✍️ Problemas - Meus Cursos:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -997,6 +1099,7 @@ _______________________________________________________________________________
 - [ ] Informações são relevantes
 
 **Informações visíveis:**
+
 ```
 [ ] Descrição do curso
 [ ] Carga horária
@@ -1006,6 +1109,7 @@ _______________________________________________________________________________
 ```
 
 **O aluno NÃO deve poder:**
+
 ```
 [ ] ❌ Editar informações do curso
 [ ] ❌ Cancelar matrícula sozinho
@@ -1013,6 +1117,7 @@ _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Detalhes Curso:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -1030,6 +1135,7 @@ _______________________________________________________________________________
 - [ ] Pode filtrar por período?
 
 **Informações visíveis:**
+
 ```
 [ ] Total de aulas (por curso ou geral)
 [ ] Presenças
@@ -1039,6 +1145,7 @@ _______________________________________________________________________________
 ```
 
 **Formato de visualização:**
+
 ```
 ( ) Tabela com datas
 ( ) Calendário visual
@@ -1048,6 +1155,7 @@ _______________________________________________________________________________
 ```
 
 **✍️ Problemas - Frequência:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -1062,11 +1170,13 @@ _______________________________________________________________________________
 - [ ] Consegue ver se há justificativa
 
 **Funcionalidades:**
+
 - [ ] Justificar ausência (enviar justificativa)?
 - [ ] Fazer upload de atestado?
 - [ ] Ver alertas de risco de suspensão?
 
 **✍️ Problemas - Ausências:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -1081,12 +1191,14 @@ _______________________________________________________________________________
 - [ ] Consegue fazer download?
 
 **Certificados disponíveis:**
+
 ```
 Certificado 1: ____________________ (Curso: ______________)
 Certificado 2: ____________________ (Curso: ______________)
 ```
 
 **Funcionalidades:**
+
 ```
 [ ] Visualizar certificado
 [ ] Baixar certificado em PDF
@@ -1095,6 +1207,7 @@ Certificado 2: ____________________ (Curso: ______________)
 ```
 
 **✍️ Problemas - Certificados:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -1148,6 +1261,7 @@ Resultado: ( ) Bloqueado ✅  ( ) Permitido ❌
 ```
 
 **✍️ Problemas de Permissões - Aluno:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -1160,25 +1274,26 @@ _______________________________________________________________________________
 
 ## Tabela Comparativa de Permissões
 
-| Funcionalidade | Admin | Professor | Aluno |
-|----------------|-------|-----------|-------|
-| **Ver todos os alunos** | ✅ | ❌ (só dos cursos dele) | ❌ |
-| **Cadastrar alunos** | ✅ | ❌ | ❌ |
-| **Editar alunos** | ✅ | ❌ | ❌ (só dados próprios limitados) |
-| **Excluir alunos** | ✅ | ❌ | ❌ |
-| **Ver todos os cursos** | ✅ | ❌ (só os dele) | ❌ (só matriculado) |
-| **Criar cursos** | ✅ | ❌ | ❌ |
-| **Editar cursos** | ✅ | ❌ | ❌ |
-| **Excluir cursos** | ✅ | ❌ | ❌ |
-| **Ver todas matrículas** | ✅ | ❌ (só dos cursos dele) | ❌ (só próprias) |
-| **Criar matrículas** | ✅ | ❌ | ❌ |
-| **Cancelar matrículas** | ✅ | ❌ | ❌ |
-| **Registrar presença** | ✅ | ✅ (nos cursos dele) | ❌ |
-| **Ver frequência** | ✅ (todos) | ✅ (dos cursos dele) | ✅ (só própria) |
-| **Relatórios gerais** | ✅ | ❌ | ❌ |
-| **Configurações** | ✅ | ❌ | ❌ |
+| Funcionalidade           | Admin      | Professor               | Aluno                            |
+| ------------------------ | ---------- | ----------------------- | -------------------------------- |
+| **Ver todos os alunos**  | ✅         | ❌ (só dos cursos dele) | ❌                               |
+| **Cadastrar alunos**     | ✅         | ❌                      | ❌                               |
+| **Editar alunos**        | ✅         | ❌                      | ❌ (só dados próprios limitados) |
+| **Excluir alunos**       | ✅         | ❌                      | ❌                               |
+| **Ver todos os cursos**  | ✅         | ❌ (só os dele)         | ❌ (só matriculado)              |
+| **Criar cursos**         | ✅         | ❌                      | ❌                               |
+| **Editar cursos**        | ✅         | ❌                      | ❌                               |
+| **Excluir cursos**       | ✅         | ❌                      | ❌                               |
+| **Ver todas matrículas** | ✅         | ❌ (só dos cursos dele) | ❌ (só próprias)                 |
+| **Criar matrículas**     | ✅         | ❌                      | ❌                               |
+| **Cancelar matrículas**  | ✅         | ❌                      | ❌                               |
+| **Registrar presença**   | ✅         | ✅ (nos cursos dele)    | ❌                               |
+| **Ver frequência**       | ✅ (todos) | ✅ (dos cursos dele)    | ✅ (só própria)                  |
+| **Relatórios gerais**    | ✅         | ❌                      | ❌                               |
+| **Configurações**        | ✅         | ❌                      | ❌                               |
 
 **Divergências encontradas:**
+
 ```
 _______________________________________________________________________________
 _______________________________________________________________________________
@@ -1192,13 +1307,17 @@ _______________________________________________________________________________
 ## Bugs Encontrados - ADMIN
 
 ### BUG ADMIN #1
-**Título:** _________________________________________________________________
-**Severidade:** ( ) Crítico  ( ) Alto  ( ) Médio  ( ) Baixo
+
+**Título:** **\*\***\*\***\*\***\*\*\*\***\*\***\*\***\*\***\_**\*\***\*\***\*\***\*\*\*\***\*\***\*\***\*\***
+**Severidade:** ( ) Crítico ( ) Alto ( ) Médio ( ) Baixo
 **Descrição:**
+
 ```
 _______________________________________________________________________________
 ```
+
 **Como Reproduzir:**
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1209,13 +1328,17 @@ _______________________________________________________________________________
 ## Bugs Encontrados - PROFESSOR
 
 ### BUG PROFESSOR #1
-**Título:** _________________________________________________________________
-**Severidade:** ( ) Crítico  ( ) Alto  ( ) Médio  ( ) Baixo
+
+**Título:** **\*\***\*\***\*\***\*\*\*\***\*\***\*\***\*\***\_**\*\***\*\***\*\***\*\*\*\***\*\***\*\***\*\***
+**Severidade:** ( ) Crítico ( ) Alto ( ) Médio ( ) Baixo
 **Descrição:**
+
 ```
 _______________________________________________________________________________
 ```
+
 **Como Reproduzir:**
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1226,13 +1349,17 @@ _______________________________________________________________________________
 ## Bugs Encontrados - ALUNO
 
 ### BUG ALUNO #1
-**Título:** _________________________________________________________________
-**Severidade:** ( ) Crítico  ( ) Alto  ( ) Médio  ( ) Baixo
+
+**Título:** **\*\***\*\***\*\***\*\*\*\***\*\***\*\***\*\***\_**\*\***\*\***\*\***\*\*\*\***\*\***\*\***\*\***
+**Severidade:** ( ) Crítico ( ) Alto ( ) Médio ( ) Baixo
 **Descrição:**
+
 ```
 _______________________________________________________________________________
 ```
+
 **Como Reproduzir:**
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1267,6 +1394,7 @@ _______________________________________________________________________________
 ## Resumo por Perfil
 
 ### ✅ ADMIN - O que está funcionando:
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1274,6 +1402,7 @@ _______________________________________________________________________________
 ```
 
 ### ⚠️ ADMIN - Problemas encontrados:
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1283,6 +1412,7 @@ _______________________________________________________________________________
 ---
 
 ### ✅ PROFESSOR - O que está funcionando:
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1290,6 +1420,7 @@ _______________________________________________________________________________
 ```
 
 ### ⚠️ PROFESSOR - Problemas encontrados:
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1299,6 +1430,7 @@ _______________________________________________________________________________
 ---
 
 ### ✅ ALUNO - O que está funcionando:
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1306,6 +1438,7 @@ _______________________________________________________________________________
 ```
 
 ### ⚠️ ALUNO - Problemas encontrados:
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1317,6 +1450,7 @@ _______________________________________________________________________________
 ## Prioridades de Correção
 
 ### 🔴 URGENTE (Impede uso básico)
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1324,6 +1458,7 @@ _______________________________________________________________________________
 ```
 
 ### 🟡 IMPORTANTE (Prejudica experiência)
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1331,6 +1466,7 @@ _______________________________________________________________________________
 ```
 
 ### 🟢 MELHORIAS (Pode esperar)
+
 ```
 1. _____________________________________________________________________________
 2. _____________________________________________________________________________
@@ -1339,12 +1475,12 @@ _______________________________________________________________________________
 
 ---
 
-**📅 Data de Conclusão:** ___/___/______
+**📅 Data de Conclusão:** **_/_**/**\_\_**
 
-**🎯 Próxima Ação:** ____________________________________________________________
+**🎯 Próxima Ação:** \***\*\*\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*\*\***\_\_\_\_\***\*\*\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*\*\***
 
 ---
 
 > **Checklist completo por:** David Alonso
-> 
+>
 > **Versão:** 2.0 - Teste por Perfil de Usuário
