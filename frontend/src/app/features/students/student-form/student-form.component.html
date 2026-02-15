@@ -66,20 +66,29 @@
                     matInput
                     [matDatepicker]="pickerBirth"
                     formControlName="birthDate"
-                    placeholder="DD/MM/AAAA"
+                    placeholder="Digite ou selecione..."
                     (input)="formatBirthDate($event)"
                     maxlength="10"
+                    autocomplete="off"
                   />
                   <mat-datepicker-toggle
                     matSuffix
                     [for]="pickerBirth"
+                    matTooltip="Abrir calendário"
                   ></mat-datepicker-toggle>
-                  <mat-datepicker #pickerBirth></mat-datepicker>
+                  <mat-datepicker #pickerBirth startView="multi-year"></mat-datepicker>
+                  <mat-hint>Digite DD/MM/AAAA ou use o calendário</mat-hint>
                   <mat-error
                     *ngIf="
                       personalDataForm.get('birthDate')?.hasError('required')
                     "
-                    >Data é obrigatória</mat-error
+                    >Data de nascimento é obrigatória</mat-error
+                  >
+                  <mat-error
+                    *ngIf="
+                      personalDataForm.get('birthDate')?.hasError('matDatepickerParse')
+                    "
+                    >Data inválida. Use DD/MM/AAAA</mat-error
                   >
                 </mat-form-field>
               </div>

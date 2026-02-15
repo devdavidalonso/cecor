@@ -159,13 +159,8 @@ func (s *studentService) CreateStudent(ctx context.Context, student *models.Stud
 
 	// If Keycloak service is available, create user in Keycloak
 	if s.keycloak != nil {
-		// Generate temporary password
-		tempPassword, err := generateTemporaryPassword()
-		if err != nil {
-			// Log error but don't fail the operation
-			fmt.Printf("Warning: failed to generate temporary password: %v\n", err)
-			return nil
-		}
+		// Set fixed temporary password for students as requested
+		tempPassword := "aluno123"
 
 		// Split name into first and last
 		nameParts := strings.Fields(student.User.Name)
@@ -182,7 +177,7 @@ func (s *studentService) CreateStudent(ctx context.Context, student *models.Stud
 			FirstName:     firstName,
 			LastName:      lastName,
 			Enabled:       true,
-			EmailVerified: false,
+			EmailVerified: true, // Auto-verify as requested
 		})
 
 		if err != nil {

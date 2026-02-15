@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -16,6 +16,19 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { StudentService } from '../../../core/services/student.service';
 import { CreateStudentRequest } from '../../../core/models/student.model';
+
+// Configuração do formato de data brasileiro
+export const BRAZILIAN_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 @Component({
   selector: 'app-student-form',
@@ -38,7 +51,11 @@ import { CreateStudentRequest } from '../../../core/models/student.model';
     MatTooltipModule
   ],
   templateUrl: './student-form.component.html',
-  styleUrl: './student-form.component.scss'
+  styleUrl: './student-form.component.scss',
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: MAT_DATE_FORMATS, useValue: BRAZILIAN_DATE_FORMATS }
+  ]
 })
 export class StudentFormComponent implements OnInit {
   personalDataForm!: FormGroup;
@@ -182,13 +199,56 @@ export class StudentFormComponent implements OnInit {
     let value = event.target.value.replace(/\D/g, '');
     if (value.length > 8) value = value.slice(0, 8);
     
+    // Aplica a máscara visual
+    let maskedValue = value;
     if (value.length >= 5) {
-      value = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
+      maskedValue = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
     } else if (value.length >= 3) {
-      value = `${value.slice(0, 2)}/${value.slice(2)}`;
+      maskedValue = `${value.slice(0, 2)}/${value.slice(2)}`;
     }
     
-    this.personalDataForm.get('birthDate')?.setValue(value, { emitEvent: true });
+    // Atualiza o valor do input visualmente
+    event.target.value = maskedValue;
+    
+    // Se tiver data completa (8 dígitos), converte para objeto Date
+    if (value.length === 8) {
+      const day = parseInt(value.slice(0, 2), 10);
+      const month = parseInt(value.slice(2, 4), 10) - 1; // Meses em JS são 0-11
+      const year = parseInt(value.slice(4), 10);
+      
+      const dateObj = new Date(year, month, day);
+      
+      // Valida se a data é válida
+      if (dateObj.getDate() === day && 
+          dateObj.getMonth() === month && 
+          dateObj.getFullYear() === year) {
+        this.personalDataForm.get('birthDate')?.setValue(dateObj, { emitEvent: true });
+      }
+    } else {
+      // Para valores incompletos, guarda a string temporariamente
+      this.personalDataForm.get('birthDate')?.setValue(maskedValue, { emitEvent: false });
+    }
+  }
+  
+  // Método auxiliar para converter string DD/MM/YYYY em Date
+  parseBrazilianDate(dateString: string): Date | null {
+    if (!dateString || typeof dateString !== 'string') return null;
+    
+    const match = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) return null;
+    
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10) - 1;
+    const year = parseInt(match[3], 10);
+    
+    const date = new Date(year, month, day);
+    
+    // Validação de data válida
+    if (date.getDate() !== day || date.getMonth() !== month || date.getFullYear() !== year) {
+      return null;
+    }
+    
+    return date;
   }
 
   displayCPF(cpf: string): string {
@@ -204,12 +264,34 @@ export class StudentFormComponent implements OnInit {
     if (this.personalDataForm.valid && this.studentDataForm.valid) {
       this.isSubmitting = true;
 
+      // Garante que a data de nascimento seja um objeto Date válido
+      let birthDateValue = this.personalDataForm.value.birthDate;
+      let birthDateObj: Date;
+      
+      if (birthDateValue instanceof Date) {
+        birthDateObj = birthDateValue;
+      } else if (typeof birthDateValue === 'string') {
+        // Tenta fazer parse da string DD/MM/YYYY
+        const parsed = this.parseBrazilianDate(birthDateValue);
+        if (parsed) {
+          birthDateObj = parsed;
+        } else {
+          this.snackBar.open('Data de nascimento inválida. Use o formato DD/MM/AAAA.', 'Fechar', { duration: 3000 });
+          this.isSubmitting = false;
+          return;
+        }
+      } else {
+        this.snackBar.open('Data de nascimento é obrigatória.', 'Fechar', { duration: 3000 });
+        this.isSubmitting = false;
+        return;
+      }
+      
       const studentData: CreateStudentRequest = {
         user: {
           name: this.personalDataForm.value.name,
           email: this.personalDataForm.value.email,
           cpf: this.personalDataForm.value.cpf,
-          birthDate: new Date(this.personalDataForm.value.birthDate).toISOString(),
+          birthDate: birthDateObj.toISOString(),
           phone: this.personalDataForm.value.phone,
           address: this.personalDataForm.value.address,
           profile: 'student',
