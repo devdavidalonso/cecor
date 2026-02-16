@@ -11,7 +11,7 @@ type User struct {
 	Name            string     `json:"name" gorm:"not null"`
 	Email           string     `json:"email" gorm:"not null;unique"`
 	Password        string     `json:"password,omitempty" gorm:"not null"` // Exposed for creation, handled carefully in responses
-	Profile         string     `json:"profile" gorm:"not null"`            // admin, manager, teacher, student, guardian
+	ProfileID       uint       `json:"profileId" gorm:"not null;default:3;index"` // FK to user_profiles (1=admin, 2=professor, 3=student)
 	CPF             string     `json:"cpf" gorm:"unique"`
 	BirthDate       time.Time  `json:"birthDate"`
 	Phone           string     `json:"phone"`
@@ -24,6 +24,9 @@ type User struct {
 	CreatedAt       time.Time  `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt       time.Time  `json:"updatedAt" gorm:"autoUpdateTime"`
 	DeletedAt       *time.Time `json:"deletedAt" gorm:"index"`
+
+	// Associations
+	Profile UserProfile `json:"profile,omitempty" gorm:"foreignKey:ProfileID"`
 }
 
 // TableName defines the table name in the database

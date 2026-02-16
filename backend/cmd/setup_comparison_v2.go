@@ -6,7 +6,7 @@ import (
 "github.com/Nerzal/gocloak/v13"
 )
 func main() {
-client := gocloak.NewClient("https://lar-sso-keycloak.hrbsys.tech")
+client := gocloak.NewClient("http://localhost:8081")
 ctx := context.Background()
 token, err := client.LoginAdmin(ctx, "admin", "pigu@1025", "master")
 if err != nil { log.Fatal(err) }

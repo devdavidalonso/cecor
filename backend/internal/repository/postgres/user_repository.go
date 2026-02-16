@@ -117,20 +117,47 @@ func (r *userRepository) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-// GetUserProfiles gets the profiles of a user
+// GetUserProfiles gets the profiles of a user (legacy - now returns single profile based on ProfileID)
 func (r *userRepository) GetUserProfiles(ctx context.Context, userID uint) ([]models.UserProfile, error) {
 	var profiles []models.UserProfile
 
-	result := r.db.WithContext(ctx).
-		Where("user_id = ? AND is_active = true", userID).
-		Order("is_primary DESC, start_date DESC"). // Order by primary (true first) and start date (most recent first)
-		Find(&profiles)
-
+	// First get the user to find their ProfileID
+	var user models.User
+	result := r.db.WithContext(ctx).Select("profile_id").Where("id = ?", userID).First(&user)
 	if result.Error != nil {
-		return nil, fmt.Errorf("error finding user profiles: %w", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return profiles, nil // Return empty if user not found
+		}
+		return nil, fmt.Errorf("error finding user: %w", result.Error)
 	}
 
+	// Get the profile
+	var profile models.UserProfile
+	result = r.db.WithContext(ctx).Where("id = ?", user.ProfileID).First(&profile)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return profiles, nil // Return empty if profile not found
+		}
+		return nil, fmt.Errorf("error finding profile: %w", result.Error)
+	}
+
+	profiles = append(profiles, profile)
 	return profiles, nil
+}
+
+// FindProfileByID finds a profile by ID
+func (r *userRepository) FindProfileByID(ctx context.Context, id uint) (*models.UserProfile, error) {
+	var profile models.UserProfile
+
+	result := r.db.WithContext(ctx).Where("id = ?", id).First(&profile)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("error finding profile by ID: %w", result.Error)
+	}
+
+	return &profile, nil
 }
 
 // UpdateLastLogin updates the last login date
@@ -147,16 +174,34 @@ func (r *userRepository) UpdateLastLogin(ctx context.Context, id uint, timestamp
 	return nil
 }
 
-// FindByProfile finds users by profile
+// FindByProfile finds users by profile name (legacy - maps name to ID)
 func (r *userRepository) FindByProfile(ctx context.Context, profile string) ([]models.User, error) {
+	// Map profile name to ID
+	var profileID uint
+	switch profile {
+	case "admin":
+		profileID = 1
+	case "teacher", "professor":
+		profileID = 2
+	case "student":
+		profileID = 3
+	default:
+		profileID = 3 // Default to student
+	}
+
+	return r.FindByProfileID(ctx, profileID)
+}
+
+// FindByProfileID finds users by profile ID
+func (r *userRepository) FindByProfileID(ctx context.Context, profileID uint) ([]models.User, error) {
 	var users []models.User
 
 	result := r.db.WithContext(ctx).
-		Where("profile = ? AND deleted_at IS NULL", profile).
+		Where("profile_id = ? AND deleted_at IS NULL", profileID).
 		Find(&users)
 
 	if result.Error != nil {
-		return nil, fmt.Errorf("error finding users by profile: %w", result.Error)
+		return nil, fmt.Errorf("error finding users by profile ID: %w", result.Error)
 	}
 
 	return users, nil

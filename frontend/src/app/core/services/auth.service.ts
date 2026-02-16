@@ -45,15 +45,15 @@ export class AuthService {
       name: this.ssoService.getUserName(),
       email: this.ssoService.getUserEmail(),
       roles: roles,
-      profile: this.mapRolesToProfile(roles)
+      profileId: this.mapRolesToProfileId(roles)
     };
   }
 
-  private mapRolesToProfile(roles: string[]): string {
-    if (roles.includes('administrador')) return 'administrador';
-    if (roles.includes('professor')) return 'professor';
-    if (roles.includes('aluno')) return 'aluno';
-    return 'user';
+  private mapRolesToProfileId(roles: string[]): number {
+    if (roles.includes('administrador')) return 1; // admin
+    if (roles.includes('professor')) return 2; // professor
+    if (roles.includes('aluno')) return 3; // student
+    return 3; // default to student
   }
 
   login(): void {

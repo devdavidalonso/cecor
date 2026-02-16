@@ -52,7 +52,8 @@ export class StudentDetailComponent implements OnInit {
     this.activeTab = tab;
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status: string | undefined): string {
+    if (!status) return 'badge bg-secondary';
     const classes: Record<string, string> = {
       active: 'badge bg-success',
       inactive: 'badge bg-secondary',

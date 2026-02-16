@@ -6,15 +6,15 @@ import (
 	"strconv"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
-	"github.com/devdavidalonso/cecor/backend/internal/service/matriculas"
+	"github.com/devdavidalonso/cecor/backend/internal/service/enrollments"
 	"github.com/go-chi/chi/v5"
 )
 
 type EnrollmentHandler struct {
-	service matriculas.Service
+	service enrollments.Service
 }
 
-func NewEnrollmentHandler(service matriculas.Service) *EnrollmentHandler {
+func NewEnrollmentHandler(service enrollments.Service) *EnrollmentHandler {
 	return &EnrollmentHandler{service: service}
 }
 

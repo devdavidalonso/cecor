@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 })
 export class SsoService {
     private authConfig: AuthConfig = {
-        issuer: 'https://lar-sso-keycloak.hrbsys.tech/realms/cecor',
+        issuer: 'http://localhost:8081/realms/cecor',
         redirectUri: 'http://localhost:4201',
         clientId: 'cecor-frontend',
         responseType: 'code',

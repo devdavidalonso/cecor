@@ -99,9 +99,9 @@ func Load() (*Config, error) {
 			ClientID:     getEnv("SSO_CLIENT_ID", "cecor-frontend"),
 			ClientSecret: getEnv("SSO_CLIENT_SECRET", "cecor-secret"), // WARNING: Default value for development only. Do not use in production.
 			RedirectURL:  getEnv("SSO_REDIRECT_URL", "http://localhost:4200/*"),
-			AuthURL:      getEnv("SSO_AUTH_URL", "http://localhost:8080/realms/cecor/protocol/openid-connect/auth"),
-			TokenURL:     getEnv("SSO_TOKEN_URL", "http://localhost:8080/realms/cecor/protocol/openid-connect/token"),
-			UserInfoURL:  getEnv("SSO_USER_INFO_URL", "http://localhost:8080/realms/cecor/protocol/openid-connect/userinfo"),
+			AuthURL:      getEnv("SSO_AUTH_URL", "http://localhost:8081/realms/cecor/protocol/openid-connect/auth"),
+			TokenURL:     getEnv("SSO_TOKEN_URL", "http://localhost:8081/realms/cecor/protocol/openid-connect/token"),
+			UserInfoURL:  getEnv("SSO_USER_INFO_URL", "http://localhost:8081/realms/cecor/protocol/openid-connect/userinfo"),
 		},
 		Env: getEnv("APP_ENV", "development"),
 	}, nil

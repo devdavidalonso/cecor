@@ -276,25 +276,19 @@
             <ng-template matStepLabel>Dados do Aluno</ng-template>
 
             <div class="form-grid">
-              <div class="row">
+              <!-- ✅ SHOW registrationNumber ONLY in edit mode (readonly) -->
+              <div class="row" *ngIf="isEditMode">
                 <mat-form-field appearance="outline">
                   <mat-label>Número de Matrícula</mat-label>
                   <input
                     matInput
-                    formControlName="registrationNumber"
-                    placeholder="Ex: 2024001"
+                    [value]="student?.registrationNumber"
+                    readonly
                   />
                   <mat-icon matSuffix>confirmation_number</mat-icon>
-                  <mat-error
-                    *ngIf="
-                      studentDataForm
-                        .get('registrationNumber')
-                        ?.hasError('required')
-                    "
-                    >Matrícula é obrigatória</mat-error
-                  >
                 </mat-form-field>
 
+                <!-- ✅ Status field ONLY in edit mode -->
                 <mat-form-field appearance="outline">
                   <mat-label>Status</mat-label>
                   <mat-select formControlName="status">
@@ -310,6 +304,21 @@
                     >Status é obrigatório</mat-error
                   >
                 </mat-form-field>
+              </div>
+
+              <!-- ✅ Information message for creation mode -->
+              <div *ngIf="!isEditMode" class="info-message">
+                <mat-icon>info</mat-icon>
+                <p>
+                  O <strong>número de matrícula</strong> será gerado automaticamente pelo sistema 
+                  após o cadastro no formato <code>2025000001</code>.
+                </p>
+              </div>
+              <div *ngIf="!isEditMode" class="info-message">
+                <mat-icon>check_circle</mat-icon>
+                <p>
+                  O aluno será cadastrado com <strong>status "Ativo"</strong> por padrão.
+                </p>
               </div>
 
               <!-- Emergency Contact removed (handled by Guardians) -->
@@ -589,13 +598,13 @@
             <div class="review-section">
               <h4>Dados do Aluno</h4>
               <div class="review-grid">
-                <div class="review-item">
+                <!-- ✅ SHOW registrationNumber in review ONLY in edit mode -->
+                <div class="review-item" *ngIf="isEditMode">
                   <strong>Matrícula:</strong>
-                  <span>{{
-                    studentDataForm.get("registrationNumber")?.value
-                  }}</span>
+                  <span>{{ student?.registrationNumber }}</span>
                 </div>
-                <div class="review-item">
+                <!-- ✅ SHOW status in review ONLY in edit mode -->
+                <div class="review-item" *ngIf="isEditMode">
                   <strong>Status:</strong>
                   <span>{{
                     studentDataForm.get("status")?.value === "active"

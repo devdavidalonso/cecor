@@ -20,7 +20,7 @@
         <h2 class="mb-1">{{ student.user.name }}</h2>
         <p class="text-muted mb-0">
           Matrícula: {{ student.registrationNumber }}
-          <span [class]="getStatusClass(student.status)" class="ms-2">
+          <span [class]="getStatusClass(student.status)" class="ms-2" *ngIf="student.status">
             {{ statusLabels[student.status] }}
           </span>
         </p>
@@ -141,7 +141,7 @@
 
                   <dt class="col-sm-5">Status:</dt>
                   <dd class="col-sm-7">
-                    <span [class]="getStatusClass(student.status)">
+                    <span [class]="getStatusClass(student.status)" *ngIf="student.status">
                       {{ statusLabels[student.status] }}
                     </span>
                   </dd>

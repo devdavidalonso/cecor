@@ -1,7 +1,45 @@
+/**
+ * UserProfile - Catalog of user profiles
+ */
+export interface UserProfile {
+  id: number;
+  name: 'admin' | 'professor' | 'student';
+  description: string;
+}
+
+/**
+ * User - Updated with profileId as FK to user_profiles
+ */
 export interface User {
-    id: number;
-    name: string;
-    email: string;
-    roles: string[];
-    profile: string;
-  }   
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+  profileId: number; // ✅ Changed from 'profile' (string) to 'profileId' (number)
+  profile?: UserProfile; // ✅ New - relationship with UserProfile
+}
+
+/**
+ * User profile ID constants
+ */
+export const USER_PROFILES = {
+  ADMIN: 1,
+  PROFESSOR: 2,
+  STUDENT: 3,
+} as const;
+
+/**
+ * Get profile name by ID
+ */
+export function getProfileName(profileId: number): string {
+  switch (profileId) {
+    case USER_PROFILES.ADMIN:
+      return 'admin';
+    case USER_PROFILES.PROFESSOR:
+      return 'professor';
+    case USER_PROFILES.STUDENT:
+      return 'student';
+    default:
+      return 'unknown';
+  }
+}

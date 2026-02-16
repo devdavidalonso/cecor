@@ -215,8 +215,8 @@ func (r *studentRepository) Create(ctx context.Context, student *models.Student)
 
 	// Start transaction
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// Set profile as 'student'
-		student.User.Profile = "student"
+		// Set profile as 'student' (ProfileID = 3)
+		student.User.ProfileID = 3
 
 		// Create user first
 		if err := tx.Create(&student.User).Error; err != nil {

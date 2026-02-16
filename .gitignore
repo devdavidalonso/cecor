@@ -55,3 +55,6 @@ desktop.ini
 
 # Arquivos de dependências do backend
 .env
+
+# Documentação
+/.docs

@@ -24,12 +24,18 @@ type UserRepository interface {
 	// Delete performs a logical deletion of a user
 	Delete(ctx context.Context, id uint) error
 
-	// GetUserProfiles gets the profiles of a user
+	// GetUserProfiles gets the profiles of a user (legacy - returns profile by user ID)
 	GetUserProfiles(ctx context.Context, userID uint) ([]models.UserProfile, error)
+
+	// FindProfileByID finds a profile by ID
+	FindProfileByID(ctx context.Context, id uint) (*models.UserProfile, error)
 
 	// UpdateLastLogin updates the last login date
 	UpdateLastLogin(ctx context.Context, id uint, timestamp time.Time) error
 
-	// FindByProfile finds users by profile
+	// FindByProfile finds users by profile name (legacy)
 	FindByProfile(ctx context.Context, profile string) ([]models.User, error)
+
+	// FindByProfileID finds users by profile ID
+	FindByProfileID(ctx context.Context, profileID uint) ([]models.User, error)
 }

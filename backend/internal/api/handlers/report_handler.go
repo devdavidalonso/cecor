@@ -6,15 +6,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/devdavidalonso/cecor/backend/internal/service/relatorios"
+	"github.com/devdavidalonso/cecor/backend/internal/service/reports"
 	"github.com/go-chi/chi/v5"
 )
 
 type ReportHandler struct {
-	service relatorios.Service
+	service reports.Service
 }
 
-func NewReportHandler(service relatorios.Service) *ReportHandler {
+func NewReportHandler(service reports.Service) *ReportHandler {
 	return &ReportHandler{service: service}
 }
 

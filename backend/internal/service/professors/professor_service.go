@@ -42,8 +42,8 @@ func (s *professorService) CreateProfessor(ctx context.Context, professor *model
 		return fmt.Errorf("name and email are required")
 	}
 
-	// Set profile
-	professor.Profile = "teacher"
+	// Set profile as 'professor' (ProfileID = 2)
+	professor.ProfileID = 2
 	professor.Active = true
 
 	// Check if user already exists
@@ -116,7 +116,7 @@ func (s *professorService) CreateProfessor(ctx context.Context, professor *model
 
 // GetProfessors returns all professors
 func (s *professorService) GetProfessors(ctx context.Context) ([]models.User, error) {
-	return s.userRepo.FindByProfile(ctx, "teacher")
+	return s.userRepo.FindByProfileID(ctx, 2)
 }
 
 // GetProfessorByID returns a professor by ID
@@ -128,7 +128,7 @@ func (s *professorService) GetProfessorByID(ctx context.Context, id uint) (*mode
 	if user == nil {
 		return nil, fmt.Errorf("professor not found")
 	}
-	if user.Profile != "teacher" {
+	if user.ProfileID != 2 {
 		return nil, fmt.Errorf("user is not a professor")
 	}
 	return user, nil

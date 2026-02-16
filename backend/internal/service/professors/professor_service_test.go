@@ -101,8 +101,8 @@ func TestCreateProfessor(t *testing.T) {
 			t.Errorf("Expected professor ID to be set")
 		}
 
-		if professor.Profile != "teacher" {
-			t.Errorf("Expected profile to be 'teacher', got %s", professor.Profile)
+		if professor.ProfileID != 2 {
+			t.Errorf("Expected profile ID to be 2 (teacher), got %d", professor.ProfileID)
 		}
 
 		if !professor.Active {

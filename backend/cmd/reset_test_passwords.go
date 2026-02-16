@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	baseURL := "https://lar-sso-keycloak.hrbsys.tech"
+	baseURL := "http://localhost:8081"
 	client := gocloak.NewClient(baseURL)
 	ctx := context.Background()
 

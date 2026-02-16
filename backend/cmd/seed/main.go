@@ -39,53 +39,53 @@ func main() {
 
 	users := []models.User{
 		{
-			Name:     "Administrador",
-			Email:    "administrador@cecor.com",
-			Password: "password",
-			Profile:  "admin",
-			CPF:      "111.111.111-01",
+			Name:      "Administrador",
+			Email:     "administrador@cecor.com",
+			Password:  "password",
+			ProfileID: 1, // admin
+			CPF:       "111.111.111-01",
 		},
 		{
-			Name:     "Gestor",
-			Email:    "gestor@cecor.com",
-			Password: "password",
-			Profile:  "manager",
-			CPF:      "111.111.111-02",
+			Name:      "Gestor",
+			Email:     "gestor@cecor.com",
+			Password:  "password",
+			ProfileID: 1, // manager -> admin
+			CPF:       "111.111.111-02",
 		},
 		{
-			Name:     "Professor",
-			Email:    "professor@cecor.com",
-			Password: "password",
-			Profile:  "teacher",
-			CPF:      "111.111.111-03",
+			Name:      "Professor",
+			Email:     "professor@cecor.com",
+			Password:  "password",
+			ProfileID: 2, // professor
+			CPF:       "111.111.111-03",
 		},
 		{
-			Name:     "Aluno",
-			Email:    "aluno@cecor.com",
-			Password: "password",
-			Profile:  "student",
-			CPF:      "111.111.111-04",
+			Name:      "Aluno",
+			Email:     "aluno@cecor.com",
+			Password:  "password",
+			ProfileID: 3, // student
+			CPF:       "111.111.111-04",
 		},
 		{
-			Name:     "Responsável",
-			Email:    "responsavel@cecor.com",
-			Password: "password",
-			Profile:  "guardian",
-			CPF:      "111.111.111-05",
+			Name:      "Responsável",
+			Email:     "responsavel@cecor.com",
+			Password:  "password",
+			ProfileID: 3, // guardian -> student
+			CPF:       "111.111.111-05",
 		},
 		{
-			Name:     "User",
-			Email:    "user@cecor.com",
-			Password: "password",
-			Profile:  "user",
-			CPF:      "111.111.111-06",
+			Name:      "User",
+			Email:     "user@cecor.com",
+			Password:  "password",
+			ProfileID: 3, // user -> student
+			CPF:       "111.111.111-06",
 		},
 		{
-			Name:     "Admin",
-			Email:    "admin@cecor.com",
-			Password: "admin",
-			Profile:  "admin",
-			CPF:      "111.111.111-07",
+			Name:      "Admin",
+			Email:     "admin@cecor.com",
+			Password:  "admin",
+			ProfileID: 1, // admin
+			CPF:       "111.111.111-07",
 		},
 	}
 

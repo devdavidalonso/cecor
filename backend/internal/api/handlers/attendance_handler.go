@@ -7,15 +7,15 @@ import (
 	"time"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
-	"github.com/devdavidalonso/cecor/backend/internal/service/presencas"
+	"github.com/devdavidalonso/cecor/backend/internal/service/attendance"
 	"github.com/go-chi/chi/v5"
 )
 
 type AttendanceHandler struct {
-	service presencas.Service
+	service attendance.Service
 }
 
-func NewAttendanceHandler(service presencas.Service) *AttendanceHandler {
+func NewAttendanceHandler(service attendance.Service) *AttendanceHandler {
 	return &AttendanceHandler{service: service}
 }
 

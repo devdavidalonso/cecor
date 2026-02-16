@@ -25,10 +25,10 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
 	"github.com/devdavidalonso/cecor/backend/internal/service"
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"    // Adicionar importação de courses
-	"github.com/devdavidalonso/cecor/backend/internal/service/matriculas" // Adicionar importação de matriculas
-	"github.com/devdavidalonso/cecor/backend/internal/service/presencas"  // Adicionar importação de presencas
+	"github.com/devdavidalonso/cecor/backend/internal/service/enrollments" // Adicionar importação de enrollments
+	"github.com/devdavidalonso/cecor/backend/internal/service/attendance"  // Adicionar importação de attendance
 	"github.com/devdavidalonso/cecor/backend/internal/service/professors" // Adicionar importação de professors
-	"github.com/devdavidalonso/cecor/backend/internal/service/relatorios" // Adicionar importação de relatorios
+	"github.com/devdavidalonso/cecor/backend/internal/service/reports" // Adicionar importação de reports
 	"github.com/devdavidalonso/cecor/backend/internal/service/students"   // Adicionar importação de students
 	"github.com/devdavidalonso/cecor/backend/internal/service/users"      // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
@@ -109,9 +109,9 @@ func main() {
 	userService := users.NewUserService(userRepo)                                            // Adicionar o serviço de usuários
 	professorService := professors.NewService(userRepo, keycloakService, emailService)       // Adicionar serviço de professores/
 	courseService := courses.NewService(courseRepo)                                          // Adicionar serviço de cursos
-	enrollmentService := matriculas.NewService(enrollmentRepo)                               // Adicionar serviço de matrículas
-	attendanceService := presencas.NewService(attendanceRepo)                                // Adicionar serviço de presenças
-	reportService := relatorios.NewService(reportRepo)                                       // Adicionar serviço de relatórios
+	enrollmentService := enrollments.NewService(enrollmentRepo)                               // Adicionar serviço de matrículas
+	attendanceService := attendance.NewService(attendanceRepo)                                // Adicionar serviço de presenças
+	reportService := reports.NewService(reportRepo)                                       // Adicionar serviço de relatórios
 
 	// Initialize SSO Config
 	ssoConfig := auth.NewSSOConfig(cfg)

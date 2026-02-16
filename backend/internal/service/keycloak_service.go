@@ -23,7 +23,7 @@ type KeycloakService struct {
 func NewKeycloakService() *KeycloakService {
 	baseURL := os.Getenv("KEYCLOAK_ADMIN_URL")
 	if baseURL == "" {
-		baseURL = "https://lar-sso-keycloak.hrbsys.tech"
+		baseURL = "http://localhost:8081"
 	}
 
 	return &KeycloakService{

@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
-import { Student, Guardian } from '@core/models/student.model';
+import { Student, Guardian, CreateStudentRequest, UpdateStudentRequest } from '@core/models/student.model';
 import { PaginatedResponse } from '@core/models/common.model';
 
 export interface StudentFilters {
@@ -45,11 +45,11 @@ export class StudentService {
     return this.http.get<Student>(`${this.API_URL}/${id}`);
   }
 
-  createStudent(student: any): Observable<Student> {
+  createStudent(student: CreateStudentRequest): Observable<Student> {
     return this.http.post<Student>(this.API_URL, student);
   }
 
-  updateStudent(id: number, student: Partial<Student>): Observable<Student> {
+  updateStudent(id: number, student: UpdateStudentRequest): Observable<Student> {
     return this.http.put<Student>(`${this.API_URL}/${id}`, student);
   }
 

@@ -48,13 +48,12 @@ func (s *userService) Authenticate(ctx context.Context, email, password string) 
 	// 	return nil, fmt.Errorf("incorrect password")
 	// }
 
-	// Load user profiles
-	profiles, err := s.userRepo.GetUserProfiles(ctx, user.ID)
+	// Load user profile relationship
+	profile, err := s.userRepo.FindProfileByID(ctx, user.ProfileID)
 	if err != nil {
-		return nil, fmt.Errorf("error loading profiles: %w", err)
+		return nil, fmt.Errorf("error loading profile: %w", err)
 	}
-
-	user.Profile = fmt.Sprintf("%v", profiles) // Convert profiles to a string representation
+	user.Profile = *profile
 
 	return user, nil
 }
@@ -70,13 +69,12 @@ func (s *userService) GetUserByID(ctx context.Context, id uint) (*models.User, e
 		return nil, fmt.Errorf("user not found")
 	}
 
-	// Load user profiles
-	profiles, err := s.userRepo.GetUserProfiles(ctx, user.ID)
+	// Load user profile relationship
+	profile, err := s.userRepo.FindProfileByID(ctx, user.ProfileID)
 	if err != nil {
-		return nil, fmt.Errorf("error loading profiles: %w", err)
+		return nil, fmt.Errorf("error loading profile: %w", err)
 	}
-
-	user.Profile = fmt.Sprintf("%v", profiles) // Convert profiles to a string representation
+	user.Profile = *profile
 
 	return user, nil
 }
@@ -92,13 +90,12 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (*models
 		return nil, fmt.Errorf("user not found")
 	}
 
-	// Load user profiles
-	profiles, err := s.userRepo.GetUserProfiles(ctx, user.ID)
+	// Load user profile relationship
+	profile, err := s.userRepo.FindProfileByID(ctx, user.ProfileID)
 	if err != nil {
-		return nil, fmt.Errorf("error loading profiles: %w", err)
+		return nil, fmt.Errorf("error loading profile: %w", err)
 	}
-
-	user.Profile = fmt.Sprintf("%v", profiles) // Convert profiles to a string representation
+	user.Profile = *profile
 
 	return user, nil
 }
@@ -219,6 +216,13 @@ func (s *userService) UpdateLastLogin(ctx context.Context, id uint) error {
 	return nil
 }
 
+// Profile name to ID mapping
+const (
+	ProfileAdmin     = 1
+	ProfileProfessor = 2
+	ProfileStudent   = 3
+)
+
 // FindOrCreateByEmail finds a user by email or creates a new one
 func (s *userService) FindOrCreateByEmail(ctx context.Context, email, name, profile string) (*models.User, error) {
 	user, err := s.userRepo.FindByEmail(ctx, email)
@@ -226,28 +230,28 @@ func (s *userService) FindOrCreateByEmail(ctx context.Context, email, name, prof
 		return nil, fmt.Errorf("error finding user: %w", err)
 	}
 
-	// Map Keycloak profiles to local profiles
-	var localProfile string
+	// Map Keycloak profiles to local profile IDs
+	var localProfileID uint
 	switch profile {
 	case "Administrador", "admin":
-		localProfile = "admin"
+		localProfileID = ProfileAdmin
 	case "Gestor":
-		localProfile = "manager"
+		localProfileID = ProfileAdmin // Manager treated as admin for now
 	case "Professor":
-		localProfile = "teacher"
+		localProfileID = ProfileProfessor
 	case "Aluno":
-		localProfile = "student"
+		localProfileID = ProfileStudent
 	case "Responsável":
-		localProfile = "guardian"
+		localProfileID = ProfileStudent // Guardian treated as student for now
 	default:
-		localProfile = "user"
+		localProfileID = ProfileStudent
 	}
 
 	if user != nil {
 		// Update user info if changed
-		if user.Name != name || user.Profile != localProfile {
+		if user.Name != name || user.ProfileID != localProfileID {
 			user.Name = name
-			user.Profile = localProfile
+			user.ProfileID = localProfileID
 			if err := s.userRepo.Update(ctx, user); err != nil {
 				return nil, fmt.Errorf("error updating user info from SSO: %w", err)
 			}
@@ -257,11 +261,11 @@ func (s *userService) FindOrCreateByEmail(ctx context.Context, email, name, prof
 
 	// Create new user
 	newUser := &models.User{
-		Email:    email,
-		Name:     name,
-		Password: "", // No password for SSO users
-		Profile:  localProfile,
-		Active:   true,
+		Email:     email,
+		Name:      name,
+		Password:  "", // No password for SSO users
+		ProfileID: localProfileID,
+		Active:    true,
 	}
 
 	if err := s.userRepo.Create(ctx, newUser); err != nil {

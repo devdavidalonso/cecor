@@ -37,7 +37,7 @@ func (Course) TableName() string {
 // TeacherCourse represents the association between a teacher and a course
 type TeacherCourse struct {
 	ID        uint       `json:"id" gorm:"primaryKey"`
-	UserID    uint       `json:"userId" gorm:"not null;index"` // Teacher's user ID
+	TeacherID uint       `json:"teacherId" gorm:"not null;index"` // References teachers.id
 	CourseID  uint       `json:"courseId" gorm:"not null;index"`
 	Role      string     `json:"role" gorm:"not null"` // primary, assistant, substitute
 	StartDate time.Time  `json:"startDate" gorm:"not null"`
@@ -45,6 +45,10 @@ type TeacherCourse struct {
 	Active    bool       `json:"active" gorm:"default:true"`
 	CreatedAt time.Time  `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt time.Time  `json:"updatedAt" gorm:"autoUpdateTime"`
+
+	// Associations
+	Teacher Teacher `json:"teacher,omitempty" gorm:"foreignKey:TeacherID"`
+	Course  Course  `json:"course,omitempty" gorm:"foreignKey:CourseID"`
 }
 
 // TableName defines the table name in the database

@@ -1,0 +1,85 @@
+# Docker Compose - CECOR Staging
+# Usa Keycloak do projeto lar-sso (localhost:8081)
+# Preserva banco de dados PostgreSQL
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: cecor-postgres
+    environment:
+      POSTGRES_USER: cecor
+      POSTGRES_PASSWORD: cecor123
+      POSTGRES_DB: cecor_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./backend/scripts/postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      app-network:
+        ipv4_address: 172.19.0.3
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cecor -d cecor_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cecor-backend
+    ports:
+      - "8082:8080"
+      - "40000:40000"
+    env_file:
+      - ./backend/.env.docker.staging
+    security_opt:
+      - "seccomp:unconfined"
+    cap_add:
+      - SYS_PTRACE
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      app-network:
+        ipv4_address: 172.19.0.2
+      # Conecta na rede do lar-sso para acessar Keycloak pelo nome
+      lar-sso-network:
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    environment:
+      - DOCKER_HOST_IP=172.17.0.1
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cecor-frontend
+    ports:
+      - "4201:80"
+    depends_on:
+      - backend
+    extra_hosts:
+      - "backend:172.19.0.2"
+    networks:
+      app-network:
+        ipv4_address: 172.19.0.7
+
+volumes:
+  postgres-data:
+    # Preserva o volume existente
+    external: false
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
+          gateway: 172.19.0.1
+  
+  # Rede externa do lar-sso para acessar Keycloak
+  lar-sso-network:
+    external: true
+    name: lar-sso_sso-network
