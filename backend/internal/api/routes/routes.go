@@ -10,7 +10,7 @@ import (
 )
 
 // Register configura todas as rotas da API
-func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler, courseHandler *handlers.CourseHandler, enrollmentHandler *handlers.EnrollmentHandler, attendanceHandler *handlers.AttendanceHandler, reportHandler *handlers.ReportHandler, professorHandler *handlers.ProfessorHandler) {
+func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandler, courseHandler *handlers.CourseHandler, enrollmentHandler *handlers.EnrollmentHandler, attendanceHandler *handlers.AttendanceHandler, reportHandler *handlers.ReportHandler, teacherHandler *handlers.TeacherHandler) {
 	// Rota de saúde para verificação do servidor
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -115,11 +115,11 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 			// Professores (novo)
 			r.Route("/professores", func(r chi.Router) {
 				// r.Use(middleware.RequireAdmin) // Idealmente restrito a admins
-				r.Post("/", professorHandler.CreateProfessor)
-				r.Get("/", professorHandler.GetProfessors)
-				r.Get("/{id}", professorHandler.GetProfessorByID)
-				r.Put("/{id}", professorHandler.UpdateProfessor)
-				r.Delete("/{id}", professorHandler.DeleteProfessor)
+				r.Post("/", teacherHandler.CreateProfessor)
+				r.Get("/", teacherHandler.GetProfessors)
+				r.Get("/{id}", teacherHandler.GetProfessorByID)
+				r.Put("/{id}", teacherHandler.UpdateProfessor)
+				r.Delete("/{id}", teacherHandler.DeleteProfessor)
 			})
 		})
 	})

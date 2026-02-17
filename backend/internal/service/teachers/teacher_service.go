@@ -1,4 +1,4 @@
-package professors
+package teachers
 
 import (
 	"context"
@@ -7,7 +7,8 @@ import (
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository"
-	"github.com/devdavidalonso/cecor/backend/internal/service"
+	"github.com/devdavidalonso/cecor/backend/internal/service/email"
+	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
 )
 
 // Service defines the professor service interface
@@ -22,12 +23,12 @@ type Service interface {
 // professorService implements the Service interface
 type professorService struct {
 	userRepo repository.UserRepository
-	keycloak *service.KeycloakService
-	email    *service.EmailService
+	keycloak *keycloak.KeycloakService
+	email    *email.EmailService
 }
 
 // NewService creates a new instance of professorService
-func NewService(userRepo repository.UserRepository, keycloak *service.KeycloakService, email *service.EmailService) Service {
+func NewService(userRepo repository.UserRepository, keycloak *keycloak.KeycloakService, email *email.EmailService) Service {
 	return &professorService{
 		userRepo: userRepo,
 		keycloak: keycloak,
@@ -77,7 +78,7 @@ func (s *professorService) CreateProfessor(ctx context.Context, professor *model
 			lastName = strings.Join(nameParts[1:], " ")
 		}
 
-		req := service.CreateUserRequest{
+		req := keycloak.CreateUserRequest{
 			Username:      professor.Email,
 			Email:         professor.Email,
 			FirstName:     firstName,

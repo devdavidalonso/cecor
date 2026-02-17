@@ -23,11 +23,12 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
-	"github.com/devdavidalonso/cecor/backend/internal/service"
+	"github.com/devdavidalonso/cecor/backend/internal/service/email"
+	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"    // Adicionar importação de courses
 	"github.com/devdavidalonso/cecor/backend/internal/service/enrollments" // Adicionar importação de enrollments
 	"github.com/devdavidalonso/cecor/backend/internal/service/attendance"  // Adicionar importação de attendance
-	"github.com/devdavidalonso/cecor/backend/internal/service/professors" // Adicionar importação de professors
+	"github.com/devdavidalonso/cecor/backend/internal/service/teachers" // Adicionar importação de professors
 	"github.com/devdavidalonso/cecor/backend/internal/service/reports" // Adicionar importação de reports
 	"github.com/devdavidalonso/cecor/backend/internal/service/students"   // Adicionar importação de students
 	"github.com/devdavidalonso/cecor/backend/internal/service/users"      // Adicionar esta importação
@@ -103,11 +104,11 @@ func main() {
 	reportRepo := postgres.NewReportRepository(db)         // Adicionar repositório de relatórios
 
 	// Initialize services
-	keycloakService := service.NewKeycloakService()                                          // Inicializar Keycloak service
-	emailService := service.NewEmailService()                                                // Inicializar Email service
+	keycloakService := keycloak.NewKeycloakService()                                          // Inicializar keycloak service
+	emailService := email.NewEmailService()                                                // Inicializar email service
 	studentService := students.NewStudentService(studentRepo, keycloakService, emailService) // Inicializar student service com Keycloak e Email
 	userService := users.NewUserService(userRepo)                                            // Adicionar o serviço de usuários
-	professorService := professors.NewService(userRepo, keycloakService, emailService)       // Adicionar serviço de professores/
+	teacherService := teachers.NewService(userRepo, keycloakService, emailService)       // Adicionar serviço de teachers/
 	courseService := courses.NewService(courseRepo)                                          // Adicionar serviço de cursos
 	enrollmentService := enrollments.NewService(enrollmentRepo)                               // Adicionar serviço de matrículas
 	attendanceService := attendance.NewService(attendanceRepo)                                // Adicionar serviço de presenças
@@ -119,7 +120,7 @@ func main() {
 	// Initialize handlers
 	studentHandler := handlers.NewStudentHandler(studentService)
 	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig)        // Adicionar o handler de autenticação
-	professorHandler := handlers.NewProfessorHandler(professorService)         // Adicionar handler de professores
+	teacherHandler := handlers.NewTeacherHandler(teacherService)         // Adicionar handler de professores
 	courseHandler := handlers.NewCourseHandler(courseService, keycloakService) // Adicionar handler de cursos
 	enrollmentHandler := handlers.NewEnrollmentHandler(enrollmentService)      // Adicionar handler de matrículas
 	attendanceHandler := handlers.NewAttendanceHandler(attendanceService)      // Adicionar handler de presenças
@@ -154,7 +155,7 @@ func main() {
 	})
 
 	// Registrar todas as rotas, incluindo autenticação
-	routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler, reportHandler, professorHandler)
+	routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler, reportHandler, teacherHandler)
 
 	// ROTA DE TESTE TEMPORÁRIA - SEM AUTENTICAÇÃO (remover após testes)
 	r.Route("/api/v1/test/students", func(r chi.Router) {

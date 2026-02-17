@@ -8,23 +8,23 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
-	"github.com/devdavidalonso/cecor/backend/internal/service/professors"
+	"github.com/devdavidalonso/cecor/backend/internal/service/teachers"
 )
 
-// ProfessorHandler handles HTTP requests for professors
-type ProfessorHandler struct {
-	service professors.Service
+// TeacherHandler handles HTTP requests for teachers
+type TeacherHandler struct {
+	service teachers.Service
 }
 
-// NewProfessorHandler creates a new instance of ProfessorHandler
-func NewProfessorHandler(service professors.Service) *ProfessorHandler {
-	return &ProfessorHandler{
+// NewTeacherHandler creates a new instance of TeacherHandler
+func NewTeacherHandler(service teachers.Service) *TeacherHandler {
+	return &TeacherHandler{
 		service: service,
 	}
 }
 
 // CreateProfessor handles the creation of a new professor
-func (h *ProfessorHandler) CreateProfessor(w http.ResponseWriter, r *http.Request) {
+func (h *TeacherHandler) CreateProfessor(w http.ResponseWriter, r *http.Request) {
 	var professor models.User
 	if err := json.NewDecoder(r.Body).Decode(&professor); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -42,7 +42,7 @@ func (h *ProfessorHandler) CreateProfessor(w http.ResponseWriter, r *http.Reques
 }
 
 // GetProfessors handles the retrieval of all professors
-func (h *ProfessorHandler) GetProfessors(w http.ResponseWriter, r *http.Request) {
+func (h *TeacherHandler) GetProfessors(w http.ResponseWriter, r *http.Request) {
 	professors, err := h.service.GetProfessors(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -54,7 +54,7 @@ func (h *ProfessorHandler) GetProfessors(w http.ResponseWriter, r *http.Request)
 }
 
 // GetProfessorByID handles the retrieval of a professor by ID
-func (h *ProfessorHandler) GetProfessorByID(w http.ResponseWriter, r *http.Request) {
+func (h *TeacherHandler) GetProfessorByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -73,7 +73,7 @@ func (h *ProfessorHandler) GetProfessorByID(w http.ResponseWriter, r *http.Reque
 }
 
 // UpdateProfessor handles the update of a professor
-func (h *ProfessorHandler) UpdateProfessor(w http.ResponseWriter, r *http.Request) {
+func (h *TeacherHandler) UpdateProfessor(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -99,7 +99,7 @@ func (h *ProfessorHandler) UpdateProfessor(w http.ResponseWriter, r *http.Reques
 }
 
 // DeleteProfessor handles the deletion of a professor
-func (h *ProfessorHandler) DeleteProfessor(w http.ResponseWriter, r *http.Request) {
+func (h *TeacherHandler) DeleteProfessor(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

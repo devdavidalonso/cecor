@@ -1,4 +1,4 @@
-package professors
+package teachers
 
 import (
 	"context"

@@ -6,17 +6,17 @@ import (
 	"strconv"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
-	"github.com/devdavidalonso/cecor/backend/internal/service"
+	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"
 	"github.com/go-chi/chi/v5"
 )
 
 type CourseHandler struct {
 	service         courses.Service
-	keycloakService *service.KeycloakService
+	keycloakService *keycloak.KeycloakService
 }
 
-func NewCourseHandler(service courses.Service, keycloakService *service.KeycloakService) *CourseHandler {
+func NewCourseHandler(service courses.Service, keycloakService *keycloak.KeycloakService) *CourseHandler {
 	return &CourseHandler{
 		service:         service,
 		keycloakService: keycloakService,

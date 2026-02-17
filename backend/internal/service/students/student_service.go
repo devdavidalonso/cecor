@@ -7,18 +7,19 @@ import (
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository"
-	"github.com/devdavidalonso/cecor/backend/internal/service"
+	"github.com/devdavidalonso/cecor/backend/internal/service/email"
+	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
 )
 
 // studentService implements the Service interface
 type studentService struct {
 	studentRepo repository.StudentRepository
-	keycloak    *service.KeycloakService
-	email       *service.EmailService
+	keycloak    *keycloak.KeycloakService
+	email       *email.EmailService
 }
 
 // NewStudentService creates a new instance of studentService
-func NewStudentService(studentRepo repository.StudentRepository, keycloak *service.KeycloakService, email *service.EmailService) Service {
+func NewStudentService(studentRepo repository.StudentRepository, keycloak *keycloak.KeycloakService, email *email.EmailService) Service {
 	return &studentService{
 		studentRepo: studentRepo,
 		keycloak:    keycloak,
@@ -171,7 +172,7 @@ func (s *studentService) CreateStudent(ctx context.Context, student *models.Stud
 		}
 
 		// Create user in Keycloak
-		keycloakUserID, err := s.keycloak.CreateUser(ctx, service.CreateUserRequest{
+		keycloakUserID, err := s.keycloak.CreateUser(ctx, keycloak.CreateUserRequest{
 			Username:      student.User.Email,
 			Email:         student.User.Email,
 			FirstName:     firstName,
