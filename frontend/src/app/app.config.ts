@@ -1,10 +1,12 @@
 // src/app/app.config.ts
 import { ApplicationConfig, isDevMode, APP_INITIALIZER } from '@angular/core';
-import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideOAuthClient } from 'angular-oauth2-oidc';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -28,13 +30,22 @@ export function initializeSso(ssoService: SsoService) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes), // Remove withEnabledBlockingInitialNavigation to let SSO process URL first
+    provideRouter(routes),
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
     provideOAuthClient(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
+    }),
+    // Configuração do TranslateModule (i18n)
+    provideTranslateService({
+      defaultLanguage: 'pt-BR',
+      useDefaultLang: true
+    }),
+    provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: '.json'
     }),
     {
       provide: HTTP_INTERCEPTORS,
