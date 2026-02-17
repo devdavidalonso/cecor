@@ -447,4 +447,68 @@ Após implementar todas as otimizações:
 
 ---
 
+## 🏗️ Estratégias de Lista e Busca
+
+### Server-Side Pagination + Search
+
+Para entidades grandes (students, enrollments, attendance):
+
+```typescript
+// ✅ Server-side search com debounce
+searchControl = new FormControl('');
+
+ngOnInit() {
+  this.searchControl.valueChanges
+    .pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    )
+    .subscribe(term => this.loadStudents(1, term));
+}
+
+loadStudents(page = 1, searchTerm = '') {
+  const filters = searchTerm ? { name: searchTerm } : {};
+  this.service.getStudents(page, 25, filters)
+    .subscribe(response => {
+      this.data = response.data;
+      this.totalCount = response.totalItems;
+    });
+}
+```
+
+### Matriz de Decisão
+
+| Entidade | Volume | Strategy | Virtual Scroll |
+|----------|--------|----------|----------------|
+| Students | 1000+ | Server-side + Search | ✅ Yes |
+| Teachers | 50-100 | Server-side | ❌ No |
+| Courses | 20-50 | Load All | ❌ No |
+| Enrollments | 5000+ | Server-side + Search | ✅ Yes |
+| Attendance | 10000+ | Server-side + Date Filter | ✅ Yes |
+
+Veja análise completa: [docs/ARCHITECTURE_PERFORMANCE_ANALYSIS.md](../../../docs/ARCHITECTURE_PERFORMANCE_ANALYSIS.md)
+
+---
+
+## 🔄 Angular Version Upgrade
+
+### ⚠️ IMPORTANTE: Angular 21 NÃO EXISTE
+
+- Angular 17: Atual (LTS até Mai/2025)
+- Angular 18: LTS disponível
+- Angular 19: Em desenvolvimento (LTS Nov/2025)
+- Angular 20/21: **NÃO EXISTEM**
+
+### Recomendação
+
+```
+17 (atual) → 18 (LTS) → 19 (LTS Nov/2025)
+```
+
+**NÃO atualizar para versão inexistente!**
+
+Veja análise completa: [docs/ARCHITECTURE_PERFORMANCE_ANALYSIS.md](../../../docs/ARCHITECTURE_PERFORMANCE_ANALYSIS.md)
+
+---
+
 *Documento baseado na análise do projeto CECOR - 2025-02-16*

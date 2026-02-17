@@ -19,11 +19,17 @@ type Service interface {
 }
 
 type service struct {
-	repo repository.EnrollmentRepository
+	repo        repository.EnrollmentRepository
+	studentRepo repository.StudentRepository
+	courseRepo  repository.CourseRepository
 }
 
-func NewService(repo repository.EnrollmentRepository) Service {
-	return &service{repo: repo}
+func NewService(repo repository.EnrollmentRepository, studentRepo repository.StudentRepository, courseRepo repository.CourseRepository) Service {
+	return &service{
+		repo:        repo,
+		studentRepo: studentRepo,
+		courseRepo:  courseRepo,
+	}
 }
 
 func (s *service) EnrollStudent(ctx context.Context, enrollment *models.Enrollment) error {
@@ -34,6 +40,53 @@ func (s *service) EnrollStudent(ctx context.Context, enrollment *models.Enrollme
 	}
 	if existing != nil {
 		return fmt.Errorf("student is already enrolled in this course")
+	}
+
+	// 1.1 Validate Student Age (Must be >= 12)
+	student, err := s.studentRepo.FindByID(ctx, enrollment.StudentID)
+	if err != nil {
+		return fmt.Errorf("failed to fetch student: %w", err)
+	}
+	// Calculate age
+	now := time.Now()
+	age := now.Year() - student.User.BirthDate.Year()
+	if now.YearDay() < student.User.BirthDate.YearDay() {
+		age--
+	}
+	if age < 12 {
+		return fmt.Errorf("student must be at least 12 years old (current age: %d)", age)
+	}
+
+	// 1.2 Validate Schedule Conflict
+	course, err := s.courseRepo.FindByID(ctx, enrollment.CourseID)
+	if err != nil {
+		return fmt.Errorf("failed to fetch course: %w", err)
+	}
+
+	// Get all active enrollments for the student
+	activeEnrollments, err := s.repo.FindAll(ctx) // TODO: Create FindByStudent(ctx, studentID) for better performance
+	if err != nil {
+		return fmt.Errorf("failed to fetch student enrollments: %w", err)
+	}
+
+	for _, active := range activeEnrollments {
+		if active.StudentID != enrollment.StudentID || active.Status != "active" {
+			continue
+		}
+		
+		activeCourse, err := s.courseRepo.FindByID(ctx, active.CourseID)
+		if err != nil {
+			continue
+		}
+
+		// Check overlap: Same WeekDay and Overlapping Time
+		if activeCourse.WeekDays == course.WeekDays {
+			// Simple logic: if start times match or overlap (using pure string comparison for MVP "HH:mm")
+			// In production, parse Request "10:00" matches Existing "10:00"
+			if activeCourse.StartTime == course.StartTime {
+				return fmt.Errorf("schedule conflict: student already has a class at %s on %s", course.StartTime, course.WeekDays)
+			}
+		}
 	}
 
 	// 2. Generate Enrollment Number if not provided

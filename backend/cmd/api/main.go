@@ -21,9 +21,11 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/api/routes"
 	"github.com/devdavidalonso/cecor/backend/internal/auth"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
+	"github.com/devdavidalonso/cecor/backend/internal/database" // Import database package
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
 	"github.com/devdavidalonso/cecor/backend/internal/service/email"
+	"github.com/devdavidalonso/cecor/backend/internal/service/interviews" // Import interviews service
 	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"    // Adicionar importação de courses
 	"github.com/devdavidalonso/cecor/backend/internal/service/enrollments" // Adicionar importação de enrollments
@@ -95,6 +97,18 @@ func main() {
 	// Atualizar senha do usuário de teste
 	updateUserPassword(db, "maria.silva@cecor.org", "cecor2024!")
 
+	// Initialize MongoDB
+	mongoClient, err := database.InitMongoDB(cfg)
+	if err != nil {
+		appLogger.Fatal("Failed to connect to MongoDB", "error", err)
+	}
+	defer func() {
+		if err := mongoClient.Disconnect(context.Background()); err != nil {
+			appLogger.Error("Failed to disconnect MongoDB", "error", err)
+		}
+	}()
+	appLogger.Info("Connected to MongoDB successfully")
+
 	// Initialize repositories
 	studentRepo := postgres.NewStudentRepository(db)
 	userRepo := postgres.NewUserRepository(db)             // Adicionar o repositório de usuários
@@ -110,9 +124,10 @@ func main() {
 	userService := users.NewUserService(userRepo)                                            // Adicionar o serviço de usuários
 	teacherService := teachers.NewService(userRepo, keycloakService, emailService)       // Adicionar serviço de teachers/
 	courseService := courses.NewService(courseRepo)                                          // Adicionar serviço de cursos
-	enrollmentService := enrollments.NewService(enrollmentRepo)                               // Adicionar serviço de matrículas
+	enrollmentService := enrollments.NewService(enrollmentRepo, studentRepo, courseRepo) // Updated with dependencies
 	attendanceService := attendance.NewService(attendanceRepo)                                // Adicionar serviço de presenças
 	reportService := reports.NewService(reportRepo)                                       // Adicionar serviço de relatórios
+	interviewService := interviews.NewService()                                           // Inicializar serviço de entrevistas (MongoDB)
 
 	// Initialize SSO Config
 	ssoConfig := auth.NewSSOConfig(cfg)
@@ -125,6 +140,7 @@ func main() {
 	enrollmentHandler := handlers.NewEnrollmentHandler(enrollmentService)      // Adicionar handler de matrículas
 	attendanceHandler := handlers.NewAttendanceHandler(attendanceService)      // Adicionar handler de presenças
 	reportHandler := handlers.NewReportHandler(reportService)                  // Adicionar handler de relatórios
+	interviewHandler := handlers.NewInterviewHandler(interviewService)         // Adicionar handler de entrevistas
 
 	// Create router
 	r := chi.NewRouter()
@@ -156,6 +172,12 @@ func main() {
 
 	// Registrar todas as rotas, incluindo autenticação
 	routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler, reportHandler, teacherHandler)
+
+	// Rotas Públicas/Protegidas de Entrevista
+	r.Route("/api/v1/interviews", func(r chi.Router) {
+		// TODO: Adicionar middleware de auth quando disponível no contexto
+		interviewHandler.RegisterRoutes(r)
+	})
 
 	// ROTA DE TESTE TEMPORÁRIA - SEM AUTENTICAÇÃO (remover após testes)
 	r.Route("/api/v1/test/students", func(r chi.Router) {

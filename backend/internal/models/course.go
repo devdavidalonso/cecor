@@ -12,6 +12,7 @@ type Course struct {
 	CoverImage          string     `json:"coverImage"` // URL to course banner
 	DetailedDescription string     `json:"detailedDescription" gorm:"type:text"`
 	Workload            int        `json:"workload" gorm:"not null"`
+	GoogleClassroomURL  string     `json:"googleClassroomUrl"` // Link para a turma no Google Classroom
 	MaxStudents         int        `json:"maxStudents" gorm:"not null"`
 	Prerequisites       string     `json:"prerequisites"`
 	DifficultyLevel     string     `json:"difficultyLevel"`
