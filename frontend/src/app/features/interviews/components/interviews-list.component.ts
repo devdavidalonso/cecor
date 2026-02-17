@@ -1,11 +1,11 @@
-// src/app/features/entrevistas/components/entrevistas-list.component.ts
+// src/app/features/interviews/components/interviews-list.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-entrevistas-list',
+  selector: 'app-interviews-list',
   standalone: true,
   imports: [CommonModule],
   template: `<h2>Lista de Entrevistas</h2><p>Em desenvolvimento</p>`,
 })
-export class EntrevistasListComponent {}
+export class InterviewsListComponent {}

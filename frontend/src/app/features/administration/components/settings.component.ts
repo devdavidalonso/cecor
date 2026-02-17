@@ -1,11 +1,11 @@
-// src/app/features/administracao/components/configuracoes.component.ts
+// src/app/features/administration/components/settings.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-configuracoes',
+  selector: 'app-settings',
   standalone: true,
   imports: [CommonModule],
   template: `<h2>Configurações</h2><p>Em desenvolvimento</p>`,
 })
-export class ConfiguracoesComponent {}
+export class SettingsComponent {}

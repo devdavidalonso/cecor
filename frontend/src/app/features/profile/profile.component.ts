@@ -1,4 +1,4 @@
-// src/app/features/perfil/perfil.component.ts
+// src/app/features/profile/profile.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -19,7 +19,7 @@ import { User } from '../../core/models/user.model';
 import { finalize } from 'rxjs';
 
 @Component({
-  selector: 'app-perfil',
+  selector: 'app-profile',
   standalone: true,
   imports: [
     CommonModule,
@@ -331,7 +331,7 @@ import { finalize } from 'rxjs';
     }
   `]
 })
-export class PerfilComponent implements OnInit {
+export class ProfileComponent implements OnInit {
   currentUser: User | null = null;
   photoUrl: string | null = null;
   

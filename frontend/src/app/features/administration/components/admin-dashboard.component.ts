@@ -1,4 +1,4 @@
-// src/app/features/administracao/components/admin-dashboard.component.ts
+// src/app/features/administration/components/admin-dashboard.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
