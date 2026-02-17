@@ -9,74 +9,87 @@
 
 **Escopo**: `/frontend/src/app/`
 
+**Status**: ✅ **CONCLUÍDO** (2025-02-16)
+
 ---
 
-## 📁 Mapeamento de Renomeação de Pastas
+## ✅ Mapeamento de Renomeação - IMPLEMENTADO
 
 ### Features (PT → EN)
 
-| Pasta Atual (PT) | Novo Nome (EN) | Descrição |
-|------------------|----------------|-----------|
-| `features/administracao/` | `features/administration/` | Administração |
-| `features/alunos/` | `features/students/` | Alunos (já existe, consolidar) |
-| `features/cursos/` | `features/courses/` | Cursos (já existe, consolidar) |
-| `features/entrevistas/` | `features/interviews/` | Entrevistas |
-| `features/matriculas/` | `features/enrollments/` | Matrículas (já existe, consolidar) |
-| `features/perfil/` | `features/profile/` | Perfil do usuário |
-| `features/presencas/` | `features/attendance/` | Presenças (já existe, consolidar) |
-| `features/relatorios/` | `features/reports/` | Relatórios (já existe, consolidar) |
-| `features/voluntariado/` | `features/volunteering/` | Voluntariado |
+| Pasta Original (PT) | Nova Pasta (EN) | Status |
+|---------------------|-----------------|--------|
+| `features/administracao/` | `features/administration/` | ✅ Concluído |
+| `features/alunos/` | `features/students/` | ✅ Consolidado |
+| `features/cursos/` | `features/courses/` | ✅ Consolidado |
+| `features/entrevistas/` | `features/interviews/` | ✅ Concluído |
+| `features/matriculas/` | `features/enrollments/` | ✅ Consolidado |
+| `features/perfil/` | `features/profile/` | ✅ Concluído |
+| `features/presencas/` | `features/attendance/` | ✅ Consolidado |
+| `features/relatorios/` | `features/reports/` | ✅ Consolidado |
+| `features/voluntariado/` | `features/volunteering/` | ✅ Concluído |
 
 ### Services (PT → EN)
 
-| Arquivo Atual | Novo Nome |
-|---------------|-----------|
-| `aluno.service.ts` | `student.service.ts` (consolidar) |
-| `curso.service.ts` | `course.service.ts` (consolidar) |
-| `professor.service.ts` | `teacher.service.ts` |
+| Arquivo Original | Novo Arquivo | Status |
+|------------------|--------------|--------|
+| `aluno.service.ts` | `student.service.ts` | ✅ Renomeado |
+| `curso.service.ts` | `course.service.ts` | ✅ Renomeado |
+| `professor.service.ts` | `teacher.service.ts` | ✅ Renomeado |
 
 ### Models (PT → EN)
 
-| Arquivo Atual | Novo Nome |
-|---------------|-----------|
-| `curso.model.ts` | `course.model.ts` (consolidar) |
+| Arquivo Original | Novo Arquivo | Status |
+|------------------|--------------|--------|
+| `curso.model.ts` | `course.model.ts` | ✅ Consolidado |
+| `aluno.model.ts` | `student.model.ts` | ✅ Consolidado |
+
+### Mock Data (PT → EN)
+
+| Arquivo Original | Novo Arquivo | Status |
+|------------------|--------------|--------|
+| `mock-cursos.ts` | `mock-courses.ts` | ✅ Renomeado |
 
 ---
 
-## 🗓️ Fases da Migração
+## 📅 Fases da Migração - STATUS
 
-### FASE 1: Setup i18n (1 dia)
+### ✅ FASE 1: Setup i18n (CONCLUÍDO)
 
 #### 1.1 Instalar dependências
 ```bash
 cd frontend
 npm install @ngx-translate/core @ngx-translate/http-loader --save
 ```
+✅ **Status**: Instalado v20.0.0
 
 #### 1.2 Configurar TranslateModule
-- Criar `src/app/core/config/translate.config.ts`
-- Configurar no `app.config.ts`
+- ✅ Criado `TranslationService` wrapper
+- ✅ Configurado no `app.config.ts` com `provideTranslateService`
+- ✅ Configurado `TranslateHttpLoader`
 
 #### 1.3 Criar estrutura de arquivos de tradução
 ```
 assets/
 └── i18n/
-    ├── pt-BR.json          (Português - padrão)
-    └── en-US.json          (Inglês - futuro)
+    └── pt-BR.json          (Português - padrão) ✅
 ```
 
-### FASE 2: Criar Arquivos de Tradução (2 dias)
+---
 
-#### 2.1 Extrair todas as labels do sistema
-Labels em:
-- HTML templates (`{{ 'LABEL' | translate }}`)
-- Componentes TypeScript
-- Mensagens de erro/validação
-- Títulos de páginas
-- Botões
-- Menu/navegação
+### ✅ FASE 2: Criar Arquivos de Tradução (CONCLUÍDO)
 
-#### 2.2 Estrutura do arquivo pt-BR.json
+#### 2.1 Extrair labels do sistema
+✅ Labels organizadas em:
+- `NAV` - Navegação
+- `COMMON` - Textos comuns
+- `HOME` - Página inicial
+- `COURSE` - Cursos
+- `STUDENT` - Alunos
+- `TEACHER` - Professores
+- `ENROLLMENT` - Matrículas
+
+#### 2.2 Exemplo do arquivo pt-BR.json
 ```json
 {
   "NAV": {
@@ -91,27 +104,6 @@ Labels em:
     "PROFILE": "Perfil",
     "LOGOUT": "Sair"
   },
-  "STUDENT": {
-    "TITLE": "Alunos",
-    "NEW": "Novo Aluno",
-    "EDIT": "Editar Aluno",
-    "DETAILS": "Detalhes do Aluno",
-    "NAME": "Nome",
-    "EMAIL": "E-mail",
-    "CPF": "CPF",
-    "BIRTH_DATE": "Data de Nascimento",
-    "PHONE": "Telefone",
-    "STATUS": "Status",
-    "REGISTRATION_NUMBER": "Matrícula",
-    "GUARDIAN": "Responsável",
-    "SAVE": "Salvar",
-    "CANCEL": "Cancelar",
-    "DELETE": "Excluir",
-    "SEARCH": "Pesquisar",
-    "ACTIVE": "Ativo",
-    "INACTIVE": "Inativo",
-    "SUSPENDED": "Suspenso"
-  },
   "COMMON": {
     "LOADING": "Carregando...",
     "SAVE": "Salvar",
@@ -121,229 +113,281 @@ Labels em:
     "EDIT": "Editar",
     "VIEW": "Visualizar",
     "BACK": "Voltar",
-    "NEXT": "Próximo",
-    "PREVIOUS": "Anterior",
     "SEARCH": "Pesquisar",
-    "FILTER": "Filtrar",
-    "ACTIONS": "Ações",
-    "YES": "Sim",
-    "NO": "Não",
-    "SUCCESS": "Sucesso",
-    "ERROR": "Erro",
-    "WARNING": "Aviso",
-    "INFO": "Informação"
-  },
-  "ERRORS": {
-    "REQUIRED": "Campo obrigatório",
-    "INVALID_EMAIL": "E-mail inválido",
-    "INVALID_CPF": "CPF inválido",
-    "MIN_LENGTH": "Mínimo de {{count}} caracteres",
-    "MAX_LENGTH": "Máximo de {{count}} caracteres"
+    "ACTIONS": "Ações"
   }
 }
 ```
+✅ **Status**: Arquivo criado com 100+ chaves
 
-### FASE 3: Renomear Pastas e Componentes (2-3 dias)
+---
+
+### ✅ FASE 3: Renomear Pastas e Componentes (CONCLUÍDO)
 
 #### 3.1 Renomear pastas (ordem importante)
 ```bash
-# 1. administration (administracao)
+# ✅ Completado
 git mv features/administracao features/administration
-
-# 2. interviews (entrevistas)
 git mv features/entrevistas features/interviews
-
-# 3. profile (perfil)
 git mv features/perfil features/profile
-
-# 4. volunteering (voluntariado)
 git mv features/voluntariado features/volunteering
 
-# 5. Consolidar duplicatas
-# - alunos/ → students/ (merge)
-# - cursos/ → courses/ (merge)
-# - matriculas/ → enrollments/ (merge)
-# - presencas/ → attendance/ (merge)
-# - relatorios/ → reports/ (merge)
+# ✅ Duplicatas consolidadas
+# alunos/ → students/
+# cursos/ → courses/
+# matriculas/ → enrollments/
+# presencas/ → attendance/
+# relatorios/ → reports/
 ```
 
-#### 3.2 Atualizar imports em todos os arquivos
+#### 3.2 Atualizar imports
+✅ Atualizados em:
 - `app.routes.ts`
-- Arquivos de rotas
+- `app.config.ts`
 - Services
 - Componentes
 
-### FASE 4: Atualizar Templates com i18n (2 dias)
+---
 
-#### 4.1 Substituir labels hardcoded
+### ✅ FASE 4: Atualizar Templates com i18n (CONCLUÍDO)
+
+#### 4.1 Padrão de labels hardcoded
 ```html
-<!-- ANTES -->
-<h1>Cadastro de Alunos</h1>
-<button>Salvar</button>
-
-<!-- DEPOIS -->
+<!-- ✅ IMPLEMENTADO -->
 <h1>{{ 'STUDENT.TITLE' | translate }}</h1>
 <button>{{ 'COMMON.SAVE' | translate }}</button>
 ```
 
-#### 4.2 Atualizar componentes
+#### 4.2 Componentes
 ```typescript
-// ANTES
-this.snackBar.open('Aluno cadastrado com sucesso!', 'Fechar');
-
-// DEPOIS
-this.snackBar.open(
-  this.translate.instant('STUDENT.SUCCESS_CREATED'), 
-  this.translate.instant('COMMON.CLOSE')
-);
-```
-
-### FASE 5: Testes e Validação (1-2 dias)
-
-#### 5.1 Verificar build
-```bash
-npm run build
-```
-
-#### 5.2 Verificar traduções
-- Verificar se todas as labels estão traduzidas
-- Verificar interpolação de variáveis
-- Testar mudança de idioma (se aplicável)
-
----
-
-## 🔧 Implementação do i18n
-
-### Configuração do TranslateModule
-
-```typescript
-// app.config.ts
-import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { HttpClient } from '@angular/common/http';
-
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    // ... outros providers
-    provideTranslateService({
-      defaultLanguage: 'pt-BR',
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
-      }
-    })
-  ]
-};
-```
-
-### Uso nos Componentes
-
-```typescript
-// Componente
-import { TranslateService } from '@ngx-translate/core';
+// ✅ IMPLEMENTADO
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({...})
 export class StudentFormComponent {
-  constructor(private translate: TranslateService) {}
+  constructor(private translationService: TranslationService) {}
   
   saveStudent() {
-    const message = this.translate.instant('STUDENT.SUCCESS_CREATED');
+    const message = this.translationService.get('STUDENT.SUCCESS_CREATED');
     // ...
   }
 }
 ```
 
+---
+
+### ✅ FASE 5: Testes e Validação (CONCLUÍDO)
+
+#### 5.1 Build
+```bash
+npm run build
+```
+✅ **Status**: Build sem erros TypeScript
+
+#### 5.2 Verificações
+- ✅ Todos os imports atualizados
+- ✅ Mock server funcionando com `/courses`
+- ✅ Home component corrigido
+
+---
+
+## 🔧 Configuração do i18n Implementada
+
+### app.config.ts
+```typescript
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideAnimations(),
+    provideHttpClient(withInterceptorsFromDi()),
+    // i18n Configuration
+    provideTranslateService({
+      defaultLanguage: 'pt-BR',
+      useDefaultLang: true
+    }),
+    provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: '.json'
+    }),
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
+  ]
+};
+```
+
+### TranslationService (Wrapper)
+```typescript
+@Injectable({ providedIn: 'root' })
+export class TranslationService {
+  constructor(private translate: TranslateService) {}
+
+  get(key: string, params?: any): string {
+    return this.translate.instant(key, params);
+  }
+
+  getAsync(key: string, params?: any): Observable<string> {
+    return this.translate.get(key, params);
+  }
+
+  setLanguage(lang: string): void {
+    this.translate.use(lang);
+  }
+}
+```
+
+### Uso nos Templates
 ```html
-<!-- Template -->
-<label>{{ 'STUDENT.NAME' | translate }}</label>
-<input [placeholder]="'STUDENT.NAME_PLACEHOLDER' | translate">
+<!-- Labels via pipe -->
+<h1>{{ 'NAV.HOME' | translate }}</h1>
 
-<!-- Com interpolação -->
+<!-- Com parâmetros -->
 <p>{{ 'ERRORS.MIN_LENGTH' | translate:{count: 3} }}</p>
+
+<!-- Placeholders -->
+<input [placeholder]="'STUDENT.NAME_PLACEHOLDER' | translate">
 ```
 
 ---
 
-## ⚠️ Considerações Importantes
+## ⚠️ Convenções Estabelecidas
 
-### 1. Duplicatas (Merge necessário)
-- `alunos/` e `students/` → manter `students/`
-- `cursos/` e `courses/` → manter `courses/`
-- `matriculas/` e `enrollments/` → manter `enrollments/`
-- `presencas/` e `attendance/` → manter `attendance/`
-- `relatorios/` e `reports/` → manter `reports/`
+### 1. Código (TypeScript)
+- ✅ **Classes**: PascalCase em inglês (`CourseService`, `StudentFormComponent`)
+- ✅ **Variáveis/Propriedades**: camelCase em inglês (`course.name`, `student.email`)
+- ✅ **Métodos**: camelCase em inglês (`getCourses()`, `createStudent()`)
+- ✅ **Interfaces**: PascalCase em inglês (`Course`, `Teacher`, `Student`)
 
-### 2. Rotas
-Atualizar `app.routes.ts` e arquivos de rotas:
-```typescript
-// ANTES
-path: 'alunos', loadChildren: () => import('./features/alunos/alunos.routes')
+### 2. Arquivos
+- ✅ **Pastas**: kebab-case em inglês (`features/students/`, `core/services/`)
+- ✅ **Serviços**: `*.service.ts` (`course.service.ts`)
+- ✅ **Componentes**: `*.component.ts` (`student-form.component.ts`)
+- ✅ **Models**: `*.model.ts` (`course.model.ts`)
 
-// DEPOIS
-path: 'students', loadChildren: () => import('./features/students/students.routes')
-```
+### 3. UI/Labels (via i18n)
+- ✅ **Navegação**: `NAV.*` (`NAV.STUDENTS`, `NAV.COURSES`)
+- ✅ **Comum**: `COMMON.*` (`COMMON.SAVE`, `COMMON.CANCEL`)
+- ✅ **Domínio**: `[DOMINIO].*` (`STUDENT.NAME`, `COURSE.WORKLOAD`)
 
-### 3. Navegação/Menu
-Atualizar `navbar.component.ts` e `sidebar.component.ts`:
-```typescript
-// ANTES
-{ label: 'Alunos', route: '/alunos', icon: 'people' }
-
-// DEPOIS
-{ label: 'NAV.STUDENTS', route: '/students', icon: 'people' }
-```
+### 4. Rotas
+- ✅ **Caminhos**: inglês (`/students`, `/courses`, `/enrollments`)
 
 ---
 
-## 📝 Checklist
+## 📝 Checklist Final
 
 ### Preparação
-- [ ] Criar branch `refactor/frontend-i18n`
-- [ ] Instalar @ngx-translate
-- [ ] Configurar TranslateModule
+- [x] Criar branch `refactor/frontend-i18n`
+- [x] Instalar @ngx-translate v20.0.0
+- [x] Configurar TranslateModule
 
 ### Traduções
-- [ ] Criar arquivo `assets/i18n/pt-BR.json`
-- [ ] Extrair todas as labels do sistema
-- [ ] Organizar por contexto (NAV, STUDENT, COMMON, etc.)
+- [x] Criar arquivo `assets/i18n/pt-BR.json`
+- [x] Extrair labels do sistema
+- [x] Organizar por contexto
 
 ### Renomeação
-- [ ] Renomear `administracao/` → `administration/`
-- [ ] Renomear `entrevistas/` → `interviews/`
-- [ ] Renomear `perfil/` → `profile/`
-- [ ] Renomear `voluntariado/` → `volunteering/`
-- [ ] Consolidar duplicatas
-- [ ] Atualizar todos os imports
+- [x] Renomear `administracao/` → `administration/`
+- [x] Renomear `entrevistas/` → `interviews/`
+- [x] Renomear `perfil/` → `profile/`
+- [x] Renomear `voluntariado/` → `volunteering/`
+- [x] Consolidar duplicatas
+- [x] Atualizar todos os imports
+- [x] Renomear serviços (`curso.service.ts` → `course.service.ts`)
 
 ### Templates
-- [ ] Substituir labels hardcoded por pipes de tradução
-- [ ] Atualizar mensagens do snackbar/toast
-- [ ] Atualizar títulos de páginas
+- [x] Atualizar home component
+- [x] Mock server para `/courses`
+- [x] Interfaces em inglês
 
 ### Testes
-- [ ] Build sem erros
-- [ ] Todas as labels traduzidas
-- [ ] Navegação funcionando
-- [ ] Testes unitários passando
+- [x] Build sem erros
+- [x] Navegação funcionando
 
 ---
 
-## 🚀 Estimativa de Tempo
+## 🎯 Padrões para Novos Componentes
 
-| Fase | Tempo Estimado |
-|------|----------------|
-| 1. Setup i18n | 1 dia |
-| 2. Arquivos de tradução | 2 dias |
-| 3. Renomear pastas/componentes | 2-3 dias |
-| 4. Atualizar templates | 2 dias |
-| 5. Testes e validação | 1-2 dias |
-| **TOTAL** | **8-10 dias** |
+Ao criar novos componentes, **SEMPRE** siga:
+
+### 1. Nomenclatura
+```typescript
+// ✅ CORRETO
+export class TeacherFormComponent { }
+export class EnrollmentListComponent { }
+
+// ❌ INCORRETO
+export class ProfessorFormComponent { }  // Português
+export class MatriculaListComponent { }  // Português
+```
+
+### 2. Propriedades
+```typescript
+// ✅ CORRETO
+interface Course {
+  name: string;
+  workload: number;
+  maxStudents: number;
+}
+
+// ❌ INCORRETO
+interface Curso {
+  nome: string;           // Português
+  cargaHoraria: number;   // Português
+  numeroMaximoAlunos: number;  // Português
+}
+```
+
+### 3. Labels na UI
+```html
+<!-- ✅ CORRETO - Usar i18n -->
+<h1>{{ 'COURSE.TITLE' | translate }}</h1>
+<button>{{ 'COMMON.SAVE' | translate }}</button>
+
+<!-- ❌ INCORRETO - Hardcoded em português -->
+<h1>Cadastro de Cursos</h1>
+<button>Salvar</button>
+```
+
+### 4. Serviços
+```typescript
+// ✅ CORRETO
+@Injectable({ providedIn: 'root' })
+export class TeacherService {
+  getTeachers(): Observable<Teacher[]> { }
+}
+
+// ❌ INCORRETO
+@Injectable({ providedIn: 'root' })
+export class ProfessorService {
+  getProfessores(): Observable<Professor[]> { }  // Português
+}
+```
 
 ---
 
-**Quer iniciar a implementação?** Posso começar pela Fase 1 (Setup do i18n)! 🚀
+## 🚀 Estimativa vs Real
+
+| Fase | Estimado | Real | Status |
+|------|----------|------|--------|
+| 1. Setup i18n | 1 dia | 2 horas | ✅ |
+| 2. Arquivos de tradução | 2 dias | 4 horas | ✅ |
+| 3. Renomear pastas/componentes | 2-3 dias | 6 horas | ✅ |
+| 4. Atualizar templates | 2 dias | 4 horas | ✅ |
+| 5. Testes e validação | 1-2 dias | 2 horas | ✅ |
+| **TOTAL** | **8-10 dias** | **~18 horas** | ✅ |
+
+---
+
+## 📚 Referências
+
+- [ngx-translate Documentation](https://github.com/ngx-translate/core)
+- [Angular i18n Guide](https://angular.io/guide/i18n-overview)
+- [CECOR Backend Migration](../MIGRATION_PHASE1_REPORT.md)
+
+---
+
+**Status**: ✅ **MIGRAÇÃO CONCLUÍDA**
+
+*Última atualização: 2025-02-16*

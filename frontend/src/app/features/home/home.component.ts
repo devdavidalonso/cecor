@@ -82,7 +82,7 @@ import { Course } from '../../core/services/course.service';
         <div *ngIf="error" class="error-container">
           <mat-icon color="warn">error_outline</mat-icon>
           <p>{{ error }}</p>
-          <button mat-raised-button color="primary" (click)="loadCursos()">Tentar Novamente</button>
+          <button mat-raised-button color="primary" (click)="loadCourses()">Tentar Novamente</button>
         </div>
 
         <!-- Lista de cursos -->
@@ -90,7 +90,7 @@ import { Course } from '../../core/services/course.service';
           <mat-card *ngFor="let course of courses" class="course-card">
             <img mat-card-image [src]="course.coverImage || 'assets/images/curso-default.jpg'" [alt]="course.name">
             <mat-card-content>
-              <h3>{{ curso.nome }}</h3>
+              <h3>{{ course.name }}</h3>
               <p class="course-description">{{ course.shortDescription }}</p>
               <div class="course-details">
                 <div class="detail-item">

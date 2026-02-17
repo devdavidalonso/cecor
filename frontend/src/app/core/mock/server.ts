@@ -1,12 +1,10 @@
 // src/app/core/mock/server.ts
-import { createServer, Model, Factory, Response, ActiveModelSerializer } from 'miragejs';
+import { createServer, Model, Factory, Response } from 'miragejs';
 import { environment } from '../../../environments/environment';
-
-// Importar dados mockados
-import { MOCK_CURSOS } from './data/mock-cursos';
+import { MOCK_COURSES } from './data/mock-courses';
 import { MOCK_CAROUSEL_ITEMS } from './data/mock-carousel-items';
 
-// Adicionar propriedade server ao objeto Window
+// Estender a interface Window para incluir server
 declare global {
   interface Window {
     server: any;
@@ -14,136 +12,92 @@ declare global {
 }
 
 export function setupMirageServer() {
-  // Encerrar servidor existente, se houver
   if (window.server) {
     window.server.shutdown();
   }
 
   window.server = createServer({
-    serializers: {
-      application: ActiveModelSerializer,
-    },
-
     models: {
-      curso: Model,
+      course: Model,
       carouselItem: Model,
     },
-
     factories: {
-      curso: Factory.extend({
-        nome(i) { return `Curso ${i + 1}`; },
-        descricaoResumida() { return 'Descrição resumida do curso'; },
-        descricaoDetalhada() { return 'Descrição detalhada do curso...'; },
-        cargaHoraria() { return 40; },
-        numeroMaximoAlunos() { return 20; },
-        diasSemanais() { return 'Segunda, Quarta e Sexta'; },
-        horarioInicio() { return '09:00'; },
-        horarioFim() { return '11:00'; },
-        duracao() { return 10; },
-        status() { return 'ativo'; },
+      course: Factory.extend({
+        name(i: number) {
+          return `Course ${i + 1}`;
+        },
+        shortDescription() {
+          return 'Course short description';
+        },
+        detailedDescription() {
+          return 'Detailed course description with more information...';
+        },
+        workload() {
+          return 40;
+        },
+        maxStudents() {
+          return 30;
+        },
+        weekDays() {
+          return 'Mon, Wed, Fri';
+        },
+        startTime() {
+          return '19:00';
+        },
+        endTime() {
+          return '22:00';
+        },
+        duration() {
+          return 6;
+        },
+        status() {
+          return 'active';
+        },
+        teacherId() {
+          return 1;
+        },
+        tags() {
+          return [];
+        },
       }),
-
       carouselItem: Factory.extend({
         imageUrl() { return 'assets/images/carousel/default.jpg'; },
-        title() { return 'Título do Slide'; },
-        description() { return 'Descrição do slide do carrossel'; },
-        order(i) { return i + 1; },
+        title() { return 'Slide Title'; },
+        description() { return 'Carousel slide description'; },
+        order(i: number) { return i + 1; },
         active() { return true; },
       }),
     },
-
     seeds(server) {
-      // Semear o banco de dados com dados mockados
-      MOCK_CURSOS.forEach(curso => {
-        server.create('curso', {
-          ...curso,
-          id: curso.id.toString() // Converte o id para string
+      // Inserir dados mockados dos cursos
+      MOCK_COURSES.forEach((course: any) => {
+        server.create('course', {
+          ...course,
+          id: course.id ? course.id.toString() : undefined
         });
       });
 
-      MOCK_CAROUSEL_ITEMS.forEach(item => {
-        server.create('carouselItem', {
-          ...item,
-          id: item.id.toString() // Converte o id para string
-        });
+      // Inserir dados mockados do carrossel
+      MOCK_CAROUSEL_ITEMS.forEach((item: any) => {
+        server.create('carouselItem', item);
       });
     },
-
     routes() {
-      // Definir namespace da API
-      this.namespace = 'api/v1';
+      // Definir namespace para as rotas da API
+      this.namespace = environment.apiUrl.replace(/.*\/\/[^/]+/, '');
 
       // Rotas para cursos
-      this.get('/cursos', (schema, request) => {
+      this.get('/courses', (schema, request) => {
         const { queryParams } = request;
-        // Correção: Valores padrão e conversão segura para números
         const pageParam = queryParams['page'] || '1';
         const pageSizeParam = queryParams['pageSize'] || '20';
         const parsedPage = typeof pageParam === 'string' ? parseInt(pageParam, 10) : 1;
         const parsedPageSize = typeof pageSizeParam === 'string' ? parseInt(pageSizeParam, 10) : 20;
-        const search = queryParams['search'];
 
-        const cursos = schema.all('curso').models;
-
-        // Filtrar por termo de pesquisa, se fornecido
-        let filteredCursos = cursos;
-        if (search) {
-          // Correção: Verificação segura para string
-          const searchLower = typeof search === 'string' ? search.toLowerCase() : '';
-          filteredCursos = cursos.filter((curso) => {
-            // Correção: Uso de type assertion para garantir acesso a propriedades
-            const cursoAttrs = curso.attrs as any;
-            return cursoAttrs.nome.toLowerCase().includes(searchLower) ||
-              cursoAttrs.descricaoResumida.toLowerCase().includes(searchLower) ||
-              (cursoAttrs.tags && Array.isArray(cursoAttrs.tags) &&
-                cursoAttrs.tags.some((tag: string) => tag.toLowerCase().includes(searchLower)));
-          });
-        }
-
-        // Obter configurações de simulação do localStorage
-        const networkDelayStr = localStorage.getItem('prototype_network_delay');
-        const simulateErrors = localStorage.getItem('prototype_simulate_errors') === 'true';
-
-        // Chance de erro (20% se simulateErrors estiver ativado)
-        if (simulateErrors && Math.random() < 0.2) {
-          return new Response(
-            500,
-            { 'Content-Type': 'application/json' },
-            { error: 'Erro simulado no servidor para testar o tratamento de erros do frontend' }
-          );
-        }
-
-        // Paginação
-        // Correção: Uso dos valores já convertidos para número
+        const courses = schema.all('course').models;
         const start = (parsedPage - 1) * parsedPageSize;
-        const end = Math.min(start + parsedPageSize, filteredCursos.length);
-        const paginatedCursos = filteredCursos.slice(start, end);
-
-        // Formatar resposta com paginação
-        const response = {
-          data: paginatedCursos.map(c => c.attrs),
-          page: parsedPage,
-          pageSize: parsedPageSize,
-          totalItems: filteredCursos.length,
-          totalPages: Math.ceil(filteredCursos.length / parsedPageSize)
-        };
-
-        // Simular delay de rede
-        const delay = networkDelayStr ? parseInt(networkDelayStr, 10) : 500;
-
-        // Correção: Usar o quarto parâmetro para timing
-        return new Response(
-          200,
-          { 'Content-Type': 'application/json' },
-          response
-        );
-      });
-
-      // Obter curso por ID
-      this.get('/cursos/:id', (schema, request) => {
-        // Correção: Acesso seguro ao parâmetro ID
-        const id = request.params['id'];
-        const curso = schema.find('curso', id);
+        const end = Math.min(start + parsedPageSize, courses.length);
+        const paginatedCourses = courses.slice(start, end);
 
         // Simular delay de rede
         const networkDelayStr = localStorage.getItem('prototype_network_delay');
@@ -155,22 +109,51 @@ export function setupMirageServer() {
           return new Response(
             500,
             { 'Content-Type': 'application/json' },
-            { error: 'Erro simulado ao buscar curso' }
+            { error: 'Erro simulado ao buscar cursos' }
           );
         }
 
-        // Correção: Usar o quarto parâmetro para timing
         return new Response(
           200,
           { 'Content-Type': 'application/json' },
-          curso ? curso.attrs : { error: 'Curso não encontrado' }
+          {
+            data: paginatedCourses.map((c: any) => c.attrs),
+            page: parsedPage,
+            pageSize: parsedPageSize,
+            totalItems: courses.length,
+            totalPages: Math.ceil(courses.length / parsedPageSize)
+          }
+        );
+      });
+
+      // Obter course por ID
+      this.get('/courses/:id', (schema, request) => {
+        const id = request.params['id'];
+        const course = schema.find('course', id);
+
+        // Simular delay de rede
+        const networkDelayStr = localStorage.getItem('prototype_network_delay');
+        const delay = networkDelayStr ? parseInt(networkDelayStr, 10) : 500;
+
+        // Simular erros
+        const simulateErrors = localStorage.getItem('prototype_simulate_errors') === 'true';
+        if (simulateErrors && Math.random() < 0.2) {
+          return new Response(
+            500,
+            { 'Content-Type': 'application/json' },
+            { error: 'Erro simulado ao buscar course' }
+          );
+        }
+
+        return new Response(
+          200,
+          { 'Content-Type': 'application/json' },
+          course ? course.attrs : { error: 'Course não encontrado' }
         );
       });
 
       // Rotas para busca de cursos
-      // Correção: Criar um handler próprio para a busca
-      this.get('/cursos/search', (schema, request) => {
-        // Reutilizar a mesma lógica da rota /cursos
+      this.get('/courses/search', (schema, request) => {
         const { queryParams } = request;
         const pageParam = queryParams['page'] || '1';
         const pageSizeParam = queryParams['pageSize'] || '20';
@@ -178,41 +161,41 @@ export function setupMirageServer() {
         const parsedPageSize = typeof pageSizeParam === 'string' ? parseInt(pageSizeParam, 10) : 20;
         const search = queryParams['search'];
 
-        const cursos = schema.all('curso').models;
+        const courses = schema.all('course').models;
 
         // Filtrar por termo de pesquisa, se fornecido
-        let filteredCursos = cursos;
+        let filteredCourses = courses;
         if (search) {
           const searchLower = typeof search === 'string' ? search.toLowerCase() : '';
-          filteredCursos = cursos.filter((curso) => {
-            const cursoAttrs = curso.attrs as any;
-            return cursoAttrs.nome.toLowerCase().includes(searchLower) ||
-              cursoAttrs.descricaoResumida.toLowerCase().includes(searchLower) ||
-              (cursoAttrs.tags && Array.isArray(cursoAttrs.tags) &&
-                cursoAttrs.tags.some((tag: string) => tag.toLowerCase().includes(searchLower)));
+          filteredCourses = courses.filter((course: any) => {
+            const courseAttrs = course.attrs;
+            return courseAttrs.name?.toLowerCase().includes(searchLower) ||
+              courseAttrs.shortDescription?.toLowerCase().includes(searchLower) ||
+              (courseAttrs.tags && Array.isArray(courseAttrs.tags) &&
+                courseAttrs.tags.some((tag: string) => tag.toLowerCase().includes(searchLower)));
           });
         }
 
-        // Simular delay e restante da lógica...
+        // Simular delay de rede
         const networkDelayStr = localStorage.getItem('prototype_network_delay');
         const delay = networkDelayStr ? parseInt(networkDelayStr, 10) : 500;
 
         const start = (parsedPage - 1) * parsedPageSize;
-        const end = Math.min(start + parsedPageSize, filteredCursos.length);
-        const paginatedCursos = filteredCursos.slice(start, end);
+        const end = Math.min(start + parsedPageSize, filteredCourses.length);
+        const paginatedCourses = filteredCourses.slice(start, end);
 
         const response = {
-          data: paginatedCursos.map(c => c.attrs),
+          data: paginatedCourses.map((c: any) => c.attrs),
           page: parsedPage,
           pageSize: parsedPageSize,
-          totalItems: filteredCursos.length,
-          totalPages: Math.ceil(filteredCursos.length / parsedPageSize)
+          totalItems: filteredCourses.length,
+          totalPages: Math.ceil(filteredCourses.length / parsedPageSize)
         };
 
         return new Response(
           200,
           { 'Content-Type': 'application/json' },
-          response,
+          response
         );
       });
 
@@ -221,14 +204,14 @@ export function setupMirageServer() {
         const items = schema.all('carouselItem').models;
 
         // Ordenar por ordem
-        const sortedItems = items.sort((a, b) => {
+        const sortedItems = items.sort((a: any, b: any) => {
           const orderA = a.attrs.order !== undefined ? a.attrs.order : 0;
           const orderB = b.attrs.order !== undefined ? b.attrs.order : 0;
           return orderA - orderB;
         });
 
         // Filtrar apenas ativos
-        const activeItems = sortedItems.filter(item => item.attrs.active);
+        const activeItems = sortedItems.filter((item: any) => item.attrs.active);
 
         // Simular delay de rede
         const networkDelayStr = localStorage.getItem('prototype_network_delay');
@@ -244,11 +227,10 @@ export function setupMirageServer() {
           );
         }
 
-        // Correção: Usar o quarto parâmetro para timing
         return new Response(
           200,
           { 'Content-Type': 'application/json' },
-          activeItems.map(item => item.attrs),
+          activeItems.map((item: any) => item.attrs)
         );
       });
 
