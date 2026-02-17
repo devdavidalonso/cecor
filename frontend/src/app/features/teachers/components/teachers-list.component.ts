@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { ProfessorService, Professor } from '../../../core/services/professor.service';
+import { TeacherService, Teacher } from '../../../core/services/teacher.service';
 
 @Component({
   selector: 'app-teachers-list',
@@ -30,34 +30,34 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
   template: `
     <div class="container mx-auto p-4">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Gerenciar Professores</h1>
+        <h1 class="text-2xl font-bold">Gerenciar Teacheres</h1>
         <button mat-raised-button color="primary" (click)="openDialog()">
-          <mat-icon>add</mat-icon> Novo Professor
+          <mat-icon>add</mat-icon> Novo Teacher
         </button>
       </div>
 
       <mat-card>
-        <table mat-table [dataSource]="professors" class="w-full">
+        <table mat-table [dataSource]="teachers" class="w-full">
           <!-- Name Column -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef> Nome </th>
-            <td mat-cell *matCellDef="let professor"> {{professor.name}} </td>
+            <td mat-cell *matCellDef="let teacher"> {{teacher.name}} </td>
           </ng-container>
 
           <!-- Email Column -->
           <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef> Email </th>
-            <td mat-cell *matCellDef="let professor"> {{professor.email}} </td>
+            <td mat-cell *matCellDef="let teacher"> {{teacher.email}} </td>
           </ng-container>
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef> Ações </th>
-            <td mat-cell *matCellDef="let professor">
-              <button mat-icon-button color="primary" (click)="openDialog(professor)">
+            <td mat-cell *matCellDef="let teacher">
+              <button mat-icon-button color="primary" (click)="openDialog(teacher)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="deleteProfessor(professor)">
+              <button mat-icon-button color="warn" (click)="deleteTeacher(teacher)">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
@@ -70,14 +70,14 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
     </div>
 
     <!-- Dialog Template (inline for simplicity) -->
-    <ng-template #professorDialog>
-      <h2 mat-dialog-title>{{ isEdit ? 'Editar' : 'Novo' }} Professor</h2>
+    <ng-template #teacherDialog>
+      <h2 mat-dialog-title>{{ isEdit ? 'Editar' : 'Novo' }} Teacher</h2>
       <mat-dialog-content>
-        <form [formGroup]="professorForm" class="flex flex-col gap-4 min-w-[300px]">
+        <form [formGroup]="teacherForm" class="flex flex-col gap-4 min-w-[300px]">
           <mat-form-field appearance="outline">
             <mat-label>Nome</mat-label>
             <input matInput formControlName="name" placeholder="Ex: João Silva">
-            <mat-error *ngIf="professorForm.get('name')?.hasError('required')">
+            <mat-error *ngIf="teacherForm.get('name')?.hasError('required')">
               Nome é obrigatório
             </mat-error>
           </mat-form-field>
@@ -85,10 +85,10 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
           <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput formControlName="email" type="email" placeholder="Ex: joao@cecor.org">
-            <mat-error *ngIf="professorForm.get('email')?.hasError('required')">
+            <mat-error *ngIf="teacherForm.get('email')?.hasError('required')">
               Email é obrigatório
             </mat-error>
-            <mat-error *ngIf="professorForm.get('email')?.hasError('email')">
+            <mat-error *ngIf="teacherForm.get('email')?.hasError('email')">
               Email inválido
             </mat-error>
           </mat-form-field>
@@ -106,7 +106,7 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
       </mat-dialog-content>
       <mat-dialog-actions align="end">
         <button mat-button mat-dialog-close>Cancelar</button>
-        <button mat-raised-button color="primary" [disabled]="professorForm.invalid" (click)="saveProfessor()">
+        <button mat-raised-button color="primary" [disabled]="teacherForm.invalid" (click)="saveTeacher()">
           Salvar
         </button>
       </mat-dialog-actions>
@@ -114,22 +114,22 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
   `
 })
 export class TeachersListComponent implements OnInit {
-  professors: Professor[] = [];
+  teachers: Teacher[] = [];
   displayedColumns: string[] = ['name', 'email', 'actions'];
-  professorForm: FormGroup;
+  teacherForm: FormGroup;
   isEdit = false;
   currentId?: number;
 
-  @ViewChild('professorDialog') professorDialogTemplate: any;
+  @ViewChild('teacherDialog') teacherDialogTemplate: any;
   dialogRef: any;
 
   constructor(
-    private professorService: ProfessorService,
+    private teacherService: TeacherService,
     private dialog: MatDialog,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
-    this.professorForm = this.fb.group({
+    this.teacherForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       cpf: [''],
@@ -138,66 +138,66 @@ export class TeachersListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadProfessors();
+    this.loadTeachers();
   }
 
-  loadProfessors(): void {
-    this.professorService.getProfessors().subscribe(
-      (data) => this.professors = data,
-      (error) => console.error('Error loading professors', error)
+  loadTeachers(): void {
+    this.teacherService.getTeachers().subscribe(
+      (data) => this.teachers = data,
+      (error) => console.error('Error loading teachers', error)
     );
   }
 
-  openDialog(professor?: Professor): void {
-    this.isEdit = !!professor;
-    this.currentId = professor?.id;
+  openDialog(teacher?: Teacher): void {
+    this.isEdit = !!teacher;
+    this.currentId = teacher?.id;
 
-    if (professor) {
-      this.professorForm.patchValue(professor);
+    if (teacher) {
+      this.teacherForm.patchValue(teacher);
       // Disable email on edit if desired, or keep editable
-      this.professorForm.get('email')?.disable();
+      this.teacherForm.get('email')?.disable();
     } else {
-      this.professorForm.reset();
-      this.professorForm.get('email')?.enable();
+      this.teacherForm.reset();
+      this.teacherForm.get('email')?.enable();
     }
 
-    this.dialogRef = this.dialog.open(this.professorDialogTemplate);
+    this.dialogRef = this.dialog.open(this.teacherDialogTemplate);
   }
 
-  saveProfessor(): void {
-    if (this.professorForm.invalid) return;
+  saveTeacher(): void {
+    if (this.teacherForm.invalid) return;
 
-    const professorData = this.professorForm.getRawValue();
+    const teacherData = this.teacherForm.getRawValue();
 
     if (this.isEdit && this.currentId) {
-      this.professorService.updateProfessor(this.currentId, professorData).subscribe(
+      this.teacherService.updateTeacher(this.currentId, teacherData).subscribe(
         () => {
-          this.snackBar.open('Professor atualizado com sucesso!', 'Fechar', { duration: 3000 });
-          this.loadProfessors();
+          this.snackBar.open('Teacher atualizado com sucesso!', 'Fechar', { duration: 3000 });
+          this.loadTeachers();
           this.dialogRef.close();
         },
-        error => this.snackBar.open('Erro ao atualizar professor', 'Fechar', { duration: 3000 })
+        error => this.snackBar.open('Erro ao atualizar teacher', 'Fechar', { duration: 3000 })
       );
     } else {
-      this.professorService.createProfessor(professorData).subscribe(
+      this.teacherService.createTeacher(teacherData).subscribe(
         () => {
-          this.snackBar.open('Professor criado com sucesso!', 'Fechar', { duration: 3000 });
-          this.loadProfessors();
+          this.snackBar.open('Teacher criado com sucesso!', 'Fechar', { duration: 3000 });
+          this.loadTeachers();
           this.dialogRef.close();
         },
-        error => this.snackBar.open('Erro ao criar professor', 'Fechar', { duration: 3000 })
+        error => this.snackBar.open('Erro ao criar teacher', 'Fechar', { duration: 3000 })
       );
     }
   }
 
-  deleteProfessor(professor: Professor): void {
-    if (confirm(`Tem certeza que deseja excluir ${professor.name}?`)) {
-      this.professorService.deleteProfessor(professor.id!).subscribe(
+  deleteTeacher(teacher: Teacher): void {
+    if (confirm(`Tem certeza que deseja excluir ${teacher.name}?`)) {
+      this.teacherService.deleteTeacher(teacher.id!).subscribe(
         () => {
-          this.snackBar.open('Professor excluído com sucesso!', 'Fechar', { duration: 3000 });
-          this.loadProfessors();
+          this.snackBar.open('Teacher excluído com sucesso!', 'Fechar', { duration: 3000 });
+          this.loadTeachers();
         },
-        error => this.snackBar.open('Erro ao excluir professor', 'Fechar', { duration: 3000 })
+        error => this.snackBar.open('Erro ao excluir teacher', 'Fechar', { duration: 3000 })
       );
     }
   }

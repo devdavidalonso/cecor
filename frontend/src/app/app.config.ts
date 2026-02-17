@@ -17,9 +17,6 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 registerLocaleData(localePt);
 
-// Provider Factory para serviços que precisam de versões mockadas no modo protótipo
-import { cursoServiceFactory } from './core/factories/curso-service.factory';
-import { CursoService } from './core/services/curso.service';
 import { PrototypeService } from './core/services/prototype/prototype.service';
 import { SsoService } from './core/services/sso.service';
 
@@ -58,11 +55,6 @@ export const appConfig: ApplicationConfig = {
       useFactory: initializeSso,
       deps: [SsoService],
       multi: true
-    },
-    // Provider para o serviço de curso (real ou mockado)
-    {
-      provide: CursoService,
-      useFactory: cursoServiceFactory
     },
     // Serviço de protótipo (sempre disponível)
     PrototypeService,

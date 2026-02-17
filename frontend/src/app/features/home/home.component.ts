@@ -13,10 +13,10 @@ import { debounceTime } from 'rxjs/operators';
 
 import { CarouselComponent } from '../../shared/components/carousel/carousel.component';
 import { CarouselService } from '../../core/services/carousel.service';
-import { CursoService } from '../../core/services/curso.service';
+import { CourseService } from '../../core/services/course.service';
 import { PrototypeService } from '../../core/services/prototype/prototype.service';
 import { CarouselItem } from '../../core/models/carousel-item.model';
-import { Curso } from '../../core/models/curso.model';
+import { Course } from '../../core/services/course.service';
 
 @Component({
   selector: 'app-home',
@@ -87,35 +87,35 @@ import { Curso } from '../../core/models/curso.model';
 
         <!-- Lista de cursos -->
         <div *ngIf="!loading && !error" class="courses-grid">
-          <mat-card *ngFor="let curso of cursos" class="course-card">
-            <img mat-card-image [src]="curso.imagemUrl || 'assets/images/curso-default.jpg'" [alt]="curso.nome">
+          <mat-card *ngFor="let course of courses" class="course-card">
+            <img mat-card-image [src]="course.coverImage || 'assets/images/curso-default.jpg'" [alt]="course.name">
             <mat-card-content>
               <h3>{{ curso.nome }}</h3>
-              <p class="course-description">{{ curso.descricaoResumida }}</p>
+              <p class="course-description">{{ course.shortDescription }}</p>
               <div class="course-details">
                 <div class="detail-item">
                   <mat-icon>schedule</mat-icon>
-                  <span>{{ curso.cargaHoraria }}h</span>
+                  <span>{{ course.workload }}h</span>
                 </div>
                 <div class="detail-item">
                   <mat-icon>event</mat-icon>
-                  <span>{{ curso.diasSemanais }}</span>
+                  <span>{{ course.weekDays }}</span>
                 </div>
                 <div class="detail-item">
                   <mat-icon>people</mat-icon>
-                  <span>{{ curso.numeroMaximoAlunos }} vagas</span>
+                  <span>{{ course.maxStudents }} vagas</span>
                 </div>
               </div>
             </mat-card-content>
             <mat-card-actions>
-              <button mat-button color="primary" [routerLink]="['/cursos', curso.id]">VER DETALHES</button>
-              <button mat-raised-button color="primary" [routerLink]="['/cursos', curso.id, 'matricula']">MATRICULAR-SE</button>
+              <button mat-button color="primary" [routerLink]="['/courses', course.id]">VER DETALHES</button>
+              <button mat-raised-button color="primary" [routerLink]="['/courses', course.id, 'enroll']">MATRICULAR-SE</button>
             </mat-card-actions>
           </mat-card>
         </div>
 
         <!-- Sem resultados -->
-        <div *ngIf="!loading && !error && cursos.length === 0" class="no-results">
+        <div *ngIf="!loading && !error && courses.length === 0" class="no-results">
           <mat-icon>search_off</mat-icon>
           <p>Nenhum curso encontrado com os critérios de busca.</p>
         </div>
@@ -127,7 +127,7 @@ import { Curso } from '../../core/models/curso.model';
       <div class="container">
         <h2>Transforme seu futuro com o CECOR</h2>
         <p>Inscreva-se hoje mesmo em nossos cursos gratuitos e comece uma nova jornada de aprendizado.</p>
-        <button mat-raised-button color="accent" routerLink="/cursos">VER TODOS OS CURSOS</button>
+        <button mat-raised-button color="accent" routerLink="/courses">VER TODOS OS CURSOS</button>
       </div>
     </section>
   `,
@@ -332,13 +332,13 @@ export class HomeComponent implements OnInit {
   carouselLoading = true;
   
   // Propriedades da lista de cursos
-  cursos: Curso[] = [];
+  courses: Course[] = [];
   loading = true;
   error: string | null = null;
   
   constructor(
     private carouselService: CarouselService,
-    private cursoService: CursoService,
+    private courseService: CourseService,
     private prototypeService: PrototypeService
   ) {}
   
@@ -347,13 +347,13 @@ export class HomeComponent implements OnInit {
     this.loadCarouselItems();
     
     // Carregar cursos
-    this.loadCursos();
+    this.loadCourses();
     
     // Configurar busca com debounce
     this.searchControl.valueChanges
       .pipe(debounceTime(300))
       .subscribe(value => {
-        this.filterCursos(value || '');
+        this.filterCourses(value || '');
       });
   }
   
@@ -371,13 +371,13 @@ export class HomeComponent implements OnInit {
     });
   }
   
-  loadCursos(): void {
+  loadCourses(): void {
     this.loading = true;
     this.error = null;
     
-    this.cursoService.getCursos().subscribe({
-      next: (response) => {
-        this.cursos = response.data || [];
+    this.courseService.getCourses().subscribe({
+      next: (courses) => {
+        this.courses = courses || [];
         this.loading = false;
       },
       error: (err) => {
@@ -388,18 +388,23 @@ export class HomeComponent implements OnInit {
     });
   }
   
-  filterCursos(searchText: string): void {
+  filterCourses(searchText: string): void {
     if (!searchText.trim()) {
-      this.loadCursos();
+      this.loadCourses();
       return;
     }
     
     this.loading = true;
     this.error = null;
     
-    this.cursoService.searchCursos(searchText).subscribe({
-      next: (response) => {
-        this.cursos = response.data || [];
+    // Filtra cursos localmente
+    this.courseService.getCourses().subscribe({
+      next: (courses) => {
+        const search = searchText.toLowerCase();
+        this.courses = courses.filter(c => 
+          c.name?.toLowerCase().includes(search) || 
+          c.shortDescription?.toLowerCase().includes(search)
+        ) || [];
         this.loading = false;
       },
       error: (err) => {
