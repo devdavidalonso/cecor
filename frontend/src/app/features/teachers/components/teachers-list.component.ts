@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProfessorService, Professor } from '../../../core/services/professor.service';
 
 @Component({
-  selector: 'app-professor-list',
+  selector: 'app-teachers-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -113,7 +113,7 @@ import { ProfessorService, Professor } from '../../../core/services/professor.se
     </ng-template>
   `
 })
-export class ProfessorListComponent implements OnInit {
+export class TeachersListComponent implements OnInit {
   professors: Professor[] = [];
   displayedColumns: string[] = ['name', 'email', 'actions'];
   professorForm: FormGroup;
