@@ -39,10 +39,31 @@ export const routes: Routes = [
         loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
       },
       {
-        path: 'professores',
-        loadChildren: () => import('./features/professors/professor.routes').then(m => m.PROFESSOR_ROUTES),
+        path: 'teachers',
+        loadChildren: () => import('./features/teachers/teachers.routes').then(m => m.TEACHERS_ROUTES),
         canActivate: [AuthGuard],
         data: { roles: ['admin'] } 
+      },
+      {
+        path: 'administration',
+        loadChildren: () => import('./features/administration/administration.routes').then(m => m.ADMINISTRATION_ROUTES),
+        canActivate: [AuthGuard],
+        data: { roles: ['admin'] }
+      },
+      {
+        path: 'interviews',
+        loadChildren: () => import('./features/interviews/interviews.routes').then(m => m.INTERVIEWS_ROUTES),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'volunteering',
+        loadChildren: () => import('./features/volunteering/volunteering.routes').then(m => m.VOLUNTEERING_ROUTES),
+        canActivate: [AuthGuard]
       },
     ]
   },
