@@ -80,29 +80,43 @@ interface MenuItem {
       display: flex;
       flex-direction: column;
       height: 100%;
+      background-color: white;
     }
     
     .sidebar-header {
-      padding: 16px;
+      height: 64px; /* Matches standard toolbar height */
+      padding: 0 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #3f51b5;
+      background-color: #1565c0; /* Matches primary 800 */
       color: white;
+      box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+      z-index: 1;
     }
     
     .logo {
-      font-size: 24px;
-      font-weight: bold;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
     }
     
     .active-link {
-      background-color: rgba(63, 81, 181, 0.1);
+      background-color: rgba(21, 101, 192, 0.08); /* Primary color with opacity */
+      color: #1565c0;
+      font-weight: 500;
+      border-right: 3px solid #1565c0;
+    }
+
+    /* Hover effect for list items */
+    mat-nav-list a:hover {
+      background-color: rgba(0, 0, 0, 0.04);
     }
     
     mat-expansion-panel {
       border-radius: 0 !important;
       box-shadow: none !important;
+      background-color: transparent !important;
     }
     
     .nav-item-text {

@@ -39,7 +39,7 @@ import { AuthService } from '../core/services/auth.service';
           [mode]="(isHandset$ | async) ? 'over' : 'side'" 
           [opened]="(isHandset$ | async) === false"
           class="sidenav"
-          [fixedInViewport]="false" [fixedTopGap]="64">
+          [fixedInViewport]="false">
           <app-sidebar [sidenav]="sidenav"></app-sidebar>
         </mat-sidenav>
         <mat-sidenav-content>

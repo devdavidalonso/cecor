@@ -1,12 +1,46 @@
 /* Estilos globais */
 
 // Importar material theming
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 
 // Definir paleta de cores customizada
 // Definir paleta de cores customizada
-$primary-palette: mat.define-palette(mat.$indigo-palette);
-$accent-palette: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+// Custom Blue Palette (Royal Blue/GECS inspire)
+$custom-blue: (
+  50: #e3f2fd,
+  100: #bbdefb,
+  200: #90caf9,
+  300: #64b5f6,
+  400: #42a5f5,
+  500: #2196f3,
+  600: #1e88e5,
+  700: #1976d2,
+  800: #1565c0,
+  900: #0d47a1,
+  A100: #82b1ff,
+  A200: #448aff,
+  A400: #2979ff,
+  A700: #2962ff,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #ffffff,
+    A400: #ffffff,
+    A700: #ffffff,
+  ),
+);
+
+$primary-palette: mat.define-palette($custom-blue, 800);
+$accent-palette: mat.define-palette(mat.$orange-palette, A200, A100, A400);
 $warn-palette: mat.define-palette(mat.$red-palette);
 
 $my-theme: mat.define-light-theme((
@@ -21,7 +55,8 @@ $my-theme: mat.define-light-theme((
 @include mat.all-component-themes($my-theme);
 
 // Redefinir HTML e body
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -31,19 +66,33 @@ html, body {
 $spacer: 1rem;
 $spacers: (
   0: 0,
-  1: $spacer * 0.25,  // 4px
-  2: $spacer * 0.5,   // 8px
-  3: $spacer,         // 16px
-  4: $spacer * 1.5,   // 24px
-  5: $spacer * 3,     // 48px
+  1: $spacer * 0.25,
+  // 4px
+  2: $spacer * 0.5,
+  // 8px
+  3: $spacer,
+  // 16px
+  4: $spacer * 1.5,
+  // 24px
+  5: $spacer * 3, // 48px
 );
 
 @each $size, $value in $spacers {
-  .m-#{$size} { margin: $value !important; }
-  .mt-#{$size} { margin-top: $value !important; }
-  .mr-#{$size} { margin-right: $value !important; }
-  .mb-#{$size} { margin-bottom: $value !important; }
-  .ml-#{$size} { margin-left: $value !important; }
+  .m-#{$size} {
+    margin: $value !important;
+  }
+  .mt-#{$size} {
+    margin-top: $value !important;
+  }
+  .mr-#{$size} {
+    margin-right: $value !important;
+  }
+  .mb-#{$size} {
+    margin-bottom: $value !important;
+  }
+  .ml-#{$size} {
+    margin-left: $value !important;
+  }
   .mx-#{$size} {
     margin-left: $value !important;
     margin-right: $value !important;
@@ -52,12 +101,22 @@ $spacers: (
     margin-top: $value !important;
     margin-bottom: $value !important;
   }
-  
-  .p-#{$size} { padding: $value !important; }
-  .pt-#{$size} { padding-top: $value !important; }
-  .pr-#{$size} { padding-right: $value !important; }
-  .pb-#{$size} { padding-bottom: $value !important; }
-  .pl-#{$size} { padding-left: $value !important; }
+
+  .p-#{$size} {
+    padding: $value !important;
+  }
+  .pt-#{$size} {
+    padding-top: $value !important;
+  }
+  .pr-#{$size} {
+    padding-right: $value !important;
+  }
+  .pb-#{$size} {
+    padding-bottom: $value !important;
+  }
+  .pl-#{$size} {
+    padding-left: $value !important;
+  }
   .px-#{$size} {
     padding-left: $value !important;
     padding-right: $value !important;
@@ -83,30 +142,74 @@ $spacers: (
 }
 
 // Classes de flexbox
-.d-flex { display: flex !important; }
-.flex-column { flex-direction: column !important; }
-.flex-row { flex-direction: row !important; }
-.justify-content-start { justify-content: flex-start !important; }
-.justify-content-end { justify-content: flex-end !important; }
-.justify-content-center { justify-content: center !important; }
-.justify-content-between { justify-content: space-between !important; }
-.justify-content-around { justify-content: space-around !important; }
-.align-items-start { align-items: flex-start !important; }
-.align-items-end { align-items: flex-end !important; }
-.align-items-center { align-items: center !important; }
-.align-items-baseline { align-items: baseline !important; }
-.align-items-stretch { align-items: stretch !important; }
-.flex-grow-1 { flex-grow: 1 !important; }
-.flex-shrink-0 { flex-shrink: 0 !important; }
-.flex-shrink-1 { flex-shrink: 1 !important; }
+.d-flex {
+  display: flex !important;
+}
+.flex-column {
+  flex-direction: column !important;
+}
+.flex-row {
+  flex-direction: row !important;
+}
+.justify-content-start {
+  justify-content: flex-start !important;
+}
+.justify-content-end {
+  justify-content: flex-end !important;
+}
+.justify-content-center {
+  justify-content: center !important;
+}
+.justify-content-between {
+  justify-content: space-between !important;
+}
+.justify-content-around {
+  justify-content: space-around !important;
+}
+.align-items-start {
+  align-items: flex-start !important;
+}
+.align-items-end {
+  align-items: flex-end !important;
+}
+.align-items-center {
+  align-items: center !important;
+}
+.align-items-baseline {
+  align-items: baseline !important;
+}
+.align-items-stretch {
+  align-items: stretch !important;
+}
+.flex-grow-1 {
+  flex-grow: 1 !important;
+}
+.flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+.flex-shrink-1 {
+  flex-shrink: 1 !important;
+}
 
 // Classes de texto
-.text-center { text-align: center !important; }
-.text-left { text-align: left !important; }
-.text-right { text-align: right !important; }
-.text-uppercase { text-transform: uppercase !important; }
-.text-lowercase { text-transform: lowercase !important; }
-.text-capitalize { text-transform: capitalize !important; }
+.text-center {
+  text-align: center !important;
+}
+.text-left {
+  text-align: left !important;
+}
+.text-right {
+  text-align: right !important;
+}
+.text-uppercase {
+  text-transform: uppercase !important;
+}
+.text-lowercase {
+  text-transform: lowercase !important;
+}
+.text-capitalize {
+  text-transform: capitalize !important;
+}
 .text-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -114,10 +217,18 @@ $spacers: (
 }
 
 // Classes de cores
-.text-primary { color: mat.get-color-from-palette($primary-palette) !important; }
-.text-accent { color: mat.get-color-from-palette($accent-palette) !important; }
-.text-warn { color: mat.get-color-from-palette($warn-palette) !important; }
-.text-muted { opacity: 0.6 !important; }
+.text-primary {
+  color: mat.get-color-from-palette($primary-palette) !important;
+}
+.text-accent {
+  color: mat.get-color-from-palette($accent-palette) !important;
+}
+.text-warn {
+  color: mat.get-color-from-palette($warn-palette) !important;
+}
+.text-muted {
+  opacity: 0.6 !important;
+}
 
 // Estilos de tabela
 .table-responsive {
@@ -128,10 +239,18 @@ $spacers: (
 }
 
 // Classes de visibilidade
-.d-none { display: none !important; }
-.d-block { display: block !important; }
-.d-inline { display: inline !important; }
-.d-inline-block { display: inline-block !important; }
+.d-none {
+  display: none !important;
+}
+.d-block {
+  display: block !important;
+}
+.d-inline {
+  display: inline !important;
+}
+.d-inline-block {
+  display: inline-block !important;
+}
 
 // Classes para formulários
 .form-full-width {
@@ -139,8 +258,12 @@ $spacers: (
 }
 
 // Cursor helpers
-.cursor-pointer { cursor: pointer !important; }
-.cursor-not-allowed { cursor: not-allowed !important; }
+.cursor-pointer {
+  cursor: pointer !important;
+}
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
 
 // Media queries
 $breakpoints: (
@@ -148,7 +271,7 @@ $breakpoints: (
   sm: 576px,
   md: 768px,
   lg: 992px,
-  xl: 1200px
+  xl: 1200px,
 );
 
 @mixin media-breakpoint-up($name) {
@@ -160,36 +283,43 @@ $breakpoints: (
 
 @each $breakpoint in map-keys($breakpoints) {
   @include media-breakpoint-up($breakpoint) {
-    $infix: '-#{$breakpoint}';
-    .d#{$infix}-none { display: none !important; }
-    .d#{$infix}-block { display: block !important; }
-    .d#{$infix}-flex { display: flex !important; }
+    $infix: "-#{$breakpoint}";
+    .d#{$infix}-none {
+      display: none !important;
+    }
+    .d#{$infix}-block {
+      display: block !important;
+    }
+    .d#{$infix}-flex {
+      display: flex !important;
+    }
   }
 }
 
 // Componentes personalizados
 .card {
   border-radius: 4px;
-  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 
-              0 1px 1px 0 rgba(0,0,0,.14), 
-              0 1px 3px 0 rgba(0,0,0,.12);
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
   background-color: #fff;
   margin-bottom: $spacer;
   overflow: hidden;
-  
+
   .card-header {
     padding: $spacer;
-    border-bottom: 1px solid rgba(0,0,0,.12);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     font-weight: 500;
   }
-  
+
   .card-content {
     padding: $spacer;
   }
-  
+
   .card-footer {
     padding: $spacer;
-    border-top: 1px solid rgba(0,0,0,.12);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
   }
 }
 
@@ -199,8 +329,12 @@ $breakpoints: (
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // Override de algumas classes do Material

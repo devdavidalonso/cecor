@@ -22,7 +22,7 @@ import { AuthService } from '../../core/services/auth.service';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <mat-toolbar color="primary" class="header">
+    <mat-toolbar color="primary" class="header mat-elevation-z2">
       <button mat-icon-button (click)="sidenav.toggle()" aria-label="Toggle menu">
         <mat-icon>menu</mat-icon>
       </button>
@@ -47,7 +47,7 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
         </ng-container>
         
-        <button mat-menu-item routerLink="/perfil">
+        <button mat-menu-item routerLink="/profile">
           <mat-icon>person</mat-icon>
           <span>Meu Perfil</span>
         </button>
