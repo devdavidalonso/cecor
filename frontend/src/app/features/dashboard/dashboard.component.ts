@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { AuthService } from '../../core/services/auth.service';
 
@@ -26,18 +27,19 @@ interface DashboardCard {
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatGridListModule
+    MatGridListModule,
+    TranslateModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="dashboard-container">
-      <h1 class="dashboard-title">Dashboard</h1>
+      <h1 class="dashboard-title">{{ 'NAV.DASHBOARD' | translate }}</h1>
       
       <div class="welcome-card">
         <mat-card>
           <mat-card-content>
-            <h2>Bem-vindo, {{ (authService.currentUser$ | async)?.name || 'Usuário' }}!</h2>
-            <p>Bem-vindo ao Sistema de Gestão Educacional CECOR. Utilize o menu lateral para navegar entre as funcionalidades.</p>
+            <h2>{{ 'HOME.WELCOME_TITLE' | translate:{name: (authService.currentUser$ | async)?.name || 'User'} }}!</h2>
+            <p>{{ 'HOME.WELCOME_MESSAGE' | translate }}</p>
           </mat-card-content>
         </mat-card>
       </div>
@@ -48,8 +50,8 @@ interface DashboardCard {
             <mat-card-content>
               <div class="card-content">
                 <div class="card-info">
-                  <h3>{{ card.title }}</h3>
-                  <p>{{ card.subtitle }}</p>
+                  <h3>{{ card.title | translate }}</h3>
+                  <p>{{ card.subtitle | translate }}</p>
                   <div class="card-value" [style.color]="card.color">{{ card.value }}</div>
                 </div>
                 <div class="card-icon" [style.background-color]="card.color">
@@ -62,22 +64,22 @@ interface DashboardCard {
       </div>
       
       <div class="actions-container">
-        <h2>Ações Rápidas</h2>
+        <h2>{{ 'COMMON.QUICK_ACTIONS' | translate }}</h2>
         <div class="quick-actions">
-          <button mat-raised-button color="primary" routerLink="/alunos/cadastrar">
-            <mat-icon>person_add</mat-icon> Novo Aluno
+          <button mat-raised-button color="primary" routerLink="/students/new">
+            <mat-icon>person_add</mat-icon> {{ 'NAV.STUDENTS_NEW' | translate }}
           </button>
           
           <button mat-raised-button color="accent" routerLink="/enrollments/new">
-            <mat-icon>how_to_reg</mat-icon> New Enrollment
+            <mat-icon>how_to_reg</mat-icon> {{ 'NAV.ENROLLMENTS_NEW' | translate }}
           </button>
           
-          <button mat-raised-button color="primary" routerLink="/presencas">
-            <mat-icon>fact_check</mat-icon> Register Attendance
+          <button mat-raised-button color="primary" routerLink="/attendance">
+            <mat-icon>fact_check</mat-icon> {{ 'NAV.ATTENDANCE' | translate }}
           </button>
           
-          <button mat-raised-button color="accent" routerLink="/relatorios">
-            <mat-icon>assessment</mat-icon> Reports
+          <button mat-raised-button color="accent" routerLink="/reports">
+            <mat-icon>assessment</mat-icon> {{ 'NAV.REPORTS' | translate }}
           </button>
         </div>
       </div>
@@ -170,35 +172,35 @@ interface DashboardCard {
 export class DashboardComponent implements OnInit {
   dashboardCards: DashboardCard[] = [
     {
-      title: 'Alunos',
-      subtitle: 'Total de alunos ativos',
+      title: 'NAV.STUDENTS',
+      subtitle: 'DASHBOARD.ACTIVE_STUDENTS',
       icon: 'people',
       value: '---',
-      route: '/alunos',
+      route: '/students',
       color: '#4caf50'
     },
     {
-      title: 'Cursos',
-      subtitle: 'Cursos em andamento',
+      title: 'NAV.COURSES',
+      subtitle: 'DASHBOARD.COURSES_IN_PROGRESS',
       icon: 'school',
       value: '---',
-      route: '/cursos',
+      route: '/courses',
       color: '#2196f3'
     },
     {
-      title: 'Enrollments',
-      subtitle: 'Active enrollments',
+      title: 'NAV.ENROLLMENTS',
+      subtitle: 'DASHBOARD.ACTIVE_ENROLLMENTS',
       icon: 'how_to_reg',
       value: '---',
-      route: '/matriculas',
+      route: '/enrollments',
       color: '#ff9800'
     },
     {
-      title: 'Attendance',
-      subtitle: 'Current attendance rate',
+      title: 'NAV.ATTENDANCE',
+      subtitle: 'DASHBOARD.CURRENT_ATTENDANCE',
       icon: 'fact_check',
       value: '---',
-      route: '/presencas',
+      route: '/attendance',
       color: '#9c27b0'
     }
   ];
@@ -216,35 +218,35 @@ export class DashboardComponent implements OnInit {
     setTimeout(() => {
       this.dashboardCards = [
         {
-          title: 'Alunos',
-          subtitle: 'Total de alunos ativos',
+          title: 'NAV.STUDENTS',
+          subtitle: 'DASHBOARD.ACTIVE_STUDENTS',
           icon: 'people',
           value: '243',
-          route: '/alunos',
+          route: '/students',
           color: '#4caf50'
         },
         {
-          title: 'Cursos',
-          subtitle: 'Cursos em andamento',
+          title: 'NAV.COURSES',
+          subtitle: 'DASHBOARD.COURSES_IN_PROGRESS',
           icon: 'school',
           value: '18',
-          route: '/cursos',
+          route: '/courses',
           color: '#2196f3'
         },
         {
-          title: 'Enrollments',
-          subtitle: 'Active enrollments',
+          title: 'NAV.ENROLLMENTS',
+          subtitle: 'DASHBOARD.ACTIVE_ENROLLMENTS',
           icon: 'how_to_reg',
           value: '312',
-          route: '/matriculas',
+          route: '/enrollments',
           color: '#ff9800'
         },
         {
-          title: 'Presenças',
-          subtitle: 'Taxa de frequência atual',
+          title: 'NAV.ATTENDANCE',
+          subtitle: 'DASHBOARD.CURRENT_ATTENDANCE',
           icon: 'fact_check',
           value: '87%',
-          route: '/presencas',
+          route: '/attendance',
           color: '#9c27b0'
         }
       ];

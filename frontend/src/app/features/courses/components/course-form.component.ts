@@ -12,7 +12,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CourseService, Course } from '../../../core/services/course.service';
+
+// Force Rebuild
 
 @Component({
   selector: 'app-course-form',
@@ -20,6 +23,7 @@ import { CourseService, Course } from '../../../core/services/course.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    TranslateModule,
     MatStepperModule,
     MatInputModule,
     MatButtonModule,
@@ -49,18 +53,18 @@ import { CourseService, Course } from '../../../core/services/course.service';
                 
                 <div class="form-grid">
                   <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Course Name</mat-label>
+                    <mat-label>{{ 'COURSE.NAME' | translate }}</mat-label>
                     <input matInput formControlName="name" placeholder="Ex: Introduction to Programming">
-                    <mat-error *ngIf="basicInfoForm.get('name')?.hasError('required')">Name is required</mat-error>
+                    <mat-error *ngIf="basicInfoForm.get('name')?.hasError('required')">{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Short Description</mat-label>
+                    <mat-label>{{ 'COURSE.SHORT_DESCRIPTION' | translate }}</mat-label>
                     <input matInput formControlName="shortDescription" placeholder="Brief summary">
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Professor</mat-label>
+                    <mat-label>{{ 'TEACHER.TITLE_SINGLE' | translate }}</mat-label>
                     <mat-select formControlName="professorId">
                       <mat-option *ngFor="let prof of professors" [value]="prof.id">
                         {{ prof.firstName }} {{ prof.lastName }}
@@ -70,7 +74,7 @@ import { CourseService, Course } from '../../../core/services/course.service';
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Cover Image URL</mat-label>
+                    <mat-label>URL da Imagem de Capa</mat-label>
                     <input matInput formControlName="coverImage" placeholder="https://example.com/image.jpg">
                     <mat-icon matSuffix>image</mat-icon>
                   </mat-form-field>
@@ -78,6 +82,13 @@ import { CourseService, Course } from '../../../core/services/course.service';
                    <div class="image-preview" *ngIf="basicInfoForm.get('coverImage')?.value">
                       <img [src]="basicInfoForm.get('coverImage')?.value" alt="Course Cover Preview" (error)="onImageError($event)">
                    </div>
+
+                   <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'COURSE.GOOGLE_CLASSROOM_URL' | translate }}</mat-label>
+                    <input matInput formControlName="googleClassroomUrl" placeholder="https://classroom.google.com/c/...">
+                    <mat-icon matSuffix>link</mat-icon>
+                    <mat-error *ngIf="basicInfoForm.get('googleClassroomUrl')?.hasError('pattern')">{{ 'COURSE.INVALID_URL' | translate }}</mat-error>
+                  </mat-form-field>
                 </div>
 
                 <div class="stepper-actions">
@@ -335,6 +346,7 @@ export class CourseFormComponent implements OnInit {
       name: ['', Validators.required],
       shortDescription: [''],
       coverImage: [''],
+      googleClassroomUrl: ['', [Validators.pattern('https?://.*')]],
       professorId: ['']
     });
 
@@ -385,6 +397,7 @@ export class CourseFormComponent implements OnInit {
           name: course.name,
           shortDescription: course.shortDescription,
           coverImage: course.coverImage,
+          googleClassroomUrl: course.googleClassroomUrl,
           professorId: course.professorId
         });
 

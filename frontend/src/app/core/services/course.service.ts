@@ -23,6 +23,7 @@ export interface Course {
   endDate?: Date;
   status: string;
   professorId?: string; // Keycloak User ID
+  googleClassroomUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -31,7 +32,7 @@ export interface Course {
   providedIn: "root",
 })
 export class CourseService {
-  private apiUrl = `${environment.apiUrl}/cursos`;
+  private apiUrl = `${environment.apiUrl}/courses`;
 
   constructor(private http: HttpClient) {}
 
@@ -56,6 +57,6 @@ export class CourseService {
   }
 
   getProfessors(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/usuarios/professores`);
+    return this.http.get<any[]>(`${environment.apiUrl}/users/teachers`);
   }
 }

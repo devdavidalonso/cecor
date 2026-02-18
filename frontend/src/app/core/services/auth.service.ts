@@ -45,7 +45,8 @@ export class AuthService {
       name: this.ssoService.getUserName(),
       email: this.ssoService.getUserEmail(),
       roles: roles,
-      profileId: this.mapRolesToProfileId(roles)
+      profileId: this.mapRolesToProfileId(roles),
+      locale: claims?.locale || 'pt-BR' // ✅ Extrai locale do token ou usa padrão
     };
   }
 

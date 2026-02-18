@@ -17,6 +17,7 @@ export interface User {
   roles: string[];
   profileId: number; // ✅ Changed from 'profile' (string) to 'profileId' (number)
   profile?: UserProfile; // ✅ New - relationship with UserProfile
+  locale?: string; // ✅ New - User locale preference
 }
 
 /**

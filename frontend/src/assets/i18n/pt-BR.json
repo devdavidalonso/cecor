@@ -95,7 +95,9 @@
     "STATUS": "Status",
     "ACTIVE": "Ativo",
     "INACTIVE": "Inativo",
-    "DURATION": "Duração"
+    "DURATION": "Duração",
+    "GOOGLE_CLASSROOM_URL": "URL do Google Classroom",
+    "INVALID_URL": "Formato de URL inválido"
   },
   "ENROLLMENT": {
     "TITLE": "Matrículas",

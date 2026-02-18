@@ -5,6 +5,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -27,7 +28,8 @@ interface MenuItem {
     RouterModule,
     MatListModule,
     MatIconModule,
-    MatExpansionModule
+    MatExpansionModule,
+    TranslateModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -45,7 +47,7 @@ interface MenuItem {
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <mat-icon>{{ item.icon }}</mat-icon>
-                  <span class="nav-item-text">{{ item.text }}</span>
+                  <span class="nav-item-text">{{ item.text | translate }}</span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
               
@@ -55,7 +57,7 @@ interface MenuItem {
                     <a mat-list-item [routerLink]="child.route" routerLinkActive="active-link"
                       (click)="closeIfMobile()">
                       <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
-                      <span matListItemTitle>{{ child.text }}</span>
+                      <span matListItemTitle>{{ child.text | translate }}</span>
                     </a>
                   </ng-container>
                 </ng-container>
@@ -66,7 +68,7 @@ interface MenuItem {
             <a *ngIf="!item.children" mat-list-item [routerLink]="item.route" routerLinkActive="active-link"
               (click)="closeIfMobile()">
               <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-              <span matListItemTitle>{{ item.text }}</span>
+              <span matListItemTitle>{{ item.text | translate }}</span>
             </a>
           </ng-container>
         </ng-container>
@@ -113,84 +115,89 @@ export class SidebarComponent implements OnInit {
   
   menuItems: MenuItem[] = [
     {
-      text: 'Dashboard',
+      text: 'NAV.DASHBOARD',
       icon: 'dashboard',
       route: '/dashboard'
     },
     {
-      text: 'Alunos',
+      text: 'NAV.STUDENTS',
       icon: 'people',
       children: [
         {
-          text: 'Listar Alunos',
+          text: 'NAV.STUDENTS_LIST',
           icon: 'list',
           route: '/students'
         },
         {
-          text: 'Cadastrar Aluno',
+          text: 'NAV.STUDENTS_NEW',
           icon: 'person_add',
           route: '/students/new'
         }
       ]
     },
     {
-      text: 'Courses',
+      text: 'NAV.COURSES',
       icon: 'school',
       children: [
         {
-          text: 'Listar Cursos',
+          text: 'NAV.COURSES_LIST',
           icon: 'list',
           route: '/courses'
         },
         {
-          text: 'Cadastrar Curso',
+          text: 'NAV.COURSES_NEW',
           icon: 'add_circle',
           route: '/courses/new'
         }
       ]
     },
     {
-      text: 'Enrollments',
+      text: 'NAV.ENROLLMENTS',
       icon: 'how_to_reg',
       children: [
         {
-          text: 'Listar Matrículas',
+          text: 'NAV.ENROLLMENTS_LIST',
           icon: 'list',
           route: '/enrollments'
         },
         {
-          text: 'New Enrollment',
+          text: 'NAV.ENROLLMENTS_NEW',
           icon: 'add_circle',
           route: '/enrollments/new'
         }
       ]
     },
     {
-      text: 'Attendance',
+      text: 'NAV.ATTENDANCE',
       icon: 'fact_check',
       route: '/attendance'
     },
     {
-      text: 'Reports',
+      text: 'NAV.REPORTS',
       icon: 'assessment',
       route: '/reports'
     },
     {
-      text: 'Entrevistas',
+      text: 'NAV.INTERVIEWS',
       icon: 'question_answer',
-      route: '/entrevistas'
+      route: '/interviews'
     },
     {
-      text: 'Professores',
+      text: 'NAV.TEACHERS',
       icon: 'supervisor_account',
-      route: '/professores',
+      route: '/teachers',
       roles: ['admin', 'administrador']
     },
     {
-      text: 'Administração',
+      text: 'NAV.ADMINISTRATION',
       icon: 'admin_panel_settings',
-      route: '/administracao',
+      route: '/administration',
       roles: ['admin', 'administrador']
+    },
+    {
+      text: 'NAV.VOLUNTEERING',
+      icon: 'volunteer_activism',
+      route: '/volunteering'
     }
   ];
   

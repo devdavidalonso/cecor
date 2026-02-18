@@ -16,7 +16,7 @@ const MOCK_CAROUSEL_ITEMS: CarouselItem[] = [
     title: 'Cursos para todas as idades',
     description: 'Oferecemos diversos cursos gratuitos para pessoas de todas as idades e níveis de experiência.',
     buttonText: 'Conheça nossos cursos',
-    buttonLink: '/cursos',
+    buttonLink: '/courses',
     order: 1,
     active: true
   },
@@ -26,7 +26,7 @@ const MOCK_CAROUSEL_ITEMS: CarouselItem[] = [
     title: 'Aprenda novas habilidades',
     description: 'Desenvolva habilidades profissionais e pessoais com nossos cursos ministrados por professores qualificados.',
     buttonText: 'Matricule-se agora',
-    buttonLink: '/cursos',
+    buttonLink: '/courses',
     order: 2,
     active: true
   },

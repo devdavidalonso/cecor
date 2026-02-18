@@ -2,7 +2,7 @@
 import { ApplicationConfig, isDevMode, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -24,6 +24,8 @@ import { SsoService } from './core/services/sso.service';
 export function initializeSso(ssoService: SsoService) {
   return () => ssoService.initSso();
 }
+
+
 
 export const appConfig: ApplicationConfig = {
   providers: [

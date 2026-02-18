@@ -10,7 +10,7 @@ import { PaginatedResponse } from '../models/paginated-response.model';
   providedIn: 'root'
 })
 export class AttendanceService {
-  private readonly API_URL = `${environment.apiUrl}/presencas`;
+  private readonly API_URL = `${environment.apiUrl}/attendance`;
 
   constructor(private http: HttpClient) {}
 

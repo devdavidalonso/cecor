@@ -34,8 +34,8 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 			// Endpoint de verificação de token
 			r.Get("/auth/verify", authHandler.Verify)
 
-			// Alunos
-			r.Route("/alunos", func(r chi.Router) {
+			// Students
+			r.Route("/students", func(r chi.Router) {
 				r.Get("/", http.NotFound)        // TODO: Implementar handler
 				r.Post("/", http.NotFound)       // TODO: Implementar handler
 				r.Get("/{id}", http.NotFound)    // TODO: Implementar handler
@@ -43,8 +43,8 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 				r.Delete("/{id}", http.NotFound) // TODO: Implementar handler
 			})
 
-			// Cursos
-			r.Route("/cursos", func(r chi.Router) {
+			// Courses
+			r.Route("/courses", func(r chi.Router) {
 				r.Get("/", courseHandler.ListCourses)
 				r.Post("/", courseHandler.CreateCourse)
 				r.Get("/{id}", courseHandler.GetCourse)
@@ -52,8 +52,8 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 				r.Delete("/{id}", courseHandler.DeleteCourse)
 			})
 
-			// Matrículas
-			r.Route("/matriculas", func(r chi.Router) {
+			// Enrollments
+			r.Route("/enrollments", func(r chi.Router) {
 				r.Get("/", enrollmentHandler.ListEnrollments)
 				r.Post("/", enrollmentHandler.EnrollStudent)
 				r.Get("/{id}", enrollmentHandler.GetEnrollment)
@@ -61,59 +61,59 @@ func Register(r chi.Router, cfg *config.Config, authHandler *handlers.AuthHandle
 				r.Delete("/{id}", enrollmentHandler.DeleteEnrollment)
 			})
 
-			// Presenças
-			r.Route("/presencas", func(r chi.Router) {
-				r.Post("/registrar", attendanceHandler.RecordBatch)
-				r.Get("/curso/{id}/data/{data}", attendanceHandler.GetClassAttendance)
-				r.Get("/aluno/{id}", attendanceHandler.GetStudentHistory)
-				r.Get("/aluno/{id}/percentual", attendanceHandler.GetStudentPercentage)
+			// Attendance
+			r.Route("/attendance", func(r chi.Router) {
+				r.Post("/record", attendanceHandler.RecordBatch)
+				r.Get("/course/{id}/date/{date}", attendanceHandler.GetClassAttendance)   // Changed data to date
+				r.Get("/student/{id}", attendanceHandler.GetStudentHistory)               // Changed aluno to student
+				r.Get("/student/{id}/percentage", attendanceHandler.GetStudentPercentage) // Changed percentual to percentage
 			})
 
-			// Notificações
-			r.Route("/notificacoes", func(r chi.Router) {
+			// Notifications
+			r.Route("/notifications", func(r chi.Router) {
 				r.Get("/", http.NotFound)          // TODO: Implementar handler
 				r.Post("/", http.NotFound)         // TODO: Implementar handler
 				r.Get("/{id}", http.NotFound)      // TODO: Implementar handler
-				r.Put("/{id}/lida", http.NotFound) // TODO: Implementar handler
+				r.Put("/{id}/read", http.NotFound) // TODO: Implementar handler
 			})
 
 			// Reports
-			r.Route("/relatorios", func(r chi.Router) {
-				r.Get("/frequencia/curso/{id}", reportHandler.GetCourseAttendanceReport)
-				r.Get("/frequencia/aluno/{id}", reportHandler.GetStudentAttendanceReport)
-				r.Get("/alunos", http.NotFound) // TODO: Implementar handler
-				r.Get("/cursos", http.NotFound) // TODO: Implementar handler
+			r.Route("/reports", func(r chi.Router) {
+				r.Get("/attendance/course/{id}", reportHandler.GetCourseAttendanceReport)   // frequencia -> attendance
+				r.Get("/attendance/student/{id}", reportHandler.GetStudentAttendanceReport) // frequencia -> attendance
+				r.Get("/students", http.NotFound)                                           // TODO: Implementar handler
+				r.Get("/courses", http.NotFound)                                            // TODO: Implementar handler
 			})
 
-			// Entrevistas
-			r.Route("/entrevistas", func(r chi.Router) {
+			// Interviews
+			r.Route("/interviews", func(r chi.Router) {
 				r.Get("/", http.NotFound)     // TODO: Implementar handler
 				r.Post("/", http.NotFound)    // TODO: Implementar handler
 				r.Get("/{id}", http.NotFound) // TODO: Implementar handler
 				r.Put("/{id}", http.NotFound) // TODO: Implementar handler
 			})
 
-			// Voluntariado
-			r.Route("/voluntariado", func(r chi.Router) {
-				r.Get("/termos", http.NotFound)               // TODO: Implementar handler
-				r.Post("/termos", http.NotFound)              // TODO: Implementar handler
-				r.Get("/termos/{id}", http.NotFound)          // TODO: Implementar handler
-				r.Post("/termos/{id}/assinar", http.NotFound) // TODO: Implementar handler
+			// Volunteering
+			r.Route("/volunteering", func(r chi.Router) {
+				r.Get("/terms", http.NotFound)            // TODO: Implementar handler
+				r.Post("/terms", http.NotFound)           // TODO: Implementar handler
+				r.Get("/terms/{id}", http.NotFound)       // TODO: Implementar handler
+				r.Post("/terms/{id}/sign", http.NotFound) // TODO: Implementar handler
 			})
 
-			// Usuários e Permissões (admin)
-			r.Route("/usuarios", func(r chi.Router) {
+			// Users & Permissions (admin)
+			r.Route("/users", func(r chi.Router) {
 				r.Use(middleware.RequireAdmin)
 				r.Get("/", http.NotFound)  // TODO: Implementar handler
 				r.Post("/", http.NotFound) // TODO: Implementar handler
-				r.Get("/professores", courseHandler.ListProfessors)
+				r.Get("/teachers", courseHandler.ListProfessors)
 				r.Get("/{id}", http.NotFound)    // TODO: Implementar handler
 				r.Put("/{id}", http.NotFound)    // TODO: Implementar handler
 				r.Delete("/{id}", http.NotFound) // TODO: Implementar handler
 			})
 
-			// Professores (novo)
-			r.Route("/professores", func(r chi.Router) {
+			// Teachers
+			r.Route("/teachers", func(r chi.Router) {
 				// r.Use(middleware.RequireAdmin) // Idealmente restrito a admins
 				r.Post("/", teacherHandler.CreateProfessor)
 				r.Get("/", teacherHandler.GetProfessors)

@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/devdavidalonso/cecor/backend/internal/database"

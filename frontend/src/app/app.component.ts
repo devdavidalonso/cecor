@@ -9,6 +9,8 @@ import { PrototypeControlsComponent } from './features/prototype-controls/protot
 import { PrototypeService } from './core/services/prototype/prototype.service';
 import { SsoService } from './core/services/sso.service';
 
+import { TranslationService } from './core/services/translation.service';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -37,12 +39,21 @@ export class AppComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private prototypeService: PrototypeService,
-    private ssoService: SsoService
+    private ssoService: SsoService,
+    private translationService: TranslationService // ✅ Inject TranslationService
   ) { }
 
   ngOnInit() {
     // Verificar se há um token válido no localStorage
     this.authService.checkAuth();
+
+    // Listen for user changes to set language
+    this.authService.currentUser$.subscribe(user => {
+      if (user && user.locale) {
+        console.log('🌍 [App] Setting language to:', user.locale);
+        this.translationService.changeLang(user.locale);
+      }
+    });
 
     // Verificar o modo protótipo
     this.prototypeService.isPrototypeMode$.subscribe((enabled: boolean) => {

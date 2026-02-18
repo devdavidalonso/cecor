@@ -32,6 +32,7 @@ type DatabaseConfig struct {
 	PostgresPassword string
 	PostgresDB       string
 	PostgresSSLMode  string
+	MongoURI         string
 }
 
 // AuthConfig contém configurações de autenticação
@@ -88,6 +89,7 @@ func Load() (*Config, error) {
 			PostgresPassword: getEnv("POSTGRES_PASSWORD", "cecor123"),
 			PostgresDB:       getEnv("POSTGRES_DB", "cecor_db"),
 			PostgresSSLMode:  getEnv("POSTGRES_SSLMODE", "disable"),
+			MongoURI:         getEnv("MONGO_URI", "mongodb://mongo:27017"),
 		},
 		Auth: AuthConfig{
 			JwtSecret:          getEnv("JWT_SECRET", "sua_chave_secreta_muito_segura"), // WARNING: Default value for development only. Do not use in production.
