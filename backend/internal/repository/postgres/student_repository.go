@@ -199,7 +199,7 @@ func (r *studentRepository) FindByCPF(ctx context.Context, cpf string) (*models.
 // - error: any error encountered during the operation
 func (r *studentRepository) Create(ctx context.Context, student *models.Student) error {
 	// Check if user data is provided
-	if (student.User == models.User{}) {
+	if student.User.Name == "" && student.User.Email == "" && student.User.CPF == "" {
 		return fmt.Errorf("user data is required")
 	}
 
@@ -274,7 +274,8 @@ func (r *studentRepository) Update(ctx context.Context, student *models.Student)
 	// Start transaction
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// If user data is provided, update it
-		if (student.User != models.User{}) {
+		// We check if any key field is present to assume user data is being updated
+		if student.User.Name != "" || student.User.Email != "" || student.User.Phone != "" || student.User.CPF != "" {
 			// Ensure user ID is correct
 			student.User.ID = existing.UserID
 

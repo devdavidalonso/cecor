@@ -28,6 +28,10 @@ type Course struct {
 	CreatedAt           time.Time  `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt           time.Time  `json:"updatedAt" gorm:"autoUpdateTime"`
 	DeletedAt           *time.Time `json:"deletedAt" gorm:"index"`
+
+	// Associations
+	ClassSessions  []ClassSession  `json:"classSessions,omitempty" gorm:"foreignKey:CourseID"`
+	TeacherCourses []TeacherCourse `json:"teacherCourses,omitempty" gorm:"foreignKey:CourseID"`
 }
 
 // TableName defines the table name in the database

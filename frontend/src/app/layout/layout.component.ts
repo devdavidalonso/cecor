@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, ViewChild, AfterViewInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -35,23 +35,25 @@ import { AuthService } from '../core/services/auth.service';
   template: `
     <ng-container *ngIf="authService.isAuthenticated$ | async; else loginTemplate">
       <mat-sidenav-container class="sidenav-container">
-        <mat-sidenav #sidenav 
-          [mode]="(isHandset$ | async) ? 'over' : 'side'" 
-          [opened]="(isHandset$ | async) === false"
-          class="sidenav"
-          [fixedInViewport]="false">
+
+        <mat-sidenav
+          #sidenav
+          [mode]="(isHandset$ | async) ? 'over' : 'side'"
+          class="sidenav">
           <app-sidebar [sidenav]="sidenav"></app-sidebar>
         </mat-sidenav>
-        <mat-sidenav-content>
+
+        <mat-sidenav-content class="sidenav-content">
           <app-header [sidenav]="sidenav"></app-header>
-          <main class="content">
+          <main class="main-content">
             <router-outlet></router-outlet>
           </main>
           <app-footer></app-footer>
         </mat-sidenav-content>
+
       </mat-sidenav-container>
     </ng-container>
-    
+
     <ng-template #loginTemplate>
       <div class="auth-container">
         <ng-content></ng-content>
@@ -59,41 +61,69 @@ import { AuthService } from '../core/services/auth.service';
     </ng-template>
   `,
   styles: [`
-    .sidenav-container {
+    :host {
+      display: block;
       height: 100%;
     }
-    
+
+    .sidenav-container {
+      height: 100%;
+      background: #f8f9fa;
+    }
+
     .sidenav {
-      width: 250px;
+      width: 240px;
+      border-right: none;
+      box-shadow: 2px 0 8px rgba(0, 106, 172, 0.08);
     }
-    
-    .content {
-      padding: 20px;
-      min-height: calc(100vh - 128px); /* 100vh - (header + footer) */
+
+    .sidenav-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    
+
+    .main-content {
+      flex: 1;
+      padding: 24px;
+      max-width: 1400px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
     .auth-container {
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #f5f5f5;
-    }
-  
-    :host {
-      display: block;
-      height: 100%;
+      background: linear-gradient(135deg, #e3f1f9 0%, #f8f9fa 100%);
     }
   `]
 })
-export class LayoutComponent {
-  private breakpointObserver = inject(BreakpointObserver);
+export class LayoutComponent implements AfterViewInit {
+  @ViewChild('sidenav') sidenav!: MatSidenav;
 
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+  private readonly breakpointObserver = inject(BreakpointObserver);
+
+  isHandset$: Observable<boolean> = this.breakpointObserver
+    .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
     .pipe(
       map(result => result.matches),
       shareReplay()
     );
 
-  constructor(public authService: AuthService) { }
+  constructor(public authService: AuthService) {}
+
+  ngAfterViewInit(): void {
+    // Abrir sidenav em desktop automaticamente; fechar em mobile
+    this.isHandset$.subscribe(isHandset => {
+      if (this.sidenav) {
+        if (isHandset) {
+          this.sidenav.close();
+        } else {
+          this.sidenav.open();
+        }
+      }
+    });
+  }
 }

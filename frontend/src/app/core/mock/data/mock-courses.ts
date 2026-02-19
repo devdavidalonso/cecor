@@ -13,12 +13,33 @@ export const MOCK_COURSES: Course[] = [
     startTime: '09:00',
     endTime: '11:00',
     duration: 10,
+    startDate: new Date('2024-03-04'),
+    endDate: new Date('2024-05-10'),
     coverImage: 'assets/images/courses/informatica-basica.jpg',
     status: 'active',
-    difficultyLevel: 'Iniciante',
-    targetAudience: 'Pessoas de todas as idades interessadas em aprender informática básica',
-    prerequisites: 'Nenhum conhecimento prévio necessário',
-    tags: '["informática", "tecnologia", "iniciante"]'
+    prerequisites: 'Nenhum conhecimento prévio necessário'
+  },
+  {
+    id: 3, // Changed ID to avoid conflict with existing course 1
+    name: "Introdução à Programação",
+    shortDescription: "Aprenda os conceitos básicos da lógica de programação e algoritmos.",
+    detailedDescription: "Este curso é ideal para quem nunca programou antes. Abordaremos variáveis, estruturas de controle, loops e funções. Tudo com exemplos práticos e exercícios.",
+    coverImage: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    workload: 40,
+    maxStudents: 30,
+    prerequisites: "Nenhum",
+    difficultyLevel: "Beginner",
+    targetAudience: "Iniciantes em tecnologia",
+    weekDays: "Seg,Qua",
+    startTime: "19:00",
+    endTime: "21:00",
+    duration: 8,
+    startDate: new Date("2024-03-04"),
+    endDate: new Date("2024-04-26"),
+    status: "active",
+    professorId: 101, // ID numérico simulado
+    category: "Technology",
+    teacherIds: [101]
   },
   {
     id: 2,
@@ -31,11 +52,10 @@ export const MOCK_COURSES: Course[] = [
     startTime: '14:00',
     endTime: '17:00',
     duration: 12,
+    startDate: new Date('2024-03-05'),
+    endDate: new Date('2024-05-23'),
     coverImage: 'assets/images/courses/corte-costura.jpg',
     status: 'active',
-    difficultyLevel: 'Iniciante',
-    targetAudience: 'Interessados em aprender técnicas básicas de costura',
-    prerequisites: 'Nenhum conhecimento prévio necessário',
-    tags: '["costura", "artesanato", "moda"]'
+    prerequisites: 'Nenhum conhecimento prévio necessário'
   }
 ];

@@ -7,23 +7,29 @@ export interface Course {
   id?: number;
   name: string;
   shortDescription?: string;
-  coverImage?: string;
   detailedDescription?: string;
-  workload: number;
-  maxStudents: number;
-  prerequisites?: string;
-  difficultyLevel?: string;
+  coverImage?: string;
+  difficultyLevel?: 'Beginner' | 'Intermediate' | 'Advanced';
   targetAudience?: string;
-  tags?: string; // JSON string
-  weekDays: string;
-  startTime: string;
-  endTime: string;
-  duration: number; // in weeks
-  startDate?: Date;
-  endDate?: Date;
-  status: string;
-  professorId?: string; // Keycloak User ID
+  prerequisites?: string;
+  workload: number; // hours
+  maxStudents: number;
+  duration: number; // weeks
+  weekDays: string; // "Mon,Wed"
+  startTime: string; // "19:00"
+  endTime: string; // "21:00"
+  startDate: Date;
+  endDate: Date;
   googleClassroomUrl?: string;
+  status: 'active' | 'draft' | 'archived';
+  
+  // New Fields for Wizard
+  category?: string; // Technology, Arts, etc.
+  locationId?: number;
+  teacherIds?: number[]; // Array of teacher IDs (Titular + Auxiliares)
+  
+  // Legacy / Transitional
+  professorId?: number; // Main professor (to be compatible with existing code)
   createdAt?: string;
   updatedAt?: string;
 }

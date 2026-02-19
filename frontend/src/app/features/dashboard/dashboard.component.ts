@@ -43,6 +43,11 @@ interface DashboardCard {
           </mat-card-content>
         </mat-card>
       </div>
+
+      <!-- Logo CECOR centralizado entre os cards -->
+      <div class="cecor-logo-divider">
+        <img src="assets/images/cecor-logo.png" alt="CECOR" class="cecor-center-logo" />
+      </div>
       
       <div class="dashboard-grid">
         <div class="dashboard-card" *ngFor="let card of dashboardCards">
@@ -105,6 +110,20 @@ interface DashboardCard {
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
       margin-bottom: 24px;
+    }
+
+    .cecor-logo-divider {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 0 20px;
+    }
+
+    .cecor-center-logo {
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+      opacity: 0.9;
     }
     
     .card-content {

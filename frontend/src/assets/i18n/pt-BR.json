@@ -7,16 +7,33 @@
     "HOME": "Início",
     "DASHBOARD": "Dashboard",
     "STUDENTS": "Alunos",
+    "STUDENTS_NEW": "Novo Aluno",
+    "STUDENTS_LIST": "Lista de Alunos",
     "TEACHERS": "Professores",
     "COURSES": "Cursos",
+    "COURSES_LIST": "Lista de Cursos",
     "ENROLLMENTS": "Matrículas",
     "ATTENDANCE": "Presenças",
     "REPORTS": "Relatórios",
+    "INTERVIEWS": "Entrevistas",
     "ADMINISTRATION": "Administração",
+    "VOLUNTEERING": "Voluntariado",
     "PROFILE": "Perfil",
     "SETTINGS": "Configurações",
     "LOGOUT": "Sair",
-    "LOGIN": "Entrar"
+    "LOGIN": "Entrar",
+    "ENROLLMENTS_NEW": "Nova Matrícula",
+    "ENROLLMENTS_LIST": "Lista de Matrículas"
+  },
+  "HOME": {
+    "WELCOME_TITLE": "Bem-vindo(a), {{name}}!",
+    "WELCOME_MESSAGE": "Bem-vindo ao Sistema de Gestão Educacional CECOR. Use a barra lateral para navegar entre as funcionalidades."
+  },
+  "DASHBOARD": {
+    "ACTIVE_STUDENTS": "Total de alunos ativos",
+    "COURSES_IN_PROGRESS": "Cursos em andamento",
+    "ACTIVE_ENROLLMENTS": "Matrículas ativas",
+    "CURRENT_ATTENDANCE": "Taxa de presença atual"
   },
   "STUDENT": {
     "TITLE": "Alunos",
@@ -172,7 +189,8 @@
     "REQUIRED": "Obrigatório",
     "OPTIONAL": "Opcional",
     "MORE": "Mais",
-    "LESS": "Menos"
+    "LESS": "Menos",
+    "QUICK_ACTIONS": "Ações Rápidas"
   },
   "MESSAGE": {
     "SAVE_SUCCESS": "Dados salvos com sucesso!",

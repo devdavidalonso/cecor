@@ -1,23 +1,23 @@
-import { Component, Input, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 
 import { AuthService } from '../../core/services/auth.service';
-import { User } from '../../core/models/user.model'; // Assuming User model is here
 
 interface MenuItem {
   text: string;
   icon: string;
-  route?: string;
-  children?: MenuItem[];
+  route: string;
   roles?: string[];
+  dividerBefore?: boolean;
 }
 
 @Component({
@@ -28,220 +28,332 @@ interface MenuItem {
     RouterModule,
     MatListModule,
     MatIconModule,
-    MatExpansionModule,
-    TranslateModule
+    MatDividerModule,
+    MatTooltipModule,
+    TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="sidebar-container">
+
+      <!-- Cabeçalho / Logo -->
       <div class="sidebar-header">
-        <div class="logo">CECOR</div>
+        <img src="assets/images/cecor-logo.png" alt="CECOR" class="logo-cecor" />
       </div>
-      
-      <mat-nav-list>
-        <ng-container *ngFor="let item of menuItems">
-          <!-- Verificar permissões -->
-          <ng-container *ngIf="hasRequiredRole(item.roles) | async">
-            <!-- Item com subitens -->
-            <mat-expansion-panel *ngIf="item.children && item.children.length" class="mat-elevation-z0">
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <mat-icon>{{ item.icon }}</mat-icon>
-                  <span class="nav-item-text">{{ item.text | translate }}</span>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              
-              <mat-nav-list>
-                <ng-container *ngFor="let child of item.children">
-                  <ng-container *ngIf="hasRequiredRole(child.roles) | async">
-                    <a mat-list-item [routerLink]="child.route" routerLinkActive="active-link"
-                      (click)="closeIfMobile()">
-                      <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
-                      <span matListItemTitle>{{ child.text | translate }}</span>
-                    </a>
-                  </ng-container>
-                </ng-container>
-              </mat-nav-list>
-            </mat-expansion-panel>
-            
-            <!-- Item simples -->
-            <a *ngIf="!item.children" mat-list-item [routerLink]="item.route" routerLinkActive="active-link"
-              (click)="closeIfMobile()">
-              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-              <span matListItemTitle>{{ item.text | translate }}</span>
-            </a>
+
+      <!-- Usuário Logado -->
+      <div class="user-info" *ngIf="currentUser$ | async as user">
+        <div class="user-avatar">{{ getInitials(user.name) }}</div>
+        <div class="user-details">
+          <span class="user-name">{{ user.name }}</span>
+          <span class="user-role">{{ getRoleLabel(user.roles) }}</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Menu de Navegação -->
+      <nav class="sidebar-nav">
+        <mat-nav-list>
+          <ng-container *ngFor="let item of menuItems">
+            <mat-divider *ngIf="item.dividerBefore" class="section-divider"></mat-divider>
+            <ng-container *ngIf="hasRequiredRole(item.roles) | async">
+              <a
+                mat-list-item
+                [routerLink]="item.route"
+                routerLinkActive="active-link"
+                [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
+                (click)="closeIfMobile()"
+                class="nav-item"
+                [matTooltip]="item.text | translate"
+                matTooltipPosition="right">
+                <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+                <span matListItemTitle class="nav-label">{{ item.text | translate }}</span>
+              </a>
+            </ng-container>
           </ng-container>
-        </ng-container>
-      </mat-nav-list>
+        </mat-nav-list>
+      </nav>
+
+      <!-- Rodapé Sidebar -->
+      <div class="sidebar-footer">
+        <img src="assets/images/paulo-rossi.png" alt="GECS - Paulo Rossi" class="footer-paulo-rossi" />
+      </div>
+
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      height: 100%;
+    }
+
     .sidebar-container {
       display: flex;
       flex-direction: column;
       height: 100%;
-      background-color: white;
+      background: #ffffff;
+      border-right: 1px solid rgba(0, 106, 172, 0.12);
+      overflow: hidden;
     }
-    
+
+    /* ---- Cabeçalho ---- */
+    /* ---- Cabeçalho ---- */
     .sidebar-header {
-      height: 64px; /* Matches standard toolbar height */
-      padding: 0 16px;
+      background: linear-gradient(135deg, #006aac 0%, #0083c0 100%);
+      padding: 16px 12px;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo-cecor {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+
+    /* ---- Usuário ---- */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #f8fbff;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #006aac, #0083c0);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #1565c0; /* Matches primary 800 */
-      color: white;
-      box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
-      z-index: 1;
-    }
-    
-    .logo {
-      font-size: 20px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-    
-    .active-link {
-      background-color: rgba(21, 101, 192, 0.08); /* Primary color with opacity */
-      color: #1565c0;
-      font-weight: 500;
-      border-right: 3px solid #1565c0;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
     }
 
-    /* Hover effect for list items */
-    mat-nav-list a:hover {
-      background-color: rgba(0, 0, 0, 0.04);
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
     }
-    
-    mat-expansion-panel {
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      background-color: transparent !important;
+
+    .user-name {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: #302424;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    
-    .nav-item-text {
-      margin-left: 8px;
+
+    .user-role {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: #0083c0;
+    }
+
+    /* ---- Navegação ---- */
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px 0;
+    }
+
+    .section-divider {
+      margin: 8px 16px !important;
+      border-color: rgba(0, 106, 172, 0.1) !important;
+    }
+
+    mat-nav-list {
+      padding-top: 0 !important;
+    }
+
+    .nav-item {
+      height: 44px !important;
+      margin: 2px 8px !important;
+      border-radius: 8px !important;
+      transition: background-color 0.15s ease, color 0.15s ease !important;
+
+      &:hover {
+        background-color: rgba(0, 106, 172, 0.06) !important;
+      }
+
+      &.active-link {
+        background-color: rgba(0, 106, 172, 0.12) !important;
+        border-left: 3px solid #006aac;
+        padding-left: 13px !important;
+
+        .nav-icon {
+          color: #006aac !important;
+        }
+
+        .nav-label {
+          color: #006aac !important;
+          font-weight: 700 !important;
+        }
+      }
+    }
+
+    .nav-icon {
+      color: #8b8d94 !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      transition: color 0.15s ease;
+    }
+
+    .nav-label {
+      font-family: 'Manrope', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      color: #302424 !important;
+      transition: color 0.15s ease, font-weight 0.15s ease;
+    }
+
+    /* ---- Rodapé ---- */
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f8fbff;
+    }
+
+    .footer-paulo-rossi {
+      width: 90px;
+      height: auto;
+      object-fit: contain;
+      display: block;
     }
   `]
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   @Input() sidenav!: MatSidenav;
-  
-  menuItems: MenuItem[] = [
+
+  private destroy$ = new Subject<void>();
+
+  currentUser$: Observable<any>;
+
+  readonly menuItems: MenuItem[] = [
     {
       text: 'NAV.DASHBOARD',
       icon: 'dashboard',
-      route: '/dashboard'
+      route: '/dashboard',
     },
     {
       text: 'NAV.STUDENTS',
       icon: 'people',
-      children: [
-        {
-          text: 'NAV.STUDENTS_LIST',
-          icon: 'list',
-          route: '/students'
-        },
-        {
-          text: 'NAV.STUDENTS_NEW',
-          icon: 'person_add',
-          route: '/students/new'
-        }
-      ]
+      route: '/students',
+      dividerBefore: true,
+    },
+    {
+      text: 'NAV.STUDENTS_NEW',
+      icon: 'person_add',
+      route: '/students/new',
     },
     {
       text: 'NAV.COURSES',
       icon: 'school',
-      children: [
-        {
-          text: 'NAV.COURSES_LIST',
-          icon: 'list',
-          route: '/courses'
-        },
-        {
-          text: 'NAV.COURSES_NEW',
-          icon: 'add_circle',
-          route: '/courses/new'
-        }
-      ]
+      route: '/courses',
     },
     {
       text: 'NAV.ENROLLMENTS',
       icon: 'how_to_reg',
-      children: [
-        {
-          text: 'NAV.ENROLLMENTS_LIST',
-          icon: 'list',
-          route: '/enrollments'
-        },
-        {
-          text: 'NAV.ENROLLMENTS_NEW',
-          icon: 'add_circle',
-          route: '/enrollments/new'
-        }
-      ]
+      route: '/enrollments',
     },
     {
       text: 'NAV.ATTENDANCE',
       icon: 'fact_check',
-      route: '/attendance'
+      route: '/attendance',
     },
     {
       text: 'NAV.REPORTS',
       icon: 'assessment',
-      route: '/reports'
+      route: '/reports',
+      dividerBefore: true,
     },
     {
       text: 'NAV.INTERVIEWS',
       icon: 'question_answer',
-      route: '/interviews'
+      route: '/interviews',
     },
     {
       text: 'NAV.TEACHERS',
       icon: 'supervisor_account',
       route: '/teachers',
-      roles: ['admin', 'administrador']
+      roles: ['admin', 'administrador'],
+      dividerBefore: true,
     },
     {
       text: 'NAV.ADMINISTRATION',
       icon: 'admin_panel_settings',
       route: '/administration',
-      roles: ['admin', 'administrador']
+      roles: ['admin', 'administrador'],
     },
     {
       text: 'NAV.VOLUNTEERING',
       icon: 'volunteer_activism',
-      route: '/volunteering'
-    }
+      route: '/volunteering',
+    },
   ];
-  
-  currentUserRoles: string[] = [];
 
-  constructor(private authService: AuthService) {}
-
-  ngOnInit(): void {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUserRoles = user?.roles || [];
-    });
+  constructor(private authService: AuthService) {
+    this.currentUser$ = this.authService.currentUser$;
   }
-  
+
+  ngOnInit(): void {}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   hasRequiredRole(requiredRoles?: string[]): Observable<boolean> {
     if (!requiredRoles || requiredRoles.length === 0) {
-      return of(true); // No roles required, so always show
+      return new Observable(observer => observer.next(true));
     }
     return this.authService.currentUser$.pipe(
       map(user => {
-        if (!user || !user.roles) {
-          return false;
-        }
+        if (!user?.roles) return false;
         return requiredRoles.some(role => user.roles!.includes(role));
-      })
+      }),
     );
   }
-  
+
   closeIfMobile(): void {
-    if (window.innerWidth < 768) {
+    if (window.innerWidth < 960) {
       this.sidenav.close();
     }
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
+  }
+
+  getRoleLabel(roles?: string[]): string {
+    if (!roles?.length) return '';
+    if (roles.includes('admin') || roles.includes('administrador')) return 'Administrador';
+    if (roles.includes('professor')) return 'Professor';
+    if (roles.includes('aluno')) return 'Aluno';
+    return roles[0];
   }
 }

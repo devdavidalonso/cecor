@@ -1,133 +1,205 @@
-/* Estilos globais */
-
-// Importar material theming
+// Importar Material theming — DEVE ser o primeiro @use
 @use "@angular/material" as mat;
 
-// Definir paleta de cores customizada
-// Definir paleta de cores customizada
-// Custom Blue Palette (Royal Blue/GECS inspire)
-$custom-blue: (
-  50: #e3f2fd,
-  100: #bbdefb,
-  200: #90caf9,
-  300: #64b5f6,
-  400: #42a5f5,
-  500: #2196f3,
-  600: #1e88e5,
-  700: #1976d2,
-  800: #1565c0,
-  900: #0d47a1,
-  A100: #82b1ff,
-  A200: #448aff,
-  A400: #2979ff,
-  A700: #2962ff,
+/* ============================================================
+   GECS Theme — Baseado em gecairbarschutel.org.br
+   Centro Educacional Prof. Paulo Rossi Severino (CECOR)
+   ============================================================ */
+
+// Google Font: Manrope (via CSS @import, não Sass @import)
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+
+
+// ---- Paleta Primária: Azul GECS ----
+$gecs-blue: (
+  50:  #e3f1f9,
+  100: #b9dcf0,
+  200: #8bc5e6,
+  300: #5caedc,
+  400: #399cd5,
+  500: #0083c0,
+  600: #0078b0,
+  700: #006aac,
+  800: #054974,
+  900: #033354,
+  A100: #82d4ff,
+  A200: #4fc3f7,
+  A400: #00b7eb,
+  A700: #0097d1,
   contrast: (
-    50: #000000,
+    50:  #000000,
     100: #000000,
     200: #000000,
     300: #000000,
-    400: #000000,
+    400: #ffffff,
     500: #ffffff,
     600: #ffffff,
     700: #ffffff,
     800: #ffffff,
     900: #ffffff,
     A100: #000000,
-    A200: #ffffff,
+    A200: #000000,
     A400: #ffffff,
     A700: #ffffff,
   ),
 );
 
-$primary-palette: mat.define-palette($custom-blue, 800);
-$accent-palette: mat.define-palette(mat.$orange-palette, A200, A100, A400);
-$warn-palette: mat.define-palette(mat.$red-palette);
+// ---- Paleta Accent: Âmbar GECS ----
+$gecs-amber: (
+  50:  #fff8e1,
+  100: #ffecb3,
+  200: #ffe082,
+  300: #ffd54f,
+  400: #ffca28,
+  500: #faae43,
+  600: #FFB236,
+  700: #f57f17,
+  800: #e65100,
+  900: #bf360c,
+  A100: #ffe57f,
+  A200: #faae43,
+  A400: #ffa000,
+  A700: #ff6d00,
+  contrast: (
+    50:  #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #000000,
+    600: #000000,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #ffffff,
+  ),
+);
 
-$my-theme: mat.define-light-theme((
- color: (
-   primary: $primary-palette,
-   accent: $accent-palette,
-   warn: $warn-palette,
- )
+// ---- Definição das Paletas ----
+$primary-palette: mat.define-palette($gecs-blue, 700, 500, 800);
+$accent-palette:  mat.define-palette($gecs-amber, 500, A200, A400);
+$warn-palette:    mat.define-palette(mat.$red-palette);
+
+// ---- Tipografia GECS ----
+$gecs-typography: mat.define-typography-config(
+  $font-family: "'Manrope', 'Helvetica', 'Arial', sans-serif",
+  $headline-1: mat.define-typography-level(45px, 55px, 800),
+  $headline-2: mat.define-typography-level(34px, 40px, 800),
+  $headline-3: mat.define-typography-level(24px, 32px, 800),
+  $headline-4: mat.define-typography-level(20px, 28px, 700),
+  $headline-5: mat.define-typography-level(18px, 24px, 700),
+  $headline-6: mat.define-typography-level(16px, 22px, 700),
+  $subtitle-1: mat.define-typography-level(16px, 24px, 500),
+  $subtitle-2: mat.define-typography-level(14px, 20px, 500),
+  $body-1:     mat.define-typography-level(16px, 1.6, 400),
+  $body-2:     mat.define-typography-level(14px, 1.5, 400),
+  $button:     mat.define-typography-level(14px, 1, 700),
+  $caption:    mat.define-typography-level(12px, 1.4, 400),
+);
+
+// ---- Tema Final ----
+$gecs-theme: mat.define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent:  $accent-palette,
+    warn:    $warn-palette,
+  ),
+  typography: $gecs-typography,
 ));
 
 @include mat.core();
-@include mat.all-component-themes($my-theme);
+@include mat.all-component-themes($gecs-theme);
 
-// Redefinir HTML e body
+// ============================================================
+// Styles Globais
+// ============================================================
+
 html,
 body {
   height: 100%;
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: 'Manrope', 'Helvetica', 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  color: #302424;
 }
 
-// Utilidades de margens e paddings
+// ---- Overrides Material: Inputs estilo GECS ----
+.mat-mdc-form-field {
+  width: 100%;
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: rgba(51, 51, 51, 0.18) !important;
+    border-radius: 2px !important;
+  }
+}
+
+// ---- Botão primário com gradiente GECS ----
+.mat-mdc-raised-button.mat-primary {
+  background: linear-gradient(135deg, #0083c0 30%, #00b7eb 100%) !important;
+  border-radius: 5px !important;
+}
+
+.mat-mdc-raised-button.mat-accent {
+  border-radius: 5px !important;
+}
+
+// ---- Hero Section (páginas internas) ----
+.gecs-hero {
+  background: linear-gradient(53deg, #054974 0%, #0997cf 100%);
+  padding: 40px 24px;
+  color: #ffffff;
+  margin: -20px -20px 24px -20px;
+
+  h1, h2 {
+    color: #faae43;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+// ---- Cards ----
+.card {
+  border-radius: 4px;
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.12),
+    0 1px 1px 0 rgba(0, 0, 0, 0.08),
+    0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+  margin-bottom: 1rem;
+  overflow: hidden;
+
+  .card-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+    color: #006aac;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+
+  .card-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+}
+
+// ---- Classes de Layout ----
 $spacer: 1rem;
-$spacers: (
-  0: 0,
-  1: $spacer * 0.25,
-  // 4px
-  2: $spacer * 0.5,
-  // 8px
-  3: $spacer,
-  // 16px
-  4: $spacer * 1.5,
-  // 24px
-  5: $spacer * 3, // 48px
-);
 
-@each $size, $value in $spacers {
-  .m-#{$size} {
-    margin: $value !important;
-  }
-  .mt-#{$size} {
-    margin-top: $value !important;
-  }
-  .mr-#{$size} {
-    margin-right: $value !important;
-  }
-  .mb-#{$size} {
-    margin-bottom: $value !important;
-  }
-  .ml-#{$size} {
-    margin-left: $value !important;
-  }
-  .mx-#{$size} {
-    margin-left: $value !important;
-    margin-right: $value !important;
-  }
-  .my-#{$size} {
-    margin-top: $value !important;
-    margin-bottom: $value !important;
-  }
-
-  .p-#{$size} {
-    padding: $value !important;
-  }
-  .pt-#{$size} {
-    padding-top: $value !important;
-  }
-  .pr-#{$size} {
-    padding-right: $value !important;
-  }
-  .pb-#{$size} {
-    padding-bottom: $value !important;
-  }
-  .pl-#{$size} {
-    padding-left: $value !important;
-  }
-  .px-#{$size} {
-    padding-left: $value !important;
-    padding-right: $value !important;
-  }
-  .py-#{$size} {
-    padding-top: $value !important;
-    padding-bottom: $value !important;
-  }
-}
-
-// Classes de layout
 .container {
   width: 100%;
   max-width: 1200px;
@@ -138,226 +210,116 @@ $spacers: (
 .row {
   display: flex;
   flex-wrap: wrap;
-  margin: 0 -#{$spacer};
 }
 
-// Classes de flexbox
-.d-flex {
-  display: flex !important;
-}
-.flex-column {
-  flex-direction: column !important;
-}
-.flex-row {
-  flex-direction: row !important;
-}
-.justify-content-start {
-  justify-content: flex-start !important;
-}
-.justify-content-end {
-  justify-content: flex-end !important;
-}
-.justify-content-center {
-  justify-content: center !important;
-}
-.justify-content-between {
-  justify-content: space-between !important;
-}
-.justify-content-around {
-  justify-content: space-around !important;
-}
-.align-items-start {
-  align-items: flex-start !important;
-}
-.align-items-end {
-  align-items: flex-end !important;
-}
-.align-items-center {
-  align-items: center !important;
-}
-.align-items-baseline {
-  align-items: baseline !important;
-}
-.align-items-stretch {
-  align-items: stretch !important;
-}
-.flex-grow-1 {
-  flex-grow: 1 !important;
-}
-.flex-shrink-0 {
-  flex-shrink: 0 !important;
-}
-.flex-shrink-1 {
-  flex-shrink: 1 !important;
-}
+// ---- Flexbox ----
+.d-flex { display: flex !important; }
+.flex-column { flex-direction: column !important; }
+.flex-row { flex-direction: row !important; }
+.justify-content-start { justify-content: flex-start !important; }
+.justify-content-end { justify-content: flex-end !important; }
+.justify-content-center { justify-content: center !important; }
+.justify-content-between { justify-content: space-between !important; }
+.align-items-start { align-items: flex-start !important; }
+.align-items-end { align-items: flex-end !important; }
+.align-items-center { align-items: center !important; }
+.flex-grow-1 { flex-grow: 1 !important; }
+.flex-shrink-0 { flex-shrink: 0 !important; }
 
-// Classes de texto
-.text-center {
-  text-align: center !important;
-}
-.text-left {
-  text-align: left !important;
-}
-.text-right {
-  text-align: right !important;
-}
-.text-uppercase {
-  text-transform: uppercase !important;
-}
-.text-lowercase {
-  text-transform: lowercase !important;
-}
-.text-capitalize {
-  text-transform: capitalize !important;
-}
+// ---- Texto ----
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-uppercase { text-transform: uppercase !important; }
 .text-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.text-primary { color: #006aac !important; }
+.text-accent  { color: #faae43 !important; }
+.text-muted   { color: #adafb3 !important; }
+.text-success { color: #018e11 !important; }
+.text-warn    { color: #ff5062 !important; }
 
-// Classes de cores
-.text-primary {
-  color: mat.get-color-from-palette($primary-palette) !important;
-}
-.text-accent {
-  color: mat.get-color-from-palette($accent-palette) !important;
-}
-.text-warn {
-  color: mat.get-color-from-palette($warn-palette) !important;
-}
-.text-muted {
-  opacity: 0.6 !important;
+// ---- Espaçamentos ----
+$spacers: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem);
+
+@each $size, $value in $spacers {
+  .m-#{$size}  { margin: $value !important; }
+  .mt-#{$size} { margin-top: $value !important; }
+  .mr-#{$size} { margin-right: $value !important; }
+  .mb-#{$size} { margin-bottom: $value !important; }
+  .ml-#{$size} { margin-left: $value !important; }
+  .mx-#{$size} { margin-left: $value !important; margin-right: $value !important; }
+  .my-#{$size} { margin-top: $value !important; margin-bottom: $value !important; }
+  .p-#{$size}  { padding: $value !important; }
+  .pt-#{$size} { padding-top: $value !important; }
+  .pr-#{$size} { padding-right: $value !important; }
+  .pb-#{$size} { padding-bottom: $value !important; }
+  .pl-#{$size} { padding-left: $value !important; }
+  .px-#{$size} { padding-left: $value !important; padding-right: $value !important; }
+  .py-#{$size} { padding-top: $value !important; padding-bottom: $value !important; }
 }
 
-// Estilos de tabela
+// ---- Visibilidade ----
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-inline-block { display: inline-block !important; }
+
+// ---- Formulários ----
+.form-full-width { width: 100%; }
+
+// ---- Cursores ----
+.cursor-pointer { cursor: pointer !important; }
+.cursor-not-allowed { cursor: not-allowed !important; }
+
+// ---- Tabelas ----
 .table-responsive {
   display: block;
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
-// Classes de visibilidade
-.d-none {
-  display: none !important;
-}
-.d-block {
-  display: block !important;
-}
-.d-inline {
-  display: inline !important;
-}
-.d-inline-block {
-  display: inline-block !important;
-}
-
-// Classes para formulários
-.form-full-width {
-  width: 100%;
-}
-
-// Cursor helpers
-.cursor-pointer {
-  cursor: pointer !important;
-}
-.cursor-not-allowed {
-  cursor: not-allowed !important;
-}
-
-// Media queries
-$breakpoints: (
-  xs: 0,
-  sm: 576px,
-  md: 768px,
-  lg: 992px,
-  xl: 1200px,
-);
-
-@mixin media-breakpoint-up($name) {
-  $min: map-get($breakpoints, $name);
-  @media (min-width: $min) {
-    @content;
-  }
-}
-
-@each $breakpoint in map-keys($breakpoints) {
-  @include media-breakpoint-up($breakpoint) {
-    $infix: "-#{$breakpoint}";
-    .d#{$infix}-none {
-      display: none !important;
-    }
-    .d#{$infix}-block {
-      display: block !important;
-    }
-    .d#{$infix}-flex {
-      display: flex !important;
-    }
-  }
-}
-
-// Componentes personalizados
-.card {
-  border-radius: 4px;
-  box-shadow:
-    0 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0 1px 1px 0 rgba(0, 0, 0, 0.14),
-    0 1px 3px 0 rgba(0, 0, 0, 0.12);
-  background-color: #fff;
-  margin-bottom: $spacer;
-  overflow: hidden;
-
-  .card-header {
-    padding: $spacer;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-    font-weight: 500;
-  }
-
-  .card-content {
-    padding: $spacer;
-  }
-
-  .card-footer {
-    padding: $spacer;
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
-  }
-}
-
-// Animações
+// ---- Animações ----
 .fade-in {
   animation: fadeIn 0.3s ease-in;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-// Override de algumas classes do Material
-.mat-mdc-form-field {
-  width: 100%;
-}
-
-// Scrollbar personalizado para Webkit
+// ---- Scrollbar personalizado ----
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
-  border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #c1c1c1;
-  border-radius: 4px;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #006aac;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+// ---- Responsivo ----
+$breakpoints: (xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px);
+
+@mixin media-breakpoint-up($name) {
+  $min: map-get($breakpoints, $name);
+  @media (min-width: $min) { @content; }
+}
+
+@each $bp in map-keys($breakpoints) {
+  @include media-breakpoint-up($bp) {
+    $infix: "-#{$bp}";
+    .d#{$infix}-none  { display: none !important; }
+    .d#{$infix}-block { display: block !important; }
+    .d#{$infix}-flex  { display: flex !important; }
+  }
 }

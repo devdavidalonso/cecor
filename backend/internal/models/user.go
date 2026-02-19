@@ -10,7 +10,7 @@ type User struct {
 	KeycloakUserID  *string    `json:"keycloakUserId,omitempty" gorm:"unique;index"` // Keycloak user ID for SSO integration
 	Name            string     `json:"name" gorm:"not null"`
 	Email           string     `json:"email" gorm:"not null;unique"`
-	Password        string     `json:"password,omitempty" gorm:"not null"` // Exposed for creation, handled carefully in responses
+	Password        string     `json:"password,omitempty" gorm:"not null"`        // Exposed for creation, handled carefully in responses
 	ProfileID       uint       `json:"profileId" gorm:"not null;default:3;index"` // FK to user_profiles (1=admin, 2=professor, 3=student)
 	CPF             string     `json:"cpf" gorm:"unique"`
 	BirthDate       time.Time  `json:"birthDate"`
@@ -26,7 +26,8 @@ type User struct {
 	DeletedAt       *time.Time `json:"deletedAt" gorm:"index"`
 
 	// Associations
-	Profile UserProfile `json:"profile,omitempty" gorm:"foreignKey:ProfileID"`
+	Profile      UserProfile   `json:"profile,omitempty" gorm:"foreignKey:ProfileID"`
+	UserContacts []UserContact `json:"userContacts,omitempty" gorm:"foreignKey:UserID"`
 }
 
 // TableName defines the table name in the database

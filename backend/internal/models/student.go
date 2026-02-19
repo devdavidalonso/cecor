@@ -19,8 +19,8 @@ const (
 // It specializes the User entity by having a reference to a User
 type Student struct {
 	ID                 uint          `json:"id" gorm:"primaryKey"`
-	UserID             uint          `json:"userId" gorm:"not null;unique;index"` // Reference to User entity
-	RegistrationNumber string        `json:"registrationNumber" gorm:"size:10;uniqueIndex;not null"` // Auto-generated
+	UserID             uint          `json:"userId" gorm:"not null;unique;index"`                         // Reference to User entity
+	RegistrationNumber string        `json:"registrationNumber" gorm:"size:10;uniqueIndex;not null"`      // Auto-generated
 	Status             StudentStatus `json:"status" gorm:"type:student_status;not null;default:'active'"` // ENUM: active, inactive, suspended
 	SpecialNeeds       string        `json:"specialNeeds"`
 	MedicalInfo        string        `json:"medicalInfo"`
@@ -33,6 +33,7 @@ type Student struct {
 	// Associations
 	User         User          `json:"user,omitempty" gorm:"foreignKey:UserID"`
 	Guardians    []Guardian    `json:"guardians,omitempty" gorm:"foreignKey:StudentID"`
+	UserContacts []UserContact `json:"userContacts,omitempty" gorm:"foreignKey:StudentID"`
 	Documents    []Document    `json:"documents,omitempty" gorm:"foreignKey:StudentID"`
 	StudentNotes []StudentNote `json:"studentNotes,omitempty" gorm:"foreignKey:StudentID"`
 	Enrollments  []Enrollment  `json:"enrollments,omitempty" gorm:"foreignKey:StudentID"`

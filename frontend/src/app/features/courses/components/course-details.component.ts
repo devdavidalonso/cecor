@@ -305,10 +305,15 @@ export class CourseDetailsComponent implements OnInit {
     });
   }
 
-  loadProfessorName(professorId: string) {
+  loadProfessorName(professorId: number | undefined) {
+    if (!professorId) return;
+    
     this.courseService.getProfessors().subscribe({
       next: (profs) => {
-        const prof = profs.find(p => p.id === professorId);
+        // Professor ID in profs array might be string or number depending on backend.
+        // Using loose equality to be safe or assuming number match if consistent.
+        // Looking at mock-courses.ts, professorId is 101 (number).
+        const prof = profs.find(p => p.id == professorId);
         if (prof) {
           this.professorName = `${prof.firstName} ${prof.lastName}`;
         }

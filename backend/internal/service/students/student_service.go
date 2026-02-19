@@ -98,7 +98,8 @@ func (s *studentService) GetStudentByCPF(ctx context.Context, cpf string) (*mode
 // CreateStudent creates a new student
 func (s *studentService) CreateStudent(ctx context.Context, student *models.Student) error {
 	// Validate required fields
-	if student.User == (models.User{}) {
+	// Check if user data is provided (checking key fields)
+	if student.User.Name == "" && student.User.Email == "" && student.User.CPF == "" {
 		return fmt.Errorf("user data is required")
 	}
 
@@ -232,7 +233,7 @@ func (s *studentService) UpdateStudent(ctx context.Context, student *models.Stud
 	}
 
 	// Check email if being changed
-	if student.User != (models.User{}) && student.User.Email != "" && student.User.Email != existing.User.Email {
+	if (student.User.Email != "") && student.User.Email != existing.User.Email {
 		emailExisting, err := s.studentRepo.FindByEmail(ctx, student.User.Email)
 		if err != nil {
 			return fmt.Errorf("error checking existing email: %w", err)
@@ -243,7 +244,7 @@ func (s *studentService) UpdateStudent(ctx context.Context, student *models.Stud
 	}
 
 	// Check CPF if being changed
-	if student.User != (models.User{}) && student.User.CPF != "" && student.User.CPF != existing.User.CPF {
+	if (student.User.CPF != "") && student.User.CPF != existing.User.CPF {
 		// Clean CPF
 		student.User.CPF = strings.ReplaceAll(strings.ReplaceAll(student.User.CPF, ".", ""), "-", "")
 
