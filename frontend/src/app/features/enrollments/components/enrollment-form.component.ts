@@ -42,7 +42,7 @@ import { StudentService } from '../../../core/services/student.service';
                 <mat-label>Student</mat-label>
                 <mat-select formControlName="studentId">
                   <mat-option *ngFor="let student of students" [value]="student.id">
-                    {{student.firstName}} {{student.lastName}} ({{student.document}})
+                    {{student.user?.name}} ({{student.user?.cpf}})
                   </mat-option>
                 </mat-select>
                 <mat-error *ngIf="enrollmentForm.get('studentId')?.hasError('required')">Student is required</mat-error>
@@ -130,7 +130,8 @@ export class EnrollmentFormComponent implements OnInit {
     // Given previous work, it might be paginated.
     this.studentService.getStudents(1, 1000).subscribe({
       next: (res: any) => {
-        this.students = Array.isArray(res) ? res : (res.items || []);
+        const studentList = Array.isArray(res) ? res : (res.items || res.data || []);
+        this.students = studentList;
       },
       error: (err) => console.error('Error loading students', err)
     });

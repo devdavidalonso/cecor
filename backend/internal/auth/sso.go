@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
@@ -13,6 +14,12 @@ var Provider *oidc.Provider
 
 // InitProvider initializes the OIDC provider
 func InitProvider(ctx context.Context, issuerURL string) error {
+	// Bypass para ambiente Docker local onde backend acessa via IP do host,
+	// mas o Keycloak retorna o issuer como localhost:8081.
+	if strings.Contains(issuerURL, "172.19.0.1") || strings.Contains(issuerURL, "host.docker.internal") {
+		ctx = oidc.InsecureIssuerURLContext(ctx, "http://localhost:8081/realms/cecor")
+	}
+
 	var err error
 	Provider, err = oidc.NewProvider(ctx, issuerURL)
 	if err != nil {

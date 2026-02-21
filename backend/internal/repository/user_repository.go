@@ -12,6 +12,9 @@ type UserRepository interface {
 	// FindByID finds a user by ID
 	FindByID(ctx context.Context, id uint) (*models.User, error)
 
+	// FindByIDWithAssociations finds a user by ID and eager loads its Address and UserContacts
+	FindByIDWithAssociations(ctx context.Context, id uint) (*models.User, error)
+
 	// FindByEmail finds a user by email
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 
@@ -20,6 +23,9 @@ type UserRepository interface {
 
 	// Update updates an existing user
 	Update(ctx context.Context, user *models.User) error
+
+	// UpdateWithAssociations updates an existing user and its Address/Contacts
+	UpdateWithAssociations(ctx context.Context, user *models.User) error
 
 	// Delete performs a logical deletion of a user
 	Delete(ctx context.Context, id uint) error

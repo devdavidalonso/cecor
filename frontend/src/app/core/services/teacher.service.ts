@@ -3,18 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface Teacher {
-  id?: number;
-  name: string;
-  email: string;
-  phone?: string;
-  cpf?: string;
-  specialization?: string;
-  bio?: string;
-  active?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Teacher } from '../models/teacher.model';
+export { Teacher };
 
 @Injectable({
   providedIn: 'root'

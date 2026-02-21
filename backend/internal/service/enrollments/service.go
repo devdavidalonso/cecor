@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/devdavidalonso/cecor/backend/internal/infrastructure/googleapis"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository"
 )
@@ -19,16 +20,18 @@ type Service interface {
 }
 
 type service struct {
-	repo        repository.EnrollmentRepository
-	studentRepo repository.StudentRepository
-	courseRepo  repository.CourseRepository
+	repo            repository.EnrollmentRepository
+	studentRepo     repository.StudentRepository
+	courseRepo      repository.CourseRepository
+	classroomClient googleapis.GoogleClassroomClient
 }
 
-func NewService(repo repository.EnrollmentRepository, studentRepo repository.StudentRepository, courseRepo repository.CourseRepository) Service {
+func NewService(repo repository.EnrollmentRepository, studentRepo repository.StudentRepository, courseRepo repository.CourseRepository, classroomClient googleapis.GoogleClassroomClient) Service {
 	return &service{
-		repo:        repo,
-		studentRepo: studentRepo,
-		courseRepo:  courseRepo,
+		repo:            repo,
+		studentRepo:     studentRepo,
+		courseRepo:      courseRepo,
+		classroomClient: classroomClient,
 	}
 }
 
@@ -73,7 +76,7 @@ func (s *service) EnrollStudent(ctx context.Context, enrollment *models.Enrollme
 		if active.StudentID != enrollment.StudentID || active.Status != "active" {
 			continue
 		}
-		
+
 		activeCourse, err := s.courseRepo.FindByID(ctx, active.CourseID)
 		if err != nil {
 			continue
@@ -105,7 +108,24 @@ func (s *service) EnrollStudent(ctx context.Context, enrollment *models.Enrollme
 		enrollment.Status = "active"
 	}
 
-	return s.repo.Create(ctx, enrollment)
+	// 4. Salvar na Database local
+	if err := s.repo.Create(ctx, enrollment); err != nil {
+		return err
+	}
+
+	// 5. Convidar aluno para a Turma no Google Classroom
+	if s.classroomClient != nil && course.GoogleClassroomID != "" && student.User.Email != "" {
+		fmt.Printf("Adding student %s to Google Classroom Course %s...\n", student.User.Email, course.GoogleClassroomID)
+		_, err := s.classroomClient.AddStudent(course.GoogleClassroomID, student.User.Email)
+		if err != nil {
+			fmt.Printf("Warning: Failed to add student to Google Classroom: %v\n", err)
+			// Decide if sync fail blocks. Usually not.
+		} else {
+			fmt.Println("Student added successfully to Google Classroom!")
+		}
+	}
+
+	return nil
 }
 
 func (s *service) GetEnrollment(ctx context.Context, id uint) (*models.Enrollment, error) {

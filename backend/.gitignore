@@ -38,3 +38,7 @@ Thumbs.db
 .env
 .env.docker
 *.env
+
+# Google API Credentials
+credentials.json
+token.json

@@ -3,36 +3,8 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "../../../environments/environment";
 
-export interface Course {
-  id?: number;
-  name: string;
-  shortDescription?: string;
-  detailedDescription?: string;
-  coverImage?: string;
-  difficultyLevel?: 'Beginner' | 'Intermediate' | 'Advanced';
-  targetAudience?: string;
-  prerequisites?: string;
-  workload: number; // hours
-  maxStudents: number;
-  duration: number; // weeks
-  weekDays: string; // "Mon,Wed"
-  startTime: string; // "19:00"
-  endTime: string; // "21:00"
-  startDate: Date;
-  endDate: Date;
-  googleClassroomUrl?: string;
-  status: 'active' | 'draft' | 'archived';
-  
-  // New Fields for Wizard
-  category?: string; // Technology, Arts, etc.
-  locationId?: number;
-  teacherIds?: number[]; // Array of teacher IDs (Titular + Auxiliares)
-  
-  // Legacy / Transitional
-  professorId?: number; // Main professor (to be compatible with existing code)
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Course } from "../models/course.model";
+export { Course };
 
 @Injectable({
   providedIn: "root",
@@ -63,6 +35,6 @@ export class CourseService {
   }
 
   getProfessors(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/users/teachers`);
+    return this.http.get<any[]>(`${environment.apiUrl}/teachers`);
   }
 }

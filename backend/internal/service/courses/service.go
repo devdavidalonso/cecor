@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/devdavidalonso/cecor/backend/internal/infrastructure/googleapis"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository"
 )
@@ -17,17 +18,42 @@ type Service interface {
 }
 
 type service struct {
-	repo repository.CourseRepository
+	repo            repository.CourseRepository
+	classroomClient googleapis.GoogleClassroomClient
 }
 
-func NewService(repo repository.CourseRepository) Service {
-	return &service{repo: repo}
+func NewService(repo repository.CourseRepository, classroomClient googleapis.GoogleClassroomClient) Service {
+	return &service{
+		repo:            repo,
+		classroomClient: classroomClient,
+	}
 }
 
 func (s *service) CreateCourse(ctx context.Context, course *models.Course) error {
 	if course.Name == "" {
 		return fmt.Errorf("course name is required")
 	}
+
+	// Create course in Google Classroom first (if client is configured)
+	if s.classroomClient != nil {
+		googleCourse, err := s.classroomClient.CreateCourse(
+			course.Name,
+			course.DifficultyLevel,
+			"About the Course",
+			course.ShortDescription,
+		)
+		if err != nil {
+			fmt.Printf("Warning: Failed to create Google Classroom course: %v\n", err)
+			// Decide if this should block the DB creation. For POC, we just log and continue or return error
+			// Let's return error to enforce the sync.
+			return fmt.Errorf("failed to create Google Classroom course: %w", err)
+		}
+
+		fmt.Printf("Google Classroom course created! Alternate link: %s\n", googleCourse.AlternateLink)
+		course.GoogleClassroomURL = googleCourse.AlternateLink
+		course.GoogleClassroomID = googleCourse.Id
+	}
+
 	return s.repo.Create(ctx, course)
 }
 

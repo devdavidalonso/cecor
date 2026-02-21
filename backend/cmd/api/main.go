@@ -21,19 +21,20 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/api/routes"
 	"github.com/devdavidalonso/cecor/backend/internal/auth"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
-	"github.com/devdavidalonso/cecor/backend/internal/database" // Import database package
+	"github.com/devdavidalonso/cecor/backend/internal/database"
+	"github.com/devdavidalonso/cecor/backend/internal/infrastructure/googleapis"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
-	"github.com/devdavidalonso/cecor/backend/internal/service/email"
-	"github.com/devdavidalonso/cecor/backend/internal/service/interviews" // Import interviews service
-	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
+	"github.com/devdavidalonso/cecor/backend/internal/service/attendance" // Adicionar importação de attendance
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"    // Adicionar importação de courses
+	"github.com/devdavidalonso/cecor/backend/internal/service/email"
 	"github.com/devdavidalonso/cecor/backend/internal/service/enrollments" // Adicionar importação de enrollments
-	"github.com/devdavidalonso/cecor/backend/internal/service/attendance"  // Adicionar importação de attendance
+	"github.com/devdavidalonso/cecor/backend/internal/service/interviews"  // Import interviews service
+	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
+	"github.com/devdavidalonso/cecor/backend/internal/service/reports"  // Adicionar importação de reports
+	"github.com/devdavidalonso/cecor/backend/internal/service/students" // Adicionar importação de students
 	"github.com/devdavidalonso/cecor/backend/internal/service/teachers" // Adicionar importação de professors
-	"github.com/devdavidalonso/cecor/backend/internal/service/reports" // Adicionar importação de reports
-	"github.com/devdavidalonso/cecor/backend/internal/service/students"   // Adicionar importação de students
-	"github.com/devdavidalonso/cecor/backend/internal/service/users"      // Adicionar esta importação
+	"github.com/devdavidalonso/cecor/backend/internal/service/users"    // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
 )
 
@@ -100,14 +101,15 @@ func main() {
 	// Initialize MongoDB
 	mongoClient, err := database.InitMongoDB(cfg)
 	if err != nil {
-		appLogger.Fatal("Failed to connect to MongoDB", "error", err)
+		appLogger.Warn("Failed to connect to MongoDB, proceeding without it", "error", err)
+	} else {
+		defer func() {
+			if err := mongoClient.Disconnect(context.Background()); err != nil {
+				appLogger.Error("Failed to disconnect MongoDB", "error", err)
+			}
+		}()
+		appLogger.Info("Connected to MongoDB successfully")
 	}
-	defer func() {
-		if err := mongoClient.Disconnect(context.Background()); err != nil {
-			appLogger.Error("Failed to disconnect MongoDB", "error", err)
-		}
-	}()
-	appLogger.Info("Connected to MongoDB successfully")
 
 	// Initialize repositories
 	studentRepo := postgres.NewStudentRepository(db)
@@ -117,17 +119,24 @@ func main() {
 	attendanceRepo := postgres.NewAttendanceRepository(db) // Adicionar repositório de presenças
 	reportRepo := postgres.NewReportRepository(db)         // Adicionar repositório de relatórios
 
+	// Initialize Google Classroom Client
+	classroomClient, err := googleapis.NewGoogleClassroomClient("credentials.json")
+	if err != nil {
+		appLogger.Error("Failed to initialize Google Classroom client (integration will be disabled)", "error", err)
+		classroomClient = nil // explicitly nil if failed
+	}
+
 	// Initialize services
-	keycloakService := keycloak.NewKeycloakService()                                          // Inicializar keycloak service
-	emailService := email.NewEmailService()                                                // Inicializar email service
-	studentService := students.NewStudentService(studentRepo, keycloakService, emailService) // Inicializar student service com Keycloak e Email
-	userService := users.NewUserService(userRepo)                                            // Adicionar o serviço de usuários
-	teacherService := teachers.NewService(userRepo, keycloakService, emailService)       // Adicionar serviço de teachers/
-	courseService := courses.NewService(courseRepo)                                          // Adicionar serviço de cursos
-	enrollmentService := enrollments.NewService(enrollmentRepo, studentRepo, courseRepo) // Updated with dependencies
-	attendanceService := attendance.NewService(attendanceRepo)                                // Adicionar serviço de presenças
-	reportService := reports.NewService(reportRepo)                                       // Adicionar serviço de relatórios
-	interviewService := interviews.NewService()                                           // Inicializar serviço de entrevistas (MongoDB)
+	keycloakService := keycloak.NewKeycloakService()                                                      // Inicializar keycloak service
+	emailService := email.NewEmailService()                                                               // Inicializar email service
+	studentService := students.NewStudentService(studentRepo, keycloakService, emailService)              // Inicializar student service com Keycloak e Email
+	userService := users.NewUserService(userRepo)                                                         // Adicionar o serviço de usuários
+	teacherService := teachers.NewService(userRepo, keycloakService, emailService)                        // Adicionar serviço de teachers/
+	courseService := courses.NewService(courseRepo, classroomClient)                                      // Adicionar serviço de cursos
+	enrollmentService := enrollments.NewService(enrollmentRepo, studentRepo, courseRepo, classroomClient) // Updated with dependencies
+	attendanceService := attendance.NewService(attendanceRepo)                                            // Adicionar serviço de presenças
+	reportService := reports.NewService(reportRepo)                                                       // Adicionar serviço de relatórios
+	interviewService := interviews.NewService()                                                           // Inicializar serviço de entrevistas (MongoDB)
 
 	// Initialize SSO Config
 	ssoConfig := auth.NewSSOConfig(cfg)
@@ -135,7 +144,7 @@ func main() {
 	// Initialize handlers
 	studentHandler := handlers.NewStudentHandler(studentService)
 	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig)        // Adicionar o handler de autenticação
-	teacherHandler := handlers.NewTeacherHandler(teacherService)         // Adicionar handler de professores
+	teacherHandler := handlers.NewTeacherHandler(teacherService)               // Adicionar handler de professores
 	courseHandler := handlers.NewCourseHandler(courseService, keycloakService) // Adicionar handler de cursos
 	enrollmentHandler := handlers.NewEnrollmentHandler(enrollmentService)      // Adicionar handler de matrículas
 	attendanceHandler := handlers.NewAttendanceHandler(attendanceService)      // Adicionar handler de presenças

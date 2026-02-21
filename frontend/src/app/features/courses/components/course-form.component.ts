@@ -6,7 +6,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
+import { BRAZILIAN_DATE_FORMATS } from '../../../core/utils/date-formats';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
@@ -42,6 +43,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatCheckboxModule,
     RouterModule
   ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: MAT_DATE_FORMATS, useValue: BRAZILIAN_DATE_FORMATS }
+  ],
   template: `
     <div class="course-form-container">
       <mat-card class="form-card">
@@ -72,7 +77,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="flex-1">
-                          <mat-label>Category</mat-label>
+                          <mat-label>{{ 'COURSE.CATEGORY' | translate }}</mat-label>
                           <mat-select formControlName="category">
                               <mat-option value="Technology">Technology</mat-option>
                               <mat-option value="Arts">Arts & Crafts</mat-option>
@@ -127,9 +132,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                 <div class="form-grid">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Main Professor (Titular)</mat-label>
-                    <mat-select formControlName="professorId">
+                    <mat-select formControlName="teacherId">
                       <mat-option *ngFor="let prof of professors" [value]="prof.id">
-                        {{ prof.firstName }} {{ prof.lastName }}
+                        {{ prof.name }}
                       </mat-option>
                     </mat-select>
                     <mat-icon matSuffix>person</mat-icon>
@@ -158,7 +163,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                 
                  <div class="form-grid">
                     <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Location (Room)</mat-label>
+                        <mat-label>{{ 'COURSE.LOCATION' | translate }}</mat-label>
                         <mat-select formControlName="locationId">
                             <mat-option [value]="null">-- To be defined --</mat-option>
                              <mat-option *ngFor="let loc of locations" [value]="loc.id" [disabled]="!loc.isAvailable">
@@ -275,7 +280,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                     <h4>{{ basicInfoForm.get('name')?.value }}</h4>
                     <p>{{ basicInfoForm.get('shortDescription')?.value }}</p>
                     <p><strong>Category:</strong> {{ basicInfoForm.get('category')?.value }}</p>
-                    <p><strong>Professor:</strong> {{ getProfessorName(teamForm.get('professorId')?.value) }}</p>
+                    <p><strong>Professor:</strong> {{ getProfessorName(teamForm.get('teacherId')?.value) }}</p>
                     <p><strong>Location:</strong> {{ getLocationName(venueForm.get('locationId')?.value) }}</p>
                     <hr>
                     <p><strong>Total Workload:</strong> {{ scheduleForm.get('workload')?.value }}h</p>
@@ -414,7 +419,7 @@ export class CourseFormComponent implements OnInit {
 
     // Step 2: Team
     this.teamForm = this._formBuilder.group({
-      professorId: ['', Validators.required], // Titular
+      teacherId: ['', Validators.required], // Titular
       assistantIds: [[]] // Optional
     });
 
@@ -479,7 +484,7 @@ export class CourseFormComponent implements OnInit {
 
         // Patch Team
         this.teamForm.patchValue({
-          professorId: course.professorId
+          teacherId: course.teacherId
         });
 
         // Patch Venue
@@ -513,7 +518,7 @@ export class CourseFormComponent implements OnInit {
 
   getProfessorName(id: number): string {
       const prof = this.professors.find(p => p.id === id);
-      return prof ? `${prof.firstName} ${prof.lastName}` : 'Unknown';
+      return prof ? prof.name : 'Unknown';
   }
 
   getLocationName(id: number): string {

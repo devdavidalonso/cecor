@@ -1,47 +1,39 @@
-// src/app/core/models/teacher.model.ts
+export interface Address {
+  id?: number;
+  cep: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+}
 
-/**
- * Teacher model - New
- */
+export interface UserContact {
+  id?: number;
+  name: string;
+  email?: string;
+  cpf?: string;
+  phone: string;
+  relationship: string;
+  canPickup?: boolean;
+  receiveNotifications?: boolean;
+  authorizeActivities?: boolean;
+}
+
 export interface Teacher {
   id?: number;
-  userId: number;
+  name: string;
+  email: string;
+  cpf?: string;
+  phone?: string;
+  birthDate?: string;
   specialization?: string;
   bio?: string;
-  phone?: string;
+  linkedinUrl?: string; // from Phase 2 database changes
   active?: boolean;
+  address?: Address;
+  userContacts?: UserContact[]; // Emergency contacts
   createdAt?: string;
   updatedAt?: string;
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  courses?: {
-    id: number;
-    name: string;
-  }[];
-}
-
-/**
- * CreateTeacherRequest - Used to create a teacher
- */
-export interface CreateTeacherRequest {
-  userId: number;
-  specialization?: string;
-  bio?: string;
-  phone?: string;
-}
-
-/**
- * TeacherCourse - Association between teacher and course
- */
-export interface TeacherCourse {
-  id?: number;
-  teacherId: number;
-  courseId: number;
-  role?: string; // "primary", "assistant", "substitute"
-  startDate?: string;
-  endDate?: string;
-  active?: boolean;
 }

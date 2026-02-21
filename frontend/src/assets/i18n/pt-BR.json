@@ -81,8 +81,10 @@
     "EMAIL": "E-mail",
     "PHONE": "Telefone",
     "CPF": "CPF",
-    "SPECIALIZATION": "Especialização",
-    "BIO": "Biografia",
+    "EDUCATION": "Formação Acadêmica",
+    "PROFICIENCIES": "Proficiências/Habilidades",
+    "LINKEDIN": "LinkedIn URL",
+    "CONTACTS": "Contatos de Emergência",
     "ACTIVE": "Ativo",
     "INACTIVE": "Inativo"
   },
@@ -114,7 +116,9 @@
     "INACTIVE": "Inativo",
     "DURATION": "Duração",
     "GOOGLE_CLASSROOM_URL": "URL do Google Classroom",
-    "INVALID_URL": "Formato de URL inválido"
+    "INVALID_URL": "Formato de URL inválido",
+    "CATEGORY": "Categoria",
+    "LOCATION": "Local/Sala"
   },
   "ENROLLMENT": {
     "TITLE": "Matrículas",

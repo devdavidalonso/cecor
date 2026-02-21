@@ -65,6 +65,18 @@ export const routes: Routes = [
         loadChildren: () => import('./features/volunteering/volunteering.routes').then(m => m.VOLUNTEERING_ROUTES),
         canActivate: [AuthGuard]
       },
+      {
+        path: 'locations',
+        loadChildren: () => import('./features/locations/locations.routes').then(m => m.LOCATIONS_ROUTES),
+        canActivate: [AuthGuard],
+        data: { roles: ['admin'] }
+      },
+      {
+        path: 'class-sessions',
+        loadChildren: () => import('./features/class-sessions/class-sessions.routes').then(m => m.CLASS_SESSIONS_ROUTES),
+        canActivate: [AuthGuard],
+        data: { roles: ['admin', 'professor'] }
+      },
     ]
   },
   {

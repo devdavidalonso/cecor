@@ -37,9 +37,8 @@ export const MOCK_COURSES: Course[] = [
     startDate: new Date("2024-03-04"),
     endDate: new Date("2024-04-26"),
     status: "active",
-    professorId: 101, // ID numérico simulado
-    category: "Technology",
-    teacherIds: [101]
+    teacherId: 101, // ID numérico simulado
+    category: "Technology"
   },
   {
     id: 2,

@@ -6,11 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { BRAZILIAN_DATE_FORMATS } from '../../../core/utils/date-formats';
 
 @Component({
   selector: 'app-attendance-report',
@@ -27,6 +28,10 @@ import { MatTableModule } from '@angular/material/table';
     MatCardModule,
     MatIconModule,
     MatTableModule
+  ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: MAT_DATE_FORMATS, useValue: BRAZILIAN_DATE_FORMATS }
   ],
   template: `
     <div class="container">
@@ -49,14 +54,14 @@ import { MatTableModule } from '@angular/material/table';
             
             <mat-form-field appearance="outline">
               <mat-label>Start Date</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="DD/MM/YYYY">
               <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
               <mat-datepicker #startPicker></mat-datepicker>
             </mat-form-field>
             
             <mat-form-field appearance="outline">
               <mat-label>End Date</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+              <input matInput [matDatepicker]="endPicker" formControlName="endDate" placeholder="DD/MM/YYYY">
               <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
               <mat-datepicker #endPicker></mat-datepicker>
             </mat-form-field>

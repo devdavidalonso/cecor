@@ -13,6 +13,7 @@ type Course struct {
 	DetailedDescription string     `json:"detailedDescription" gorm:"type:text"`
 	Workload            int        `json:"workload" gorm:"not null"`
 	GoogleClassroomURL  string     `json:"googleClassroomUrl"` // Link para a turma no Google Classroom
+	GoogleClassroomID   string     `json:"googleClassroomId"`  // ID da turma na API do Google
 	MaxStudents         int        `json:"maxStudents" gorm:"not null"`
 	Prerequisites       string     `json:"prerequisites"`
 	DifficultyLevel     string     `json:"difficultyLevel"`

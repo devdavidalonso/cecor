@@ -122,7 +122,8 @@ func (s *professorService) GetProfessors(ctx context.Context) ([]models.User, er
 
 // GetProfessorByID returns a professor by ID
 func (s *professorService) GetProfessorByID(ctx context.Context, id uint) (*models.User, error) {
-	user, err := s.userRepo.FindByID(ctx, id)
+	// Call FindByIDWithAssociations instead of FindByID to load contacts and address
+	user, err := s.userRepo.FindByIDWithAssociations(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +148,11 @@ func (s *professorService) UpdateProfessor(ctx context.Context, professor *model
 	existing.Phone = professor.Phone
 	existing.CPF = professor.CPF
 
-	return s.userRepo.Update(ctx, existing)
+	// Include associations payload
+	existing.Address = professor.Address
+	existing.UserContacts = professor.UserContacts
+
+	return s.userRepo.UpdateWithAssociations(ctx, existing)
 }
 
 // DeleteProfessor deletes a professor

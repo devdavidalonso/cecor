@@ -297,23 +297,23 @@ export class CourseDetailsComponent implements OnInit {
     this.courseService.getCourse(id).subscribe({
       next: (course) => {
         this.course = course;
-        if (course.professorId) {
-          this.loadProfessorName(course.professorId);
+        if (course.teacherId) {
+          this.loadProfessorName(course.teacherId);
         }
       },
       error: (err) => console.error('Error loading course', err)
     });
   }
 
-  loadProfessorName(professorId: number | undefined) {
-    if (!professorId) return;
+  loadProfessorName(teacherId: number | undefined) {
+    if (!teacherId) return;
     
     this.courseService.getProfessors().subscribe({
       next: (profs) => {
         // Professor ID in profs array might be string or number depending on backend.
         // Using loose equality to be safe or assuming number match if consistent.
-        // Looking at mock-courses.ts, professorId is 101 (number).
-        const prof = profs.find(p => p.id == professorId);
+        // Looking at mock-courses.ts, teacherId is 101 (number).
+        const prof = profs.find(p => p.id == teacherId);
         if (prof) {
           this.professorName = `${prof.firstName} ${prof.lastName}`;
         }

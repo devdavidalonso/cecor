@@ -43,6 +43,26 @@ func (r *userRepository) FindByID(ctx context.Context, id uint) (*models.User, e
 	return &user, nil
 }
 
+// Preload Address and UserContacts for GetProfessorByID inside the service
+func (r *userRepository) FindByIDWithAssociations(ctx context.Context, id uint) (*models.User, error) {
+	var user models.User
+
+	result := r.db.WithContext(ctx).
+		Preload("Address").
+		Preload("UserContacts").
+		Where("id = ? AND deleted_at IS NULL", id).
+		First(&user)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("error finding user by ID: %w", result.Error)
+	}
+
+	return &user, nil
+}
+
 // FindByEmail finds a user by email
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
@@ -101,6 +121,38 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) error {
 	}
 
 	return nil
+}
+
+// UpdateWithAssociations updates an existing user and replaces Address and UserContacts
+func (r *userRepository) UpdateWithAssociations(ctx context.Context, user *models.User) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1. Atualiza campos normais do usuario
+		if err := tx.Model(user).Updates(user).Error; err != nil {
+			if strings.Contains(err.Error(), "unique constraint") {
+				return fmt.Errorf("uniqueness violation: %w", err)
+			}
+			return fmt.Errorf("error updating user: %w", err)
+		}
+
+		// 2. Substitui ou atualiza o Endereço
+		if user.Address != nil {
+			if err := tx.Model(user).Association("Address").Replace(user.Address); err != nil {
+				return fmt.Errorf("error replacing address: %w", err)
+			}
+		} else {
+			// Opcional: remover endereco se nil
+			tx.Model(user).Association("Address").Clear()
+		}
+
+		// 3. Substitui os Contatos de Emergência
+		if user.UserContacts != nil {
+			if err := tx.Model(user).Association("UserContacts").Replace(user.UserContacts); err != nil {
+				return fmt.Errorf("error replacing contacts: %w", err)
+			}
+		}
+
+		return nil
+	})
 }
 
 // Delete removes a user (soft delete)
