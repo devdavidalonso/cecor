@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { CourseService, Course } from '../../../core/services/course.service';
 import { StudentService } from '../../../core/services/student.service';
@@ -36,6 +37,7 @@ import autoTable from 'jspdf-autotable';
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTooltipModule,
     MatTableModule,
     MatIconModule,
     MatProgressSpinnerModule,
@@ -66,16 +68,28 @@ import autoTable from 'jspdf-autotable';
 
                     <mat-form-field appearance="outline">
                       <mat-label>Start Date</mat-label>
-                      <mat-datepicker-toggle matPrefix [for]="pickerStartCourse"></mat-datepicker-toggle>
-                      <input matInput [matDatepicker]="pickerStartCourse" formControlName="startDate">
+                      <mat-datepicker-toggle matPrefix [for]="pickerStartCourse" matTooltip="Abrir calendário"></mat-datepicker-toggle>
+                      <input matInput 
+                             [matDatepicker]="pickerStartCourse" 
+                             formControlName="startDate"
+                             placeholder="DD/MM/AAAA"
+                             maxlength="10"
+                             autocomplete="off">
                       <mat-datepicker #pickerStartCourse></mat-datepicker>
+                      <mat-hint>Digite ou selecione</mat-hint>
                     </mat-form-field>
 
                     <mat-form-field appearance="outline">
                       <mat-label>End Date</mat-label>
-                      <mat-datepicker-toggle matPrefix [for]="pickerEndCourse"></mat-datepicker-toggle>
-                      <input matInput [matDatepicker]="pickerEndCourse" formControlName="endDate">
+                      <mat-datepicker-toggle matPrefix [for]="pickerEndCourse" matTooltip="Abrir calendário"></mat-datepicker-toggle>
+                      <input matInput 
+                             [matDatepicker]="pickerEndCourse" 
+                             formControlName="endDate"
+                             placeholder="DD/MM/AAAA"
+                             maxlength="10"
+                             autocomplete="off">
                       <mat-datepicker #pickerEndCourse></mat-datepicker>
+                      <mat-hint>Digite ou selecione</mat-hint>
                     </mat-form-field>
 
                     <button mat-raised-button color="primary" type="submit" [disabled]="courseReportForm.invalid || isLoading">
@@ -144,16 +158,28 @@ import autoTable from 'jspdf-autotable';
 
                     <mat-form-field appearance="outline">
                       <mat-label>Start Date</mat-label>
-                      <mat-datepicker-toggle matPrefix [for]="pickerStartStudent"></mat-datepicker-toggle>
-                      <input matInput [matDatepicker]="pickerStartStudent" formControlName="startDate">
+                      <mat-datepicker-toggle matPrefix [for]="pickerStartStudent" matTooltip="Abrir calendário"></mat-datepicker-toggle>
+                      <input matInput 
+                             [matDatepicker]="pickerStartStudent" 
+                             formControlName="startDate"
+                             placeholder="DD/MM/AAAA"
+                             maxlength="10"
+                             autocomplete="off">
                       <mat-datepicker #pickerStartStudent></mat-datepicker>
+                      <mat-hint>Digite ou selecione</mat-hint>
                     </mat-form-field>
 
                     <mat-form-field appearance="outline">
                       <mat-label>End Date</mat-label>
-                      <mat-datepicker-toggle matPrefix [for]="pickerEndStudent"></mat-datepicker-toggle>
-                      <input matInput [matDatepicker]="pickerEndStudent" formControlName="endDate">
+                      <mat-datepicker-toggle matPrefix [for]="pickerEndStudent" matTooltip="Abrir calendário"></mat-datepicker-toggle>
+                      <input matInput 
+                             [matDatepicker]="pickerEndStudent" 
+                             formControlName="endDate"
+                             placeholder="DD/MM/AAAA"
+                             maxlength="10"
+                             autocomplete="off">
                       <mat-datepicker #pickerEndStudent></mat-datepicker>
+                      <mat-hint>Digite ou selecione</mat-hint>
                     </mat-form-field>
 
                     <button mat-raised-button color="primary" type="submit" [disabled]="studentReportForm.invalid || isLoading">

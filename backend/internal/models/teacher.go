@@ -16,8 +16,10 @@ type Teacher struct {
 	UpdatedAt      time.Time  `json:"updatedAt" gorm:"autoUpdateTime"`
 
 	// Associations
-	User    User     `json:"user,omitempty" gorm:"foreignKey:UserID"`
-	Courses []Course `json:"courses,omitempty" gorm:"many2many:teacher_courses;"`
+	User         User                 `json:"user,omitempty" gorm:"foreignKey:UserID"`
+	Courses      []Course             `json:"courses,omitempty" gorm:"many2many:teacher_courses;"`
+	Skills       []TeacherSkill       `json:"skills,omitempty" gorm:"foreignKey:TeacherID"`
+	Availability []TeacherAvailability `json:"availability,omitempty" gorm:"foreignKey:TeacherID"`
 }
 
 // TableName defines the table name in the database

@@ -2,6 +2,21 @@
 # Versão simplificada para o MVP - apenas PostgreSQL necessário
 
 services:
+  mongodb:
+    image: mongo:7.0
+    container_name: cecor-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: cecor
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      app-network:
+        ipv4_address: 172.19.0.4
+
   postgres:
     image: postgres:15-alpine
     container_name: cecor-postgres
@@ -40,6 +55,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      mongodb:
+        condition: service_started
     networks:
       app-network:
         ipv4_address: 172.19.0.2
@@ -61,6 +78,7 @@ services:
 
 volumes:
   postgres-data:
+  mongo-data:
 
 networks:
   app-network:

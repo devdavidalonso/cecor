@@ -24,6 +24,7 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/database"
 	"github.com/devdavidalonso/cecor/backend/internal/infrastructure/googleapis"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
+	"github.com/devdavidalonso/cecor/backend/internal/repository/mongodb"
 	"github.com/devdavidalonso/cecor/backend/internal/repository/postgres"
 	"github.com/devdavidalonso/cecor/backend/internal/service/attendance" // Adicionar importação de attendance
 	"github.com/devdavidalonso/cecor/backend/internal/service/courses"    // Adicionar importação de courses
@@ -33,6 +34,8 @@ import (
 	"github.com/devdavidalonso/cecor/backend/internal/service/keycloak"
 	"github.com/devdavidalonso/cecor/backend/internal/service/reports"  // Adicionar importação de reports
 	"github.com/devdavidalonso/cecor/backend/internal/service/students" // Adicionar importação de students
+	"github.com/devdavidalonso/cecor/backend/internal/service/teacherportal"
+	"github.com/devdavidalonso/cecor/backend/internal/service/incidents"
 	"github.com/devdavidalonso/cecor/backend/internal/service/teachers" // Adicionar importação de professors
 	"github.com/devdavidalonso/cecor/backend/internal/service/users"    // Adicionar esta importação
 	"github.com/devdavidalonso/cecor/backend/pkg/logger"
@@ -136,7 +139,11 @@ func main() {
 	enrollmentService := enrollments.NewService(enrollmentRepo, studentRepo, courseRepo, classroomClient) // Updated with dependencies
 	attendanceService := attendance.NewService(attendanceRepo)                                            // Adicionar serviço de presenças
 	reportService := reports.NewService(reportRepo)                                                       // Adicionar serviço de relatórios
-	interviewService := interviews.NewService()                                                           // Inicializar serviço de entrevistas (MongoDB)
+	
+	// Initialize MongoDB repositories
+	formRepo := mongodb.NewFormRepository()
+	interviewService := interviews.NewService(formRepo)                                                   // Inicializar serviço de entrevistas
+	interviewAdminService := interviews.NewAdminService(formRepo)                                         // Inicializar serviço admin de entrevistas
 
 	// Initialize SSO Config
 	ssoConfig := auth.NewSSOConfig(cfg)
@@ -146,10 +153,19 @@ func main() {
 	authHandler := handlers.NewAuthHandler(userService, cfg, ssoConfig)        // Adicionar o handler de autenticação
 	teacherHandler := handlers.NewTeacherHandler(teacherService)               // Adicionar handler de professores
 	courseHandler := handlers.NewCourseHandler(courseService, keycloakService) // Adicionar handler de cursos
-	enrollmentHandler := handlers.NewEnrollmentHandler(enrollmentService)      // Adicionar handler de matrículas
+	enrollmentHandler := handlers.NewEnrollmentHandler(enrollmentService, interviewService) // Adicionar handler de matrículas com entrevista
 	attendanceHandler := handlers.NewAttendanceHandler(attendanceService)      // Adicionar handler de presenças
 	reportHandler := handlers.NewReportHandler(reportService)                  // Adicionar handler de relatórios
 	interviewHandler := handlers.NewInterviewHandler(interviewService)         // Adicionar handler de entrevistas
+	interviewAdminHandler := handlers.NewInterviewAdminHandler(interviewAdminService) // Adicionar handler admin de entrevistas
+	
+	// Initialize teacher portal service and handler
+	teacherPortalService := teacherportal.NewService(db)
+	teacherPortalHandler := handlers.NewTeacherPortalHandler(teacherPortalService)
+	
+	// Initialize incident service and handler
+	incidentService := incidents.NewService(db)
+	incidentHandler := handlers.NewIncidentHandler(incidentService)
 
 	// Create router
 	r := chi.NewRouter()
@@ -187,6 +203,61 @@ func main() {
 		// TODO: Adicionar middleware de auth quando disponível no contexto
 		interviewHandler.RegisterRoutes(r)
 	})
+	
+	// Rotas Admin de Entrevistas (prefixo /api/v1)
+	// As rotas são registradas em /api/v1/admin/interview-forms
+	appLogger.Info("Registering admin interview routes...")
+	r.Route("/api/v1/admin", func(r chi.Router) {
+		interviewAdminHandler.RegisterAdminRoutes(r)
+	})
+	appLogger.Info("Admin interview routes registered")
+
+	// Rotas do Portal do Professor
+	appLogger.Info("Registering teacher portal routes...")
+	r.Route("/api/v1", func(r chi.Router) {
+		teacherPortalHandler.RegisterRoutes(r)
+	})
+	appLogger.Info("Teacher portal routes registered")
+	
+	// Rotas de Ocorrências (Incidents)
+	appLogger.Info("Registering incident routes...")
+	r.Route("/api/v1", func(r chi.Router) {
+		incidentHandler.RegisterRoutes(r)
+	})
+	appLogger.Info("Incident routes registered")
+
+	// Initialize new handlers for Phase 2
+	studentPortalHandler := handlers.NewStudentPortalHandler(db)
+	courseClassHandler := handlers.NewCourseClassHandler(db)
+	skillHandler := handlers.NewSkillHandler(db)
+	migrationHandler := handlers.NewMigrationHandler(db)
+
+	// Rotas do Portal do Aluno
+	appLogger.Info("Registering student portal routes...")
+	r.Route("/api/v1", func(r chi.Router) {
+		studentPortalHandler.RegisterRoutes(r)
+	})
+	appLogger.Info("Student portal routes registered")
+
+	// Rotas de Course Classes (Turmas)
+	appLogger.Info("Registering course class routes...")
+	courseClassHandler.RegisterRoutes(r)
+	appLogger.Info("Course class routes registered")
+
+	// Rotas de Skills
+	appLogger.Info("Registering skill routes...")
+	skillHandler.RegisterRoutes(r)
+	appLogger.Info("Skill routes registered")
+
+	// Rotas Admin de Migração
+	appLogger.Info("Registering migration routes...")
+	r.Route("/api/v1/admin", func(r chi.Router) {
+		r.Post("/migrations/run", migrationHandler.RunMigrations)
+		r.Post("/migrations/data", migrationHandler.RunDataMigration)
+		r.Post("/migrations/rollback", migrationHandler.RollbackMigrations)
+		r.Get("/migrations/status", migrationHandler.GetMigrationStatus)
+	})
+	appLogger.Info("Migration routes registered")
 
 	// ROTA DE TESTE TEMPORÁRIA - SEM AUTENTICAÇÃO (remover após testes)
 	r.Route("/api/v1/test/students", func(r chi.Router) {

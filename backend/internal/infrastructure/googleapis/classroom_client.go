@@ -106,18 +106,31 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 func (c *classroomClient) CreateCourse(name, section, descriptionHeading, description string) (*classroom.Course, error) {
+	// Create course in PROVISIONED state first (required for non-domain admins)
 	course := &classroom.Course{
 		Name:               name,
 		Section:            section,
 		DescriptionHeading: descriptionHeading,
 		Description:        description,
 		OwnerId:            "me",
-		CourseState:        "ACTIVE",
+		CourseState:        "PROVISIONED",
 	}
 
 	createdCourse, err := c.srv.Courses.Create(course).Do()
 	if err != nil {
 		return nil, fmt.Errorf("unable to create course: %v", err)
+	}
+
+	// Try to activate the course (may fail if user doesn't have permission)
+	// For regular users, they need to accept the course in the UI
+	activeCourse := &classroom.Course{
+		CourseState: "ACTIVE",
+	}
+	_, err = c.srv.Courses.Patch(createdCourse.Id, activeCourse).UpdateMask("courseState").Do()
+	if err != nil {
+		// Log but don't fail - course is created but needs to be activated manually
+		fmt.Printf("⚠️  Course created but could not be activated automatically: %v\n", err)
+		fmt.Printf("📧 Check your email to accept the course invitation\n")
 	}
 
 	return createdCourse, nil

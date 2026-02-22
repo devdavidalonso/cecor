@@ -3,40 +3,39 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/service/interviews"
 	"github.com/go-chi/chi/v5"
 )
 
+// InterviewHandler gerencia entrevistas dos alunos
 type InterviewHandler struct {
 	service interviews.Service
 }
 
+// NewInterviewHandler cria um novo handler
 func NewInterviewHandler(service interviews.Service) *InterviewHandler {
 	return &InterviewHandler{service: service}
 }
 
 // GetPending checks if the authenticated student has a pending interview
+// GET /api/v1/interviews/pending?studentId=123
 func (h *InterviewHandler) GetPending(w http.ResponseWriter, r *http.Request) {
-	// Extract user ID from context (Simulated for now, should come from JWT middleware)
-	// For MVP, passing studentID via query param for testing is easier, but let's stick to best practices if possible
-	// Assuming user ID is in context, but we need StudentID.
-	// For simplicity in MVP without complex context extraction:
-	// GET /api/v1/interviews/pending?studentId=123
-
-	// Parsing query param
 	studentIDStr := r.URL.Query().Get("studentId")
 	if studentIDStr == "" {
 		http.Error(w, "studentId is required", http.StatusBadRequest)
 		return
 	}
-	// Convert to uint... (omitted for brevity, assume valid for MVP speed)
 
-	// Mocking ID for compilation safety in example
-	studentID := uint(1) // TODO: Parse logic
+	studentID, err := strconv.ParseUint(studentIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "invalid studentId format", http.StatusBadRequest)
+		return
+	}
 
-	form, err := h.service.GetPendingInterview(r.Context(), studentID)
+	form, err := h.service.GetPendingInterview(r.Context(), uint(studentID))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,10 +51,11 @@ func (h *InterviewHandler) GetPending(w http.ResponseWriter, r *http.Request) {
 }
 
 // SubmitResponse saves the interview answers
+// POST /api/v1/interviews/response
 func (h *InterviewHandler) SubmitResponse(w http.ResponseWriter, r *http.Request) {
 	var response models.InterviewResponse
 	if err := json.NewDecoder(r.Body).Decode(&response); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -64,11 +64,83 @@ func (h *InterviewHandler) SubmitResponse(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "interview response saved successfully",
+	})
+}
+
+// GetStudentInterview retorna a entrevista de um aluno específico
+// GET /api/v1/interviews/student/{studentId}
+func (h *InterviewHandler) GetStudentInterview(w http.ResponseWriter, r *http.Request) {
+	studentIDStr := chi.URLParam(r, "studentId")
+	if studentIDStr == "" {
+		http.Error(w, "studentId is required", http.StatusBadRequest)
+		return
+	}
+
+	studentID, err := strconv.ParseUint(studentIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "invalid studentId format", http.StatusBadRequest)
+		return
+	}
+
+	response, err := h.service.GetStudentInterview(r.Context(), uint(studentID))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if response == nil {
+		http.Error(w, "no interview found for this student", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+// CheckInterviewStatus verifica se um aluno precisa fazer entrevista
+// GET /api/v1/interviews/check?studentId=123
+func (h *InterviewHandler) CheckInterviewStatus(w http.ResponseWriter, r *http.Request) {
+	studentIDStr := r.URL.Query().Get("studentId")
+	if studentIDStr == "" {
+		http.Error(w, "studentId is required", http.StatusBadRequest)
+		return
+	}
+
+	studentID, err := strconv.ParseUint(studentIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "invalid studentId format", http.StatusBadRequest)
+		return
+	}
+
+	form, err := h.service.GetPendingInterview(r.Context(), uint(studentID))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	status := map[string]interface{}{
+		"hasPendingInterview": form != nil,
+		"studentId":          studentID,
+	}
+
+	if form != nil {
+		status["formId"] = form.ID
+		status["formTitle"] = form.Title
+		status["formVersion"] = form.Version
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(status)
 }
 
 // RegisterRoutes registers the interview routes
 func (h *InterviewHandler) RegisterRoutes(r chi.Router) {
-	r.Get("/pending", h.GetPending)
-	r.Post("/response", h.SubmitResponse)
+	r.Get("/interviews/pending", h.GetPending)
+	r.Post("/interviews/response", h.SubmitResponse)
+	r.Get("/interviews/student/{studentId}", h.GetStudentInterview)
+	r.Get("/interviews/check", h.CheckInterviewStatus)
 }

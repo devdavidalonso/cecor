@@ -12,7 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { EnrollmentService } from '../../../core/services/enrollment.service';
-import { Enrollment, EnrollmentStatus } from '../../../core/models/enrollment.model';
+import { Enrollment } from '../../../core/models/enrollment.model';
 
 @Component({
   selector: 'app-enrollments-list',
@@ -174,6 +174,7 @@ export class EnrollmentsListComponent implements OnInit {
   }
 
   deleteEnrollment(enrollment: Enrollment) {
+    if (!enrollment.id) return;
     if (confirm(`Are you sure you want to cancel this enrollment?`)) {
       this.enrollmentService.deleteEnrollment(enrollment.id).subscribe({
         next: () => {

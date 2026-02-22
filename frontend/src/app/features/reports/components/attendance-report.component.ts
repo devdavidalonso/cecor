@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BRAZILIAN_DATE_FORMATS } from '../../../core/utils/date-formats';
 
 @Component({
@@ -24,6 +25,7 @@ import { BRAZILIAN_DATE_FORMATS } from '../../../core/utils/date-formats';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTooltipModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
@@ -54,16 +56,28 @@ import { BRAZILIAN_DATE_FORMATS } from '../../../core/utils/date-formats';
             
             <mat-form-field appearance="outline">
               <mat-label>Start Date</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="DD/MM/YYYY">
-              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <input matInput 
+                     [matDatepicker]="startPicker" 
+                     formControlName="startDate" 
+                     placeholder="DD/MM/AAAA"
+                     maxlength="10"
+                     autocomplete="off">
+              <mat-datepicker-toggle matSuffix [for]="startPicker" matTooltip="Abrir calendário"></mat-datepicker-toggle>
               <mat-datepicker #startPicker></mat-datepicker>
+              <mat-hint>Digite ou selecione</mat-hint>
             </mat-form-field>
             
             <mat-form-field appearance="outline">
               <mat-label>End Date</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endDate" placeholder="DD/MM/YYYY">
-              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <input matInput 
+                     [matDatepicker]="endPicker" 
+                     formControlName="endDate" 
+                     placeholder="DD/MM/AAAA"
+                     maxlength="10"
+                     autocomplete="off">
+              <mat-datepicker-toggle matSuffix [for]="endPicker" matTooltip="Abrir calendário"></mat-datepicker-toggle>
               <mat-datepicker #endPicker></mat-datepicker>
+              <mat-hint>Digite ou selecione</mat-hint>
             </mat-form-field>
           </form>
         </mat-card-content>

@@ -14,6 +14,11 @@ var MongoClient *mongo.Client
 
 // InitMongoDB initializes the MongoDB connection
 func InitMongoDB(cfg *config.Config) (*mongo.Client, error) {
+	// Skip MongoDB if URI is explicitly set to empty or "disabled"
+	if cfg.Database.MongoURI == "" || cfg.Database.MongoURI == "disabled" {
+		return nil, nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

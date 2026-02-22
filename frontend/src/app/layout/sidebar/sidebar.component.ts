@@ -286,9 +286,27 @@ export class SidebarComponent implements OnInit, OnDestroy {
       dividerBefore: true,
     },
     {
+      text: 'NAV.TEACHER_PORTAL',
+      icon: 'school',
+      route: '/teacher',
+      roles: ['professor', 'admin', 'administrador'],
+    },
+    {
       text: 'NAV.INTERVIEWS',
       icon: 'question_answer',
       route: '/interviews',
+    },
+    {
+      text: 'NAV.INTERVIEWS_DASHBOARD',
+      icon: 'analytics',
+      route: '/interviews/dashboard',
+      roles: ['admin', 'administrador'],
+    },
+    {
+      text: 'NAV.INTERVIEWS_REPORTS',
+      icon: 'bar_chart',
+      route: '/interviews/reports',
+      roles: ['admin', 'administrador'],
     },
     {
       text: 'NAV.TEACHERS',

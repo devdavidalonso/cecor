@@ -150,9 +150,31 @@ export class EnrollmentFormComponent implements OnInit {
     if (this.enrollmentForm.valid) {
       this.isSubmitting = true;
       this.enrollmentService.createEnrollment(this.enrollmentForm.value).subscribe({
-        next: () => {
-          this.snackBar.open('Student enrolled successfully!', 'Close', { duration: 3000 });
-          this.router.navigate(['/enrollments']);
+        next: (response: any) => {
+          const studentName = this.students.find(s => s.id === this.enrollmentForm.value.studentId)?.user?.name || 'Student';
+          
+          // Verificar se precisa redirecionar para entrevista
+          if (response.interviewRequired) {
+            this.snackBar.open(
+              `Matrícula criada! Redirecionando para entrevista socioeducacional...`, 
+              'Fechar', 
+              { duration: 3000 }
+            );
+            
+            // Redirecionar para o wizard de entrevista
+            setTimeout(() => {
+              this.router.navigate(['/interviews/respond', response.studentId], {
+                queryParams: { 
+                  enrollmentId: response.id,
+                  formTitle: response.interviewFormTitle,
+                  returnUrl: '/enrollments'
+                }
+              });
+            }, 1500);
+          } else {
+            this.snackBar.open('Student enrolled successfully!', 'Close', { duration: 3000 });
+            this.router.navigate(['/enrollments']);
+          }
         },
         error: (err) => {
           console.error(err);

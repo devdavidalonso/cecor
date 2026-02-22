@@ -10,6 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -44,6 +45,7 @@ export const BRAZILIAN_DATE_FORMATS = {
     MatSnackBarModule,
     MatCheckboxModule,
     MatDatepickerModule,
+    MatTooltipModule,
     MatNativeDateModule,
     RouterModule
   ],
@@ -95,9 +97,19 @@ export const BRAZILIAN_DATE_FORMATS = {
 
                       <mat-form-field appearance="outline" class="flex-1">
                         <mat-label>Birth Date</mat-label>
-                        <input matInput [matDatepicker]="picker" formControlName="birthDate" (input)="formatBirthDate($event)">
-                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
+                        <input matInput 
+                               [matDatepicker]="picker" 
+                               formControlName="birthDate" 
+                               (input)="formatBirthDate($event)"
+                               placeholder="DD/MM/AAAA"
+                               maxlength="10"
+                               autocomplete="off">
+                        <mat-datepicker-toggle matIconSuffix [for]="picker" matTooltip="Abrir calendário"></mat-datepicker-toggle>
+                        <mat-datepicker #picker startView="multi-year"></mat-datepicker>
+                        <mat-hint>Digite DD/MM/AAAA ou use o calendário</mat-hint>
+                        <mat-error *ngIf="personalInfoForm.get('birthDate')?.hasError('matDatepickerParse')">
+                            Data inválida. Use DD/MM/AAAA
+                        </mat-error>
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="flex-1">

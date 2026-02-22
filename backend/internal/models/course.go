@@ -22,6 +22,7 @@ type Course struct {
 	WeekDays            string     `json:"weekDays" gorm:"not null"` // E.g., "1,3,5" for Monday, Wednesday, Friday
 	StartTime           string     `json:"startTime" gorm:"not null"`
 	EndTime             string     `json:"endTime" gorm:"not null"`
+	Schedule            string     `json:"schedule"` // Human-readable schedule (e.g., "Saturdays 09:00-11:00")
 	Duration            int        `json:"duration" gorm:"not null"` // In weeks
 	StartDate           time.Time  `json:"startDate"`
 	EndDate             time.Time  `json:"endDate"`
@@ -64,19 +65,20 @@ func (TeacherCourse) TableName() string {
 
 // Enrollment represents a student's enrollment in a course
 type Enrollment struct {
-	ID                 uint       `json:"id" gorm:"primaryKey"`
-	StudentID          uint       `json:"studentId" gorm:"not null;index"`
-	CourseID           uint       `json:"courseId" gorm:"not null;index"`
-	EnrollmentNumber   string     `json:"enrollmentNumber" gorm:"not null;unique"`
-	Status             string     `json:"status" gorm:"not null;default:'active'"` // active, in_progress, locked, completed, cancelled
-	StartDate          time.Time  `json:"startDate" gorm:"not null"`
-	EndDate            *time.Time `json:"endDate"`
-	EnrollmentDate     time.Time  `json:"enrollmentDate" gorm:"not null"`
-	CancellationReason string     `json:"cancellationReason"`
-	AgreementURL       string     `json:"agreementUrl"`
-	CreatedAt          time.Time  `json:"createdAt" gorm:"autoCreateTime"`
-	UpdatedAt          time.Time  `json:"updatedAt" gorm:"autoUpdateTime"`
-	DeletedAt          *time.Time `json:"deletedAt" gorm:"index"`
+	ID                     uint       `json:"id" gorm:"primaryKey"`
+	StudentID              uint       `json:"studentId" gorm:"not null;index"`
+	CourseID               uint       `json:"courseId" gorm:"not null;index"`
+	EnrollmentNumber       string     `json:"enrollmentNumber" gorm:"not null;unique"`
+	Status                 string     `json:"status" gorm:"not null;default:'active'"` // active, in_progress, locked, completed, cancelled
+	StartDate              time.Time  `json:"startDate" gorm:"not null"`
+	EndDate                *time.Time `json:"endDate"`
+	EnrollmentDate         time.Time  `json:"enrollmentDate" gorm:"not null"`
+	CancellationReason     string     `json:"cancellationReason"`
+	AgreementURL           string     `json:"agreementUrl"`
+	GoogleInvitationStatus string     `json:"googleInvitationStatus" gorm:"default:'not_sent'"` // not_sent, pending, accepted
+	CreatedAt              time.Time  `json:"createdAt" gorm:"autoCreateTime"`
+	UpdatedAt              time.Time  `json:"updatedAt" gorm:"autoUpdateTime"`
+	DeletedAt              *time.Time `json:"deletedAt" gorm:"index"`
 }
 
 // TableName defines the table name in the database

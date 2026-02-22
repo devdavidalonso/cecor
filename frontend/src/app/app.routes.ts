@@ -45,6 +45,16 @@ export const routes: Routes = [
         data: { roles: ['admin'] } 
       },
       {
+        path: 'teacher',
+        loadChildren: () => import('./features/teacher-portal/teacher-portal.routes').then(m => m.TEACHER_PORTAL_ROUTES),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'student',
+        loadChildren: () => import('./features/student-portal/student-portal.routes').then(m => m.STUDENT_PORTAL_ROUTES),
+        canActivate: [AuthGuard]
+      },
+      {
         path: 'administration',
         loadChildren: () => import('./features/administration/administration.routes').then(m => m.ADMINISTRATION_ROUTES),
         canActivate: [AuthGuard],

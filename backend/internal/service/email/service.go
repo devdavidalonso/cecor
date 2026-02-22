@@ -2,6 +2,7 @@ package email
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"net/smtp"
@@ -151,7 +152,24 @@ func (s *EmailService) renderWelcomeTemplate(data WelcomeEmailData) (string, err
 	return buf.String(), nil
 }
 
-// sendEmail sends an email using SMTP
+// Service interface define os métodos do serviço de email
+type Service interface {
+	SendWelcomeEmail(to, studentName, temporaryPassword string) error
+	SendEmail(ctx context.Context, to, subject, body string) error
+}
+
+// SendEmail sends a simple text email (implements Service interface)
+func (s *EmailService) SendEmail(ctx context.Context, to, subject, body string) error {
+	// Check if SMTP is configured
+	if s.smtpHost == "" || s.smtpPort == "" {
+		fmt.Printf("SMTP not configured, skipping email to %s\n", to)
+		return nil
+	}
+
+	return s.sendEmail(to, subject, body)
+}
+
+// sendEmail sends an email using SMTP (internal method)
 func (s *EmailService) sendEmail(to, subject, body string) error {
 	// Set up authentication
 	auth := smtp.PlainAuth("", s.smtpUser, s.smtpPassword, s.smtpHost)

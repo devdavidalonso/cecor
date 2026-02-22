@@ -2,20 +2,36 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/service/enrollments"
+	"github.com/devdavidalonso/cecor/backend/internal/service/interviews"
 	"github.com/go-chi/chi/v5"
 )
 
-type EnrollmentHandler struct {
-	service enrollments.Service
+// EnrollmentResponse estende a resposta de matrícula com informações de entrevista
+type EnrollmentResponse struct {
+	*models.Enrollment
+	InterviewRequired bool   `json:"interviewRequired"`
+	InterviewFormID   string `json:"interviewFormId,omitempty"`
+	InterviewFormTitle string `json:"interviewFormTitle,omitempty"`
+	NextStep          string `json:"nextStep"`
+	RedirectURL       string `json:"redirectUrl,omitempty"`
 }
 
-func NewEnrollmentHandler(service enrollments.Service) *EnrollmentHandler {
-	return &EnrollmentHandler{service: service}
+type EnrollmentHandler struct {
+	service         enrollments.Service
+	interviewService interviews.Service
+}
+
+func NewEnrollmentHandler(service enrollments.Service, interviewService interviews.Service) *EnrollmentHandler {
+	return &EnrollmentHandler{
+		service:         service,
+		interviewService: interviewService,
+	}
 }
 
 func (h *EnrollmentHandler) EnrollStudent(w http.ResponseWriter, r *http.Request) {
@@ -30,8 +46,29 @@ func (h *EnrollmentHandler) EnrollStudent(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Verificar se existe entrevista pendente para o aluno
+	form, err := h.interviewService.GetPendingInterview(r.Context(), enrollment.StudentID)
+	if err != nil {
+		// Log error but don't fail the enrollment
+		fmt.Printf("Warning: Failed to check pending interview: %v\n", err)
+	}
+
+	// Construir resposta estendida
+	response := EnrollmentResponse{
+		Enrollment:        &enrollment,
+		InterviewRequired: form != nil,
+		NextStep:          "completed",
+	}
+
+	if form != nil {
+		response.InterviewFormID = form.ID.Hex()
+		response.InterviewFormTitle = form.Title
+		response.NextStep = "interview_required"
+		response.RedirectURL = fmt.Sprintf("/interviews/respond/%d", enrollment.StudentID)
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(enrollment)
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *EnrollmentHandler) GetEnrollment(w http.ResponseWriter, r *http.Request) {

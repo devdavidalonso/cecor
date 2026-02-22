@@ -13,6 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CourseService, Course } from '../../../core/services/course.service';
@@ -39,6 +40,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatCardModule,
     MatSnackBarModule,
     MatAutocompleteModule,
+    MatTooltipModule,
     MatListModule,
     MatCheckboxModule,
     RouterModule
@@ -203,17 +205,41 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                     <div class="row">
                          <mat-form-field appearance="outline">
                             <mat-label>Start Date</mat-label>
-                            <input matInput [matDatepicker]="pickerStart" formControlName="startDate">
-                            <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+                            <input matInput 
+                                   [matDatepicker]="pickerStart" 
+                                   formControlName="startDate"
+                                   placeholder="DD/MM/AAAA"
+                                   maxlength="10"
+                                   autocomplete="off">
+                            <mat-datepicker-toggle matSuffix [for]="pickerStart" matTooltip="Abrir calendário"></mat-datepicker-toggle>
                             <mat-datepicker #pickerStart></mat-datepicker>
+                            <mat-hint>Digite DD/MM/AAAA ou use o calendário</mat-hint>
+                            <mat-error *ngIf="scheduleForm.get('startDate')?.hasError('matDatepickerParse')">
+                                Data inválida. Use DD/MM/AAAA
+                            </mat-error>
+                            <mat-error *ngIf="scheduleForm.get('startDate')?.hasError('required')">
+                                Data inicial é obrigatória
+                            </mat-error>
                         </mat-form-field>
 
                         <mat-form-field appearance="outline">
-                        <mat-label>End Date</mat-label>
-                        <input matInput [matDatepicker]="pickerEnd" formControlName="endDate">
-                        <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerEnd></mat-datepicker>
-                    </mat-form-field>
+                            <mat-label>End Date</mat-label>
+                            <input matInput 
+                                   [matDatepicker]="pickerEnd" 
+                                   formControlName="endDate"
+                                   placeholder="DD/MM/AAAA"
+                                   maxlength="10"
+                                   autocomplete="off">
+                            <mat-datepicker-toggle matSuffix [for]="pickerEnd" matTooltip="Abrir calendário"></mat-datepicker-toggle>
+                            <mat-datepicker #pickerEnd></mat-datepicker>
+                            <mat-hint>Digite DD/MM/AAAA ou use o calendário</mat-hint>
+                            <mat-error *ngIf="scheduleForm.get('endDate')?.hasError('matDatepickerParse')">
+                                Data inválida. Use DD/MM/AAAA
+                            </mat-error>
+                            <mat-error *ngIf="scheduleForm.get('endDate')?.hasError('required')">
+                                Data final é obrigatória
+                            </mat-error>
+                        </mat-form-field>
                   </div>
 
                   <div class="schedule-preview" *ngIf="generatedSchedule.length > 0">
