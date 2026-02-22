@@ -101,6 +101,16 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 		return fmt.Errorf("error creating user: %w", result.Error)
 	}
 
+	// Compatibilidade com schema legado: coluna users.profile (texto) obrigatória.
+	// Mantemos profile_id como fonte principal e sincronizamos profile textual.
+	profileText := profileTextFromID(user.ProfileID)
+	if err := r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id = ?", user.ID).
+		Update("profile", profileText).Error; err != nil {
+		return fmt.Errorf("error syncing legacy profile text: %w", err)
+	}
+
 	return nil
 }
 
@@ -118,6 +128,15 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) error {
 			return fmt.Errorf("uniqueness violation: %w", result.Error)
 		}
 		return fmt.Errorf("error updating user: %w", result.Error)
+	}
+
+	// Sync coluna legado users.profile para evitar inconsistencias em bancos antigos.
+	profileText := profileTextFromID(user.ProfileID)
+	if err := r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id = ?", user.ID).
+		Update("profile", profileText).Error; err != nil {
+		return fmt.Errorf("error syncing legacy profile text: %w", err)
 	}
 
 	return nil
@@ -242,6 +261,19 @@ func (r *userRepository) FindByProfile(ctx context.Context, profile string) ([]m
 	}
 
 	return r.FindByProfileID(ctx, profileID)
+}
+
+func profileTextFromID(profileID uint) string {
+	switch profileID {
+	case 1:
+		return "admin"
+	case 2:
+		return "professor"
+	case 3:
+		return "student"
+	default:
+		return "student"
+	}
 }
 
 // FindByProfileID finds users by profile ID

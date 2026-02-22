@@ -18,11 +18,18 @@ Concluido nesta rodada:
    - Schema legado (`students.special_needs`).
    - Navegacao/guards por papel.
    - Asset `icon-144x144.png`.
+5. Fluxo funcional admin homologado ponta a ponta:
+   - Criacao de professor, curso, aluno e matricula.
+6. Regra de negocio homologada:
+   - bloqueio de matricula para aluno menor de 12 anos.
 
 Proximo ciclo recomendado:
 1. Expandir massa de dados de seed (matriculas, cursos, presencas).
 2. Rodar regressao manual com checklist completo por perfil.
 3. Converter os cenarios mais criticos em testes automatizados de regressao.
+4. Fechar gap do portal do professor para chamada:
+   - adicionar acao direta de "Registrar Presenca" por turma/aluno.
+   - remover dependencias de telas placeholder no fluxo operacional.
 
 ---
 

@@ -24,6 +24,17 @@ Foram concluidos os pontos criticos que bloqueavam testes manuais:
    - Professor sem acesso a area administrativa.
    - Aluno com portal proprio.
 4. Requests no browser para `students` e `teachers` com status `200`.
+5. Fluxo de homologacao funcional (admin):
+   - professor criado com `201`.
+   - curso criado com `201`.
+   - aluno criado com `201`.
+   - matricula criada com `201`.
+6. Regra de negocio de idade validada:
+   - matricula bloqueada para aluno < 12 anos.
+   - apos ajuste de data de nascimento, matricula permitida.
+7. Portal do professor:
+   - turma e alunos aparecem apos vinculacao em `teacher_courses`.
+   - tela de perfil do aluno em rota de professor ainda em placeholder ("Fase 5").
 
 ## Comandos oficiais usados na homologacao local
 
@@ -58,3 +69,6 @@ cd /home/david-alonso/Projetos/cecor && ./scripts/smoke_rbac_keycloak.sh
 1. Consolidar dados de seed com maior massa (cursos/matriculas/presencas).
 2. Expandir suite automatizada de regressao frontend.
 3. Fechar checklist de release e versionamento final da V1.
+4. Completar UX/fluxo do professor para lancamento de presenca direto na tela de turma/alunos.
+5. Completar menu do professor (links e atalhos operacionais para chamada).
+6. Corrigir calculo de carga horaria do curso (workload negativo observado em homologacao).

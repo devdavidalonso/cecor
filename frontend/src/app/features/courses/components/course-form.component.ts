@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -18,8 +18,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CourseService, Course } from '../../../core/services/course.service';
 import { LocationService, Location } from '../../../core/services/location.service';
-// Force Rebuild
-import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
@@ -41,7 +39,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatSnackBarModule,
     MatAutocompleteModule,
     MatTooltipModule,
-    MatListModule,
     MatCheckboxModule,
     RouterModule
   ],
@@ -208,6 +205,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                             <input matInput 
                                    [matDatepicker]="pickerStart" 
                                    formControlName="startDate"
+                                   #startDateInput
                                    placeholder="DD/MM/AAAA"
                                    maxlength="10"
                                    autocomplete="off">
@@ -227,6 +225,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                             <input matInput 
                                    [matDatepicker]="pickerEnd" 
                                    formControlName="endDate"
+                                   #endDateInput
                                    placeholder="DD/MM/AAAA"
                                    maxlength="10"
                                    autocomplete="off">
@@ -242,25 +241,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                         </mat-form-field>
                   </div>
 
-                  <div class="schedule-preview" *ngIf="generatedSchedule.length > 0">
-                    <h4>Preview Schedule ({{ generatedSchedule.length }} sessions)</h4>
-                    <mat-list>
-                        <mat-list-item *ngFor="let session of generatedSchedule | slice:0:5">
-                            <mat-icon matListItemIcon>event</mat-icon>
-                            <div matListItemTitle>{{ session.date | date:'fullDate' }}</div>
-                            <div matListItemLine>{{ session.startTime }} - {{ session.endTime }}</div>
-                        </mat-list-item>
-                         <mat-list-item *ngIf="generatedSchedule.length > 5">
-                            <div matListItemTitle class="text-muted">... and {{ generatedSchedule.length - 5 }} more sessions</div>
-                        </mat-list-item>
-                    </mat-list>
-                  </div>
-                  
-                  <div class="row" style="justify-content: flex-end; margin-top: 10px;">
-                    <button mat-stroked-button color="accent" (click)="generateSchedule()" type="button">
-                        <mat-icon>autorenew</mat-icon> Generate Schedule
-                    </button>
-                  </div>
                      <div class="row">
                          <mat-form-field appearance="outline">
                             <mat-label>Week Days</mat-label>
@@ -284,6 +264,42 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
                             <mat-label>End Time</mat-label>
                             <input matInput type="time" formControlName="endTime">
                         </mat-form-field>
+                     </div>
+
+                     <div class="row" style="justify-content: flex-end; margin-top: 10px;">
+                       <button mat-stroked-button color="accent" (click)="generateSchedule()" type="button">
+                           <mat-icon>autorenew</mat-icon> Generate Schedule
+                       </button>
+                     </div>
+
+                     <div class="schedule-preview" *ngIf="generatedSchedule.length > 0">
+                       <h4>Preview Schedule ({{ generatedSchedule.length }} sessions)</h4>
+                       <div class="schedule-table-wrapper">
+                         <table class="schedule-table">
+                           <thead>
+                             <tr>
+                               <th>Date</th>
+                               <th>Week Day</th>
+                               <th>Start</th>
+                               <th>End</th>
+                               <th class="actions-col">Actions</th>
+                             </tr>
+                           </thead>
+                           <tbody>
+                             <tr *ngFor="let session of generatedSchedule; let i = index">
+                               <td>{{ session.date | date:'dd/MM/yyyy' }}</td>
+                               <td>{{ session.date | date:'EEEE' }}</td>
+                               <td>{{ session.startTime }}</td>
+                               <td>{{ session.endTime }}</td>
+                               <td class="actions-col">
+                                 <button mat-icon-button color="warn" type="button" (click)="removeSession(i)" matTooltip="Remover sessão">
+                                   <mat-icon>delete</mat-icon>
+                                 </button>
+                               </td>
+                             </tr>
+                           </tbody>
+                         </table>
+                       </div>
                      </div>
                 </div>
 
@@ -407,9 +423,59 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
         text-align: left;
         margin-top: 16px;
     }
+
+    .schedule-preview {
+      margin-top: 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      background: #fcfdff;
+    }
+
+    .schedule-preview h4 {
+      margin: 0 0 10px;
+    }
+
+    .schedule-table-wrapper {
+      max-height: 260px;
+      overflow: auto;
+      border: 1px solid #eef2f7;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .schedule-table thead th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      z-index: 1;
+      font-weight: 600;
+    }
+
+    .actions-col {
+      width: 72px;
+      text-align: center !important;
+    }
   `]
 })
 export class CourseFormComponent implements OnInit {
+  @ViewChild('startDateInput') startDateInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('endDateInput') endDateInput?: ElementRef<HTMLInputElement>;
+
   // Form Groups for each Step
   basicInfoForm: FormGroup;
   teamForm: FormGroup;
@@ -554,29 +620,49 @@ export class CourseFormComponent implements OnInit {
 
   generateSchedule() {
     const { startDate, endDate, weekDays, startTime, endTime } = this.scheduleForm.value;
-    
-    if (!startDate || !endDate || !weekDays || weekDays.length === 0) {
-      this.snackBar.open('Please select Start Date, End Date and Week Days.', 'Close', { duration: 3000 });
+
+    let normalizedStartDate = this.parseDateValue(startDate);
+    let normalizedEndDate = this.parseDateValue(endDate);
+    const normalizedWeekDays = Array.isArray(weekDays) ? weekDays : (weekDays ? [weekDays] : []);
+    const normalizedStartTime = this.parseTimeValue(startTime);
+    const normalizedEndTime = this.parseTimeValue(endTime);
+
+    // Fallback: quando o MatDatepicker nao parseia o valor digitado,
+    // o FormControl pode ficar nulo, mas o texto existe no input.
+    if (!normalizedStartDate && this.startDateInput?.nativeElement?.value) {
+      normalizedStartDate = this.parseDateValue(this.startDateInput.nativeElement.value);
+    }
+    if (!normalizedEndDate && this.endDateInput?.nativeElement?.value) {
+      normalizedEndDate = this.parseDateValue(this.endDateInput.nativeElement.value);
+    }
+
+    if (!normalizedStartDate || !normalizedEndDate || normalizedWeekDays.length === 0 || !normalizedStartTime || !normalizedEndTime) {
+      this.snackBar.open('Please select Start Date, End Date, Week Days and start/end times.', 'Close', { duration: 3000 });
       return;
     }
 
     this.generatedSchedule = [];
-    let currentDate = new Date(startDate);
-    const end = new Date(endDate);
+    let currentDate = new Date(normalizedStartDate);
+    const end = new Date(normalizedEndDate);
     
     // Map week day strings to integers (Sun=0, Mon=1, ...)
     const dayMap: { [key: string]: number } = {
        'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
     };
     
-    const selectedDays = weekDays.map((d: string) => dayMap[d]);
+    const selectedDays = normalizedWeekDays.map((d: string) => dayMap[d]).filter((d: number) => d !== undefined);
+
+    if (selectedDays.length === 0) {
+      this.snackBar.open('Invalid week day selection. Please reselect week days.', 'Close', { duration: 3000 });
+      return;
+    }
 
     while (currentDate <= end) {
       if (selectedDays.includes(currentDate.getDay())) {
         this.generatedSchedule.push({
            date: new Date(currentDate),
-           startTime: startTime,
-           endTime: endTime,
+           startTime: normalizedStartTime,
+           endTime: normalizedEndTime,
            topic: 'Class Session' // Default topic
         });
       }
@@ -585,15 +671,72 @@ export class CourseFormComponent implements OnInit {
     }
     
     // Auto-calculate workload
-    if (startTime && endTime) {
-        const start = parseInt(startTime.split(':')[0]);
-        const endHour = parseInt(endTime.split(':')[0]);
+    if (normalizedStartTime && normalizedEndTime) {
+        const start = parseInt(normalizedStartTime.split(':')[0]);
+        const endHour = parseInt(normalizedEndTime.split(':')[0]);
         const hoursPerSession = endHour - start;
         const totalHours = this.generatedSchedule.length * hoursPerSession;
         this.scheduleForm.patchValue({ workload: totalHours });
     }
     
     this.snackBar.open(`Generated ${this.generatedSchedule.length} class sessions.`, 'OK', { duration: 3000 });
+  }
+
+  private parseDateValue(value: unknown): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      const br = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
+      if (br) {
+        const day = Number(br[1]);
+        const month = Number(br[2]) - 1;
+        const year = Number(br[3]);
+        const parsed = new Date(year, month, day);
+        if (!isNaN(parsed.getTime())) {
+          return parsed;
+        }
+      }
+
+      const iso = new Date(trimmed);
+      if (!isNaN(iso.getTime())) {
+        return iso;
+      }
+    }
+
+    return null;
+  }
+
+  private parseTimeValue(value: unknown): string {
+    if (typeof value !== 'string') {
+      return '';
+    }
+
+    const match = value.match(/(\d{2}:\d{2})/);
+    return match ? match[1] : '';
+  }
+
+  removeSession(index: number) {
+    if (index < 0 || index >= this.generatedSchedule.length) {
+      return;
+    }
+
+    this.generatedSchedule.splice(index, 1);
+    this.generatedSchedule = [...this.generatedSchedule];
+
+    const { startTime, endTime } = this.scheduleForm.value;
+    if (startTime && endTime) {
+      const start = parseInt(startTime.split(':')[0], 10);
+      const endHour = parseInt(endTime.split(':')[0], 10);
+      const hoursPerSession = Math.max(endHour - start, 0);
+      this.scheduleForm.patchValue({ workload: this.generatedSchedule.length * hoursPerSession });
+    }
   }
 
   submit() {

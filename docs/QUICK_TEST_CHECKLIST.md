@@ -10,6 +10,10 @@ Status desta rodada:
 3. RBAC validado para bloqueio de `/students` para perfis nao-admin.
 4. Login e redirecionamento por perfil validados.
 5. Erro de icone `icon-144x144.png` corrigido.
+6. Fluxo admin de homologacao validado: criar professor, curso, aluno e matricula (`201`).
+7. Regra de idade da matricula validada (bloqueio < 12 anos).
+8. Gap identificado no professor: ausencia de acao clara de "Registrar Presenca" na jornada de turma/alunos.
+9. Gap identificado no professor: tela `teacher/students/:id` ainda marcada como "Fase 5".
 
 ---
 
@@ -139,9 +143,9 @@ Status Geral: ⬜ Não Iniciado / 🟡 Em Andamento / 🟢 Completo
 
 | # | Bug | Severidade | Status |
 |---|-----|------------|--------|
-| 1 | | 🔴 / 🟡 / 🟢 | Aberto / Corrigido |
-| 2 | | 🔴 / 🟡 / 🟢 | Aberto / Corrigido |
-| 3 | | 🔴 / 🟡 / 🟢 | Aberto / Corrigido |
+| 1 | Professor sem CTA direto para lancar presenca na tela de turma/alunos | 🟡 | Aberto |
+| 2 | Tela de perfil do aluno no portal professor em placeholder ("Fase 5") | 🟡 | Aberto |
+| 3 | Workload de curso exibindo valor negativo em homologacao | 🟡 | Aberto |
 
 ---
 

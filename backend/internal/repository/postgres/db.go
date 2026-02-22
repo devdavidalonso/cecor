@@ -74,6 +74,7 @@ func MigrateDB(db *gorm.DB) error {
 		&models.User{},
 		&models.UserProfile{},
 		&models.Address{},
+		&models.UserContact{},
 
 		// Student related models
 		&models.Student{},
@@ -85,6 +86,10 @@ func MigrateDB(db *gorm.DB) error {
 		// Course related models
 		&models.Course{},
 		&models.TeacherCourse{},
+		&models.CourseClass{},
+		&models.ClassSession{},
+		&models.EnrollmentCourseClass{},
+		&models.SyllabusTopic{},
 
 		// Enrollment related models
 		&models.Enrollment{},
@@ -155,6 +160,30 @@ func ensureStudentSchemaCompatibility(db *gorm.DB) error {
 				ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_info text;
 				ALTER TABLE students ADD COLUMN IF NOT EXISTS social_media jsonb;
 				ALTER TABLE students ADD COLUMN IF NOT EXISTS notes text;
+			END IF;
+		END
+		$$;
+	`).Error; err != nil {
+		return err
+	}
+
+	// Compatibilidade com schema legado de users:
+	// em algumas bases antigas, a coluna `profile` (texto) é NOT NULL.
+	// Como o sistema atual usa `profile_id`, garantimos default para inserts sem essa coluna.
+	if err := db.Exec(`
+		DO $$
+		BEGIN
+			IF EXISTS (
+				SELECT 1
+				FROM information_schema.columns
+				WHERE table_schema = 'public'
+				  AND table_name = 'users'
+				  AND column_name = 'profile'
+			) THEN
+				ALTER TABLE users ALTER COLUMN profile SET DEFAULT 'student';
+				UPDATE users
+				SET profile = 'student'
+				WHERE profile IS NULL OR profile = '';
 			END IF;
 		END
 		$$;
