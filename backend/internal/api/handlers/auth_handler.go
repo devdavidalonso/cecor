@@ -9,10 +9,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/devdavidalonso/cecor/backend/internal/api/middleware"
-	"github.com/devdavidalonso/cecor/backend/internal/auth"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
 	"github.com/devdavidalonso/cecor/backend/internal/models"
 	"github.com/devdavidalonso/cecor/backend/internal/service/users"
@@ -22,9 +22,8 @@ import (
 
 const ssoStateCookie = "sso_state"
 
-// RefreshTokenRequest representa uma requisição para renovação de token
-type RefreshTokenRequest struct {
-	RefreshToken string `json:"refreshToken"`
+func normalizeRole(role string) string {
+	return strings.ToLower(strings.TrimSpace(role))
 }
 
 // AuthResponse representa a resposta de uma autenticação bem-sucedida
@@ -117,11 +116,14 @@ func (h *AuthHandler) SSOCallback(w http.ResponseWriter, r *http.Request) {
 	// Extract the best matching role
 	var role string
 	if len(userInfo.RealmAccess.Roles) > 0 {
-		// Simple logic: pick the first relevant role found, or default to user
-		// You might want a priority list here if a user has multiple roles
+		// Priority list: admin/manager > professor > student/guardian
 		for _, r := range userInfo.RealmAccess.Roles {
-			if r == "Administrador" || r == "admin" || r == "Gestor" || r == "Professor" || r == "Aluno" || r == "Responsável" {
-				role = r
+			normalized := normalizeRole(r)
+			switch normalized {
+			case "administrador", "admin", "gestor", "professor", "aluno", "responsável", "responsavel":
+				role = normalized
+			}
+			if role != "" {
 				break
 			}
 		}
@@ -138,15 +140,11 @@ func (h *AuthHandler) SSOCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate your application's own JWT
-	accessToken, refreshToken, err := auth.GenerateTokens(user, h.cfg)
-	if err != nil {
-		errors.RespondWithError(w, http.StatusInternalServerError, "Failed to generate application tokens")
-		return
-	}
-
-	// Redirect to the frontend with the tokens
-	redirectURL := fmt.Sprintf("http://localhost:4201/auth/login/success?token=%s&refreshToken=%s", accessToken, refreshToken)
+	// Keycloak é a única fonte de autenticação/token.
+	// Não geramos JWT local aqui; apenas provisionamos o usuário local e redirecionamos
+	// para o frontend iniciar o fluxo OIDC direto.
+	_ = user
+	redirectURL := "http://localhost:4201/auth/login"
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
@@ -173,31 +171,6 @@ func (h *AuthHandler) getUserInfo(token *oauth2.Token) (*UserInfo, error) {
 	}
 
 	return &userInfo, nil
-}
-
-// RefreshToken renova o token de acesso usando um refresh token
-func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
-	var req RefreshTokenRequest
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		errors.RespondWithError(w, http.StatusBadRequest, "Formato de dados inválido")
-		return
-	}
-
-	if req.RefreshToken == "" {
-		errors.RespondWithError(w, http.StatusBadRequest, "Refresh token é obrigatório")
-		return
-	}
-
-	newToken, err := auth.RefreshAccessToken(req.RefreshToken, h.cfg)
-	if err != nil {
-		errors.RespondWithError(w, http.StatusUnauthorized, "Refresh token inválido ou expirado")
-		return
-	}
-
-	errors.RespondWithJSON(w, http.StatusOK, map[string]string{
-		"token": newToken,
-	})
 }
 
 func generateRandomState() (string, error) {

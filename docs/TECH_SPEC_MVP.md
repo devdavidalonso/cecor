@@ -27,6 +27,7 @@ graph TD
 - **Backend**: Go 1.22+ (API REST monolítica com rotas `/students`, `/courses`, etc).
 - **Banco de Dados**: PostgreSQL 15 (Schema único `public`, tabelas prefixadas ou organizadas).
 - **Autenticação**: Keycloak (Local/Docker) com **Identity Provider do Google** configurado para permitir login com contas institucionais/pessoais (`@gmail.com`).
+  - **Fonte única de token/roles**: Access token e papéis vêm do Keycloak (OIDC). O backend não emite JWT próprio para clientes.
 - **Infraestrutura**: Docker Compose (Local) / VPS com Docker (Produção).
 
 ## 3. Detalhamento do Banco de Dados (PostgreSQL)

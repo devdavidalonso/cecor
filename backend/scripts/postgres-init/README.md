@@ -110,7 +110,7 @@ cp .env.example .env
 
 A API está disponível em `/api/v1` e inclui os seguintes endpoints principais:
 
-- `/api/v1/auth/login` - Autenticação
+- `/api/v1/auth/sso/login` - Iniciar autenticação via Keycloak
 - `/api/v1/alunos` - Gestão de alunos
 - `/api/v1/cursos` - Gestão de cursos
 - `/api/v1/matriculas` - Gestão de matrículas

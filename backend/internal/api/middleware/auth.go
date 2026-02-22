@@ -127,7 +127,8 @@ func RequireAdmin(next http.Handler) http.Handler {
 		// Verificar se o usuário tem papel de administrador
 		isAdmin := false
 		for _, role := range claims.Roles {
-			if role == "admin" {
+			normalizedRole := strings.ToLower(strings.TrimSpace(role))
+			if normalizedRole == "admin" || normalizedRole == "administrador" || normalizedRole == "gestor" {
 				isAdmin = true
 				break
 			}

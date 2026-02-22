@@ -4,8 +4,11 @@
     "scripts": {
         "ng": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng",
         "start": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng serve --proxy-config proxy.conf.json --port 4201",
+        "start:staging": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng serve --configuration=staging --port 4201",
         "start:prototype": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng serve --configuration=prototype",
         "build": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build",
+        "build:staging": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --configuration=staging",
+        "build:production": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --configuration=production",
         "build:prototype": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --configuration=prototype",
         "watch": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --watch --configuration development",
         "test": "ng test"

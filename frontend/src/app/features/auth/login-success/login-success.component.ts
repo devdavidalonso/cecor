@@ -1,7 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SsoService } from '../../../core/services/sso.service';
 
 @Component({
     selector: 'app-login-success',
@@ -17,35 +18,19 @@ import { AuthService } from '../../../core/services/auth.service';
   `
 })
 export class LoginSuccessComponent implements OnInit {
-    private route = inject(ActivatedRoute);
     private router = inject(Router);
     private authService = inject(AuthService);
+    private ssoService = inject(SsoService);
 
-    ngOnInit() {
-        this.route.queryParams.subscribe(params => {
-            const token = params['token'];
-            const refreshToken = params['refreshToken'];
+    async ngOnInit() {
+        // Mantém compatibilidade com rota antiga, mas sem persistir token manual.
+        // A sessão/autenticação deve vir exclusivamente do fluxo OIDC do Keycloak.
+        await this.ssoService.initSso();
+        if (this.authService.checkAuth()) {
+            this.router.navigate(['/dashboard']);
+            return;
+        }
 
-            if (token) {
-                // Store tokens directly via AuthService (we will update AuthService to handle this)
-                // For now, assuming AuthService has a method or we use localStorage directly if needed
-                // But better to use AuthService.
-
-                // Since we are refactoring, let's look at AuthService. 
-                // I will assume for now I can set it in localStorage and then notify AuthService or similar.
-                // Actually, let's update AuthService to have a loginWithToken method or similar.
-
-                localStorage.setItem('auth_token', token);
-                if (refreshToken) {
-                    localStorage.setItem('refresh_token', refreshToken);
-                }
-
-                // Navigate to dashboard
-                this.router.navigate(['/dashboard']);
-            } else {
-                // Failed, go back to login
-                this.router.navigate(['/auth/login']);
-            }
-        });
+        this.router.navigate(['/auth/login']);
     }
 }

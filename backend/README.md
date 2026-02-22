@@ -9,7 +9,7 @@ Este é o backend do Sistema de Gestão Educacional CECOR, uma solução complet
 * **Linguagem**: Go 1.22+
 * **Framework Web**: Chi Router
 * **ORM**: GORM com PostgreSQL
-* **Autenticação**: JWT (JSON Web Tokens)
+* **Autenticação**: Keycloak (OIDC/OAuth2)
 * **Cache**: Redis
 * **Mensageria**: RabbitMQ
 * **Armazenamento NoSQL**: MongoDB (para dados flexíveis)
@@ -97,11 +97,13 @@ RABBITMQ_USER=guest
 RABBITMQ_PASSWORD=guest
 RABBITMQ_VHOST=/
 
-# Configurações de JWT
-JWT_SECRET=sua_chave_secreta_muito_segura
-JWT_EXPIRY_HOURS=24
-REFRESH_SECRET=outra_chave_secreta_muito_segura
-REFRESH_EXPIRY_HOURS=168
+# Configurações SSO (Keycloak)
+SSO_CLIENT_ID=cecor-frontend
+SSO_CLIENT_SECRET=cecor-secret
+SSO_REDIRECT_URL=http://localhost:4201
+SSO_AUTH_URL=http://localhost:8081/realms/cecor/protocol/openid-connect/auth
+SSO_TOKEN_URL=http://localhost:8081/realms/cecor/protocol/openid-connect/token
+SSO_USER_INFO_URL=http://localhost:8081/realms/cecor/protocol/openid-connect/userinfo
 
 # Configurações da aplicação
 APP_ENV=development
@@ -156,8 +158,9 @@ A API está disponível em `/api/v1` e oferece os seguintes endpoints principais
 
 ### Autenticação
 
-- `POST /api/v1/auth/login` - Login de usuário
-- `POST /api/v1/auth/refresh` - Renovação de token JWT
+- `GET /api/v1/auth/sso/login` - Inicia login via Keycloak
+- `GET /api/v1/auth/sso/callback` - Callback OIDC
+- `GET /api/v1/auth/verify` - Verifica token enviado no `Authorization`
 
 ### Alunos
 
@@ -199,15 +202,15 @@ A API está disponível em `/api/v1` e oferece os seguintes endpoints principais
 
 ## Autenticação
 
-A API utiliza autenticação baseada em JWT (JSON Web Tokens). Para acessar endpoints protegidos:
+A API utiliza autenticação via Keycloak (OIDC/OAuth2). Para acessar endpoints protegidos:
 
-1. Obtenha um token através do endpoint `/api/v1/auth/login`
-2. Inclua o token no cabeçalho de suas requisições:
+1. Faça login no frontend via SSO Keycloak.
+2. O frontend envia o access token do Keycloak no cabeçalho:
    ```
-   Authorization: Bearer {seu_token_aqui}
+   Authorization: Bearer {access_token_keycloak}
    ```
-3. O token expira após o tempo configurado nas variáveis de ambiente
-4. Use `/api/v1/auth/refresh` para renovar o token expirado
+3. O backend valida assinatura e claims do token diretamente contra o provedor OIDC.
+4. Renovação de sessão/token é feita pelo fluxo OIDC no frontend, não por endpoint JWT local.
 
 ## Níveis de Acesso
 

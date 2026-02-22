@@ -14,9 +14,6 @@
 .env.development.local
 .env.test.local
 .env.production.local
-environment.*.ts
-!environment.ts
-!environment.prod.ts
 
 # Cache e Logs
 /.angular/cache
@@ -58,3 +55,6 @@ desktop.ini
 
 # Documentação
 /.docs
+
+# Smoke test env (não versionar segredos)
+scripts/smoke.env

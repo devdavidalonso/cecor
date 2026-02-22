@@ -1,19 +1,20 @@
 import { Injectable } from '@angular/core';
 import { OAuthService, AuthConfig } from 'angular-oauth2-oidc';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SsoService {
     private authConfig: AuthConfig = {
-        issuer: 'http://localhost:8081/realms/cecor',
-        redirectUri: 'http://localhost:4201',
-        clientId: 'cecor-frontend',
+        issuer: environment.ssoIssuer,
+        redirectUri: environment.ssoRedirectUri,
+        clientId: environment.ssoClientId,
         responseType: 'code',
         scope: 'openid profile email',
-        showDebugInformation: true,
-        requireHttps: false, // Allow HTTP for localhost development
+        showDebugInformation: !environment.production,
+        requireHttps: environment.production,
         oidc: true // Enable OpenID Connect (required for Public Client with PKCE)
     };
 
@@ -106,4 +107,3 @@ export class SsoService {
         return claims?.email || '';
     }
 }
-

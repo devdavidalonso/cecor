@@ -18,6 +18,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/devdavidalonso/cecor/backend/internal/api/handlers"
+	apiMiddleware "github.com/devdavidalonso/cecor/backend/internal/api/middleware"
 	"github.com/devdavidalonso/cecor/backend/internal/api/routes"
 	"github.com/devdavidalonso/cecor/backend/internal/auth"
 	"github.com/devdavidalonso/cecor/backend/internal/config"
@@ -195,91 +196,65 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	// Registrar todas as rotas, incluindo autenticação
-	routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler, reportHandler, teacherHandler)
-
-	// Rotas Públicas/Protegidas de Entrevista
-	r.Route("/api/v1/interviews", func(r chi.Router) {
-		// TODO: Adicionar middleware de auth quando disponível no contexto
-		interviewHandler.RegisterRoutes(r)
-	})
-	
-	// Rotas Admin de Entrevistas (prefixo /api/v1)
-	// As rotas são registradas em /api/v1/admin/interview-forms
-	appLogger.Info("Registering admin interview routes...")
-	r.Route("/api/v1/admin", func(r chi.Router) {
-		interviewAdminHandler.RegisterAdminRoutes(r)
-	})
-	appLogger.Info("Admin interview routes registered")
-
-	// Rotas do Portal do Professor
-	appLogger.Info("Registering teacher portal routes...")
-	r.Route("/api/v1", func(r chi.Router) {
-		teacherPortalHandler.RegisterRoutes(r)
-	})
-	appLogger.Info("Teacher portal routes registered")
-	
-	// Rotas de Ocorrências (Incidents)
-	appLogger.Info("Registering incident routes...")
-	r.Route("/api/v1", func(r chi.Router) {
-		incidentHandler.RegisterRoutes(r)
-	})
-	appLogger.Info("Incident routes registered")
-
 	// Initialize new handlers for Phase 2
 	studentPortalHandler := handlers.NewStudentPortalHandler(db)
 	courseClassHandler := handlers.NewCourseClassHandler(db)
 	skillHandler := handlers.NewSkillHandler(db)
 	migrationHandler := handlers.NewMigrationHandler(db)
 
-	// Rotas do Portal do Aluno
-	appLogger.Info("Registering student portal routes...")
-	r.Route("/api/v1", func(r chi.Router) {
-		studentPortalHandler.RegisterRoutes(r)
+	// Registrar todas as rotas v1 sob um único prefixo /api/v1
+	appLogger.Info("Registering v1 routes...")
+	r.Route("/api", func(r chi.Router) {
+		r.Route("/v1", func(r chi.Router) {
+			// Rotas base (públicas + protegidas)
+			routes.Register(r, cfg, authHandler, courseHandler, enrollmentHandler, attendanceHandler, reportHandler, teacherHandler)
+
+			// Módulos adicionais protegidos
+			r.Group(func(r chi.Router) {
+				r.Use(apiMiddleware.Authenticate(cfg))
+
+				// Interview endpoints
+				interviewHandler.RegisterRoutes(r)
+
+				// Teacher portal / incidents / student portal
+				teacherPortalHandler.RegisterRoutes(r)
+				incidentHandler.RegisterRoutes(r)
+				studentPortalHandler.RegisterRoutes(r)
+
+				// Course class / skills
+				courseClassHandler.RegisterRoutes(r)
+				skillHandler.RegisterRoutes(r)
+
+				// Students CRUD
+				r.Route("/students", func(r chi.Router) {
+					r.Get("/", studentHandler.GetStudents)
+					r.Post("/", studentHandler.CreateStudent)
+					r.Get("/{id}", studentHandler.GetStudent)
+					r.Put("/{id}", studentHandler.UpdateStudent)
+					r.Delete("/{id}", studentHandler.DeleteStudent)
+					r.Get("/{id}/guardians", studentHandler.GetGuardians)
+					r.Post("/{id}/guardians", studentHandler.AddGuardian)
+					r.Get("/{id}/documents", studentHandler.GetDocuments)
+					r.Post("/{id}/documents", studentHandler.AddDocument)
+					r.Get("/{id}/notes", studentHandler.GetNotes)
+					r.Post("/{id}/notes", studentHandler.AddNote)
+				})
+			})
+
+			// Rotas admin sob /api/v1/admin
+			r.Route("/admin", func(r chi.Router) {
+				r.Use(apiMiddleware.Authenticate(cfg))
+				r.Use(apiMiddleware.RequireAdmin)
+
+				interviewAdminHandler.RegisterAdminRoutes(r)
+				r.Post("/migrations/run", migrationHandler.RunMigrations)
+				r.Post("/migrations/data", migrationHandler.RunDataMigration)
+				r.Post("/migrations/rollback", migrationHandler.RollbackMigrations)
+				r.Get("/migrations/status", migrationHandler.GetMigrationStatus)
+			})
+		})
 	})
-	appLogger.Info("Student portal routes registered")
-
-	// Rotas de Course Classes (Turmas)
-	appLogger.Info("Registering course class routes...")
-	courseClassHandler.RegisterRoutes(r)
-	appLogger.Info("Course class routes registered")
-
-	// Rotas de Skills
-	appLogger.Info("Registering skill routes...")
-	skillHandler.RegisterRoutes(r)
-	appLogger.Info("Skill routes registered")
-
-	// Rotas Admin de Migração
-	appLogger.Info("Registering migration routes...")
-	r.Route("/api/v1/admin", func(r chi.Router) {
-		r.Post("/migrations/run", migrationHandler.RunMigrations)
-		r.Post("/migrations/data", migrationHandler.RunDataMigration)
-		r.Post("/migrations/rollback", migrationHandler.RollbackMigrations)
-		r.Get("/migrations/status", migrationHandler.GetMigrationStatus)
-	})
-	appLogger.Info("Migration routes registered")
-
-	// ROTA DE TESTE TEMPORÁRIA - SEM AUTENTICAÇÃO (remover após testes)
-	r.Route("/api/v1/test/students", func(r chi.Router) {
-		r.Post("/", studentHandler.CreateStudent)
-		r.Get("/", studentHandler.GetStudents)
-		r.Get("/{id}", studentHandler.GetStudent)
-	})
-
-	// Registrar rotas de students (COM autenticação via middleware do handler)
-	r.Route("/api/v1/students", func(r chi.Router) {
-		r.Get("/", studentHandler.GetStudents)
-		r.Post("/", studentHandler.CreateStudent)
-		r.Get("/{id}", studentHandler.GetStudent)
-		r.Put("/{id}", studentHandler.UpdateStudent)
-		r.Delete("/{id}", studentHandler.DeleteStudent)
-		r.Get("/{id}/guardians", studentHandler.GetGuardians)
-		r.Post("/{id}/guardians", studentHandler.AddGuardian)
-		r.Get("/{id}/documents", studentHandler.GetDocuments)
-		r.Post("/{id}/documents", studentHandler.AddDocument)
-		r.Get("/{id}/notes", studentHandler.GetNotes)
-		r.Post("/{id}/notes", studentHandler.AddNote)
-	})
+	appLogger.Info("V1 routes registered")
 
 	// Get server port
 	port := cfg.Server.Port

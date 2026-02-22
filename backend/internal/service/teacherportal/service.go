@@ -213,8 +213,8 @@ func (s *service) GetTodaySessions(ctx context.Context, teacherID uint) ([]Sessi
 			c.google_classroom_url,
 			c.start_time,
 			c.end_time,
-			(SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as enrolled_count,
-			EXISTS(SELECT 1 FROM attendances a WHERE a.class_session_id = cs.id LIMIT 1) as attendance_recorded
+				(SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as enrolled_count,
+				false as attendance_recorded
 		FROM class_sessions cs
 		INNER JOIN courses c ON cs.course_id = c.id
 		INNER JOIN teacher_courses tc ON c.id = tc.course_id

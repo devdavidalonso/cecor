@@ -7,7 +7,7 @@ COMPOSE_STAGING=docker compose -f docker-compose.staging.yml
 BACKEND_DIR=backend
 FRONTEND_DIR=frontend
 
-.PHONY: help up up-staging down down-staging logs logs-staging backend frontend format clean restart restart-staging status
+.PHONY: help up up-staging down down-staging logs logs-staging backend frontend format clean restart restart-staging status quick-test smoke
 
 help:
 	@echo "======================================="
@@ -32,6 +32,8 @@ help:
 	@echo " make logs         -> Logs em tempo real (produção)"
 	@echo " make logs-backend -> Logs apenas do backend"
 	@echo " make logs-db      -> Logs apenas do banco"
+	@echo " make quick-test   -> Preflight rápido API/Keycloak"
+	@echo " make smoke        -> Smoke RBAC Keycloak (automatizado)"
 	@echo " make format       -> Formata código"
 	@echo " make clean        -> Limpa docker"
 	@echo " make status       -> Status dos containers"
@@ -100,3 +102,9 @@ status:
 
 clean:
 	docker system prune -f
+
+quick-test:
+	./scripts/quick_api_test.sh
+
+smoke: quick-test
+	./scripts/smoke_rbac_keycloak.sh

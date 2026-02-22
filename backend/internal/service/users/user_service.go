@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/devdavidalonso/cecor/backend/internal/models"
@@ -232,16 +233,16 @@ func (s *userService) FindOrCreateByEmail(ctx context.Context, email, name, prof
 
 	// Map Keycloak profiles to local profile IDs
 	var localProfileID uint
-	switch profile {
-	case "Administrador", "admin":
+	switch strings.ToLower(strings.TrimSpace(profile)) {
+	case "administrador", "admin":
 		localProfileID = ProfileAdmin
-	case "Gestor":
+	case "gestor":
 		localProfileID = ProfileAdmin // Manager treated as admin for now
-	case "Professor":
+	case "professor":
 		localProfileID = ProfileProfessor
-	case "Aluno":
+	case "aluno":
 		localProfileID = ProfileStudent
-	case "Responsável":
+	case "responsável", "responsavel":
 		localProfileID = ProfileStudent // Guardian treated as student for now
 	default:
 		localProfileID = ProfileStudent

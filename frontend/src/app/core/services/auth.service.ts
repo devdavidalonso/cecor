@@ -38,7 +38,7 @@ export class AuthService {
 
   private getUserFromClaims(): User {
     const claims: any = this.ssoService.identityClaims;
-    const roles = this.ssoService.getUserRoles();
+    const roles = this.ssoService.getUserRoles().map((role: string) => role.toLowerCase());
     
     return {
       id: claims?.sub || '',
@@ -51,9 +51,9 @@ export class AuthService {
   }
 
   private mapRolesToProfileId(roles: string[]): number {
-    if (roles.includes('administrador')) return 1; // admin
+    if (roles.includes('administrador') || roles.includes('admin') || roles.includes('gestor')) return 1; // admin
     if (roles.includes('professor')) return 2; // professor
-    if (roles.includes('aluno')) return 3; // student
+    if (roles.includes('aluno') || roles.includes('responsavel') || roles.includes('responsável')) return 3; // student
     return 3; // default to student
   }
 
@@ -91,4 +91,3 @@ export class AuthService {
     return roles.some(role => user.roles.includes(role));
   }
 }
-

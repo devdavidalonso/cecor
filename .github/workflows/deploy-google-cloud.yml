@@ -1,0 +1,120 @@
+name: Deploy Google Cloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Ambiente de deploy"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  select-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.pick.outputs.env_name }}
+    steps:
+      - id: pick
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "env_name=${{ inputs.target_env }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "env_name=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "env_name=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: select-environment
+    environment: ${{ needs.select-environment.outputs.env_name }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ENV_NAME: ${{ needs.select-environment.outputs.env_name }}
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      ARTIFACT_REPOSITORY: ${{ vars.GCP_ARTIFACT_REPOSITORY }}
+      CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_BACKEND_SERVICE }}
+      BACKEND_ENV_VARS: ${{ vars.BACKEND_ENV_VARS }}
+      BACKEND_SET_SECRETS: ${{ secrets.BACKEND_SET_SECRETS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          for var_name in PROJECT_ID REGION ARTIFACT_REPOSITORY CLOUD_RUN_SERVICE; do
+            if [[ -z "${!var_name:-}" ]]; then
+              echo "Variável obrigatória ausente: ${var_name}"
+              exit 1
+            fi
+          done
+
+      - name: Authenticate in Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure docker auth
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build and push backend image
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPOSITORY}/cecor-backend:${GITHUB_SHA}"
+          docker build -t "${IMAGE_URI}" ./backend
+          docker push "${IMAGE_URI}"
+          echo "IMAGE_URI=${IMAGE_URI}" >> "$GITHUB_ENV"
+
+      - name: Deploy backend to Cloud Run
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARGS=(
+            run deploy "${CLOUD_RUN_SERVICE}"
+            --project "${PROJECT_ID}"
+            --region "${REGION}"
+            --image "${IMAGE_URI}"
+            --platform managed
+            --allow-unauthenticated
+          )
+
+          if [[ -n "${BACKEND_ENV_VARS}" ]]; then
+            ARGS+=(--set-env-vars "${BACKEND_ENV_VARS}")
+          fi
+
+          if [[ -n "${BACKEND_SET_SECRETS}" ]]; then
+            ARGS+=(--set-secrets "${BACKEND_SET_SECRETS}")
+          fi
+
+          gcloud "${ARGS[@]}"
+
+      - name: Show backend URL
+        shell: bash
+        run: |
+          gcloud run services describe "${CLOUD_RUN_SERVICE}" \
+            --project "${PROJECT_ID}" \
+            --region "${REGION}" \
+            --format='value(status.url)'
+
