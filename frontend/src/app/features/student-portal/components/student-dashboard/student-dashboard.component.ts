@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { StudentPortalService, StudentDashboard } from '../../../../core/services/student-portal.service';
 import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
@@ -475,11 +476,37 @@ export class StudentDashboardComponent implements OnInit {
         this.dashboard = data;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         console.error('Erro ao carregar dashboard:', err);
-        this.snackBar.open('Erro ao carregar dashboard. Tente novamente.', 'Fechar', {
-          duration: 5000
-        });
+
+        // Ambiente sem dados iniciais do aluno: exibir tela vazia em vez de erro crítico.
+        this.dashboard = {
+          student: {
+            id: 0,
+            name: 'Aluno',
+            email: '',
+            phone: ''
+          },
+          todaySessions: [],
+          courses: [],
+          alerts: [],
+          stats: {
+            totalCourses: 0,
+            averageAttendance: 0,
+            totalIncidents: 0
+          }
+        };
+
+        if (err.status === 404) {
+          this.snackBar.open('Dashboard do aluno ainda sem dados para este usuário.', 'Fechar', {
+            duration: 4000
+          });
+        } else {
+          this.snackBar.open('Erro ao carregar dashboard. Tente novamente.', 'Fechar', {
+            duration: 5000
+          });
+        }
+
         this.isLoading = false;
       }
     });

@@ -27,7 +27,7 @@ export class LoginSuccessComponent implements OnInit {
         // A sessão/autenticação deve vir exclusivamente do fluxo OIDC do Keycloak.
         await this.ssoService.initSso();
         if (this.authService.checkAuth()) {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate([this.authService.getDefaultRouteByRole()]);
             return;
         }
 

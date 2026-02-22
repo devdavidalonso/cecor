@@ -4,6 +4,20 @@
 **Data de consolidacao:** 22/02/2026  
 **Base analisada:** Documentacao em `docs/`, `backend/README.md`, `frontend/README.md`, `docker-compose.yml`, scripts e skills disponiveis na sessao.
 
+## Atualizacao de estado - 22/02/2026 (apos homologacao local)
+
+Melhorias confirmadas:
+1. RBAC funcional por perfil no frontend e backend para rotas criticas.
+2. Fluxo Keycloak estabilizado para `admin`, `professor` e `aluno`.
+3. Ambiente de desenvolvimento hibrido consolidado com runbook.
+4. Seed local criado para reduzir dependencia de carga manual de dados.
+5. Correcoes de compatibilidade de schema no Postgres local.
+
+Impacto na avaliacao:
+1. O status de `NO-GO` para producao continua valido ate fechar pipeline e cobertura de testes.
+2. Para homologacao funcional local, o projeto avancou para `GO` nesta etapa.
+3. Riscos P0 de autorizacao basica e navegacao por perfil foram mitigados.
+
 ---
 
 ## 1. Diagnostico Executivo (Direto)

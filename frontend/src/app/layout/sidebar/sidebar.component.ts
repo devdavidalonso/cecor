@@ -252,49 +252,63 @@ export class SidebarComponent implements OnInit, OnDestroy {
       text: 'NAV.DASHBOARD',
       icon: 'dashboard',
       route: '/dashboard',
+      roles: ['admin', 'administrador', 'gestor'],
+    },
+    {
+      text: 'NAV.DASHBOARD',
+      icon: 'dashboard',
+      route: '/teacher/dashboard',
+      roles: ['professor'],
+    },
+    {
+      text: 'NAV.DASHBOARD',
+      icon: 'dashboard',
+      route: '/student/dashboard',
+      roles: ['aluno', 'responsavel', 'responsável'],
     },
     {
       text: 'NAV.STUDENTS',
       icon: 'people',
       route: '/students',
+      roles: ['admin', 'administrador'],
       dividerBefore: true,
     },
     {
       text: 'NAV.STUDENTS_NEW',
       icon: 'person_add',
       route: '/students/new',
+      roles: ['admin', 'administrador'],
     },
     {
       text: 'NAV.COURSES',
       icon: 'school',
       route: '/courses',
+      roles: ['admin', 'administrador'],
     },
     {
       text: 'NAV.ENROLLMENTS',
       icon: 'how_to_reg',
       route: '/enrollments',
+      roles: ['admin', 'administrador'],
     },
     {
       text: 'NAV.ATTENDANCE',
       icon: 'fact_check',
       route: '/attendance',
+      roles: ['admin', 'administrador'],
     },
     {
       text: 'NAV.REPORTS',
       icon: 'assessment',
       route: '/reports',
+      roles: ['admin', 'administrador'],
       dividerBefore: true,
-    },
-    {
-      text: 'NAV.TEACHER_PORTAL',
-      icon: 'school',
-      route: '/teacher',
-      roles: ['professor', 'admin', 'administrador'],
     },
     {
       text: 'NAV.INTERVIEWS',
       icon: 'question_answer',
       route: '/interviews',
+      roles: ['admin', 'administrador'],
     },
     {
       text: 'NAV.INTERVIEWS_DASHBOARD',
@@ -325,6 +339,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       text: 'NAV.VOLUNTEERING',
       icon: 'volunteer_activism',
       route: '/volunteering',
+      roles: ['admin', 'administrador'],
     },
   ];
 

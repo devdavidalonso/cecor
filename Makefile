@@ -4,10 +4,11 @@
 
 COMPOSE=docker compose
 COMPOSE_STAGING=docker compose -f docker-compose.staging.yml
+COMPOSE_DEV_INFRA=docker compose -f docker-compose.dev-infra.yml
 BACKEND_DIR=backend
 FRONTEND_DIR=frontend
 
-.PHONY: help up up-staging down down-staging logs logs-staging backend frontend format clean restart restart-staging status quick-test smoke
+.PHONY: help up up-staging down down-staging logs logs-staging backend frontend format clean restart restart-staging status quick-test smoke dev-infra-up dev-infra-down dev-infra-logs dev-infra-status dev-backend dev-frontend dev-seed
 
 help:
 	@echo "======================================="
@@ -27,6 +28,15 @@ help:
 	@echo "LOCAL (sem Docker):"
 	@echo " make backend      -> Roda backend local (binário)"
 	@echo " make frontend     -> Roda frontend local (binário)"
+	@echo ""
+	@echo "DEV HÍBRIDO (recomendado):"
+	@echo " make dev-infra-up     -> Sobe infraestrutura local (postgres/mongo/redis/rabbit)"
+	@echo " make dev-infra-down   -> Derruba infraestrutura local"
+	@echo " make dev-infra-logs   -> Logs da infraestrutura local"
+	@echo " make dev-infra-status -> Status da infraestrutura local"
+	@echo " make dev-backend      -> Backend local (Go) com infra Docker"
+	@echo " make dev-frontend     -> Frontend local (Angular) com infra Docker"
+	@echo " make dev-seed         -> Popula professores/alunos para teste local"
 	@echo ""
 	@echo "OUTROS:"
 	@echo " make logs         -> Logs em tempo real (produção)"
@@ -108,3 +118,25 @@ quick-test:
 
 smoke: quick-test
 	./scripts/smoke_rbac_keycloak.sh
+
+# --- Dev híbrido: app local + infra Docker ---
+dev-infra-up:
+	$(COMPOSE_DEV_INFRA) up -d
+
+dev-infra-down:
+	$(COMPOSE_DEV_INFRA) down
+
+dev-infra-logs:
+	$(COMPOSE_DEV_INFRA) logs -f
+
+dev-infra-status:
+	$(COMPOSE_DEV_INFRA) ps
+
+dev-backend:
+	cd $(BACKEND_DIR) && go run cmd/api/main.go
+
+dev-frontend:
+	cd $(FRONTEND_DIR) && npm start
+
+dev-seed:
+	cd $(BACKEND_DIR) && go run cmd/seed_local/main.go

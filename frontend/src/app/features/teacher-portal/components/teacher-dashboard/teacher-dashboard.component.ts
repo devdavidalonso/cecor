@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { TeacherPortalService, TeacherDashboard, TodaySession } from '../../../../core/services/teacher-portal.service';
 
@@ -599,11 +600,34 @@ export class TeacherDashboardComponent implements OnInit {
         this.dashboard = data;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         console.error('Erro ao carregar dashboard:', err);
-        this.snackBar.open('Erro ao carregar dashboard. Tente novamente.', 'Fechar', {
-          duration: 5000
-        });
+
+        // Fallback para ambiente sem dados do professor provisionados.
+        this.dashboard = {
+          teacher: {
+            id: 0,
+            name: 'Professor',
+            email: ''
+          },
+          todaySessions: [],
+          weeklyStats: {
+            totalStudents: 0,
+            averageAttendance: 0,
+            classesGiven: 0
+          },
+          alerts: []
+        };
+
+        if (err.status === 404) {
+          this.snackBar.open('Dashboard do professor ainda sem dados para este usuário.', 'Fechar', {
+            duration: 4000
+          });
+        } else {
+          this.snackBar.open('Erro ao carregar dashboard. Tente novamente.', 'Fechar', {
+            duration: 5000
+          });
+        }
         this.isLoading = false;
       }
     });

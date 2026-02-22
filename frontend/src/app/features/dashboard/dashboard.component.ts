@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AuthService } from '../../core/services/auth.service';
@@ -224,9 +224,19 @@ export class DashboardComponent implements OnInit {
     }
   ];
   
-  constructor(public authService: AuthService) {}
+  constructor(
+    public authService: AuthService,
+    private router: Router
+  ) {}
   
   ngOnInit(): void {
+    // Evita que perfil aluno/professor fique no dashboard administrativo genérico.
+    const target = this.authService.getDefaultRouteByRole();
+    if (target !== '/dashboard') {
+      this.router.navigate([target]);
+      return;
+    }
+
     // Aqui você carregaria dados reais da API
     // Este é apenas um exemplo com dados fictícios
     this.loadDashboardData();

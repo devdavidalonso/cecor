@@ -2,6 +2,15 @@
 
 **Use este durante os testes manuais para marcar progresso**
 
+## Snapshot executado em 22/02/2026
+
+Status desta rodada:
+1. `students` carregando com `200` no admin.
+2. `teachers` carregando com `200` no admin.
+3. RBAC validado para bloqueio de `/students` para perfis nao-admin.
+4. Login e redirecionamento por perfil validados.
+5. Erro de icone `icon-144x144.png` corrigido.
+
 ---
 
 ## 🔐 LOGIN E ACESSO
@@ -10,9 +19,10 @@
 |---|-------|--------|
 | 1 | Login como **Aluno** vai para /student/dashboard | ⬜ |
 | 2 | Login como **Professor** vai para /teacher/dashboard | ⬜ |
-| 3 | Login como **Admin** vai para /admin/dashboard | ⬜ |
+| 3 | Login como **Admin** vai para /dashboard | ⬜ |
 | 4 | Aluno tenta acessar /admin → redirecionado | ⬜ |
 | 5 | Token expirado → redireciona para login | ⬜ |
+| 6 | Professor tenta acessar /students → /acesso-negado | ⬜ |
 
 ---
 
@@ -20,20 +30,20 @@
 
 | # | Teste | Status |
 |---|-------|--------|
-| 6 | Dashboard carrega sem erros de console | ⬜ |
-| 7 | Nome do aluno aparece no topo | ⬜ |
-| 8 | **Skeleton loading** aparece durante carregamento | ⬜ |
-| 9 | Cards de cursos mostram: Nome, Turma, Frequência % | ⬜ |
-| 10 | Barra de frequência colorida (verde ≥75%, laranja <75%) | ⬜ |
-| 11 | Alerta de **frequência baixa** aparece se < 75% | ⬜ |
-| 12 | Seção "Aulas de Hoje" mostra aulas agendadas | ⬜ |
-| 13 | Clique no curso → detalhe de frequência | ⬜ |
-| 14 | Tabela de presenças com status coloridos | ⬜ |
-| 15 | Contadores: Presenças, Faltas, Justificadas | ⬜ |
-| 16 | Perfil: pode editar telefone | ⬜ |
-| 17 | Perfil: nome/CPF estão bloqueados | ⬜ |
-| 18 | Ocorrências: lista aparece (apenas visualização) | ⬜ |
-| 19 | Toast aparece ao salvar perfil | ⬜ |
+| 7 | Dashboard carrega sem erros de console | ⬜ |
+| 8 | Nome do aluno aparece no topo | ⬜ |
+| 9 | **Skeleton loading** aparece durante carregamento | ⬜ |
+| 10 | Cards de cursos mostram: Nome, Turma, Frequência % | ⬜ |
+| 11 | Barra de frequência colorida (verde ≥75%, laranja <75%) | ⬜ |
+| 12 | Alerta de **frequência baixa** aparece se < 75% | ⬜ |
+| 13 | Seção "Aulas de Hoje" mostra aulas agendadas | ⬜ |
+| 14 | Clique no curso → detalhe de frequência | ⬜ |
+| 15 | Tabela de presenças com status coloridos | ⬜ |
+| 16 | Contadores: Presenças, Faltas, Justificadas | ⬜ |
+| 17 | Perfil: pode editar telefone | ⬜ |
+| 18 | Perfil: nome/CPF estão bloqueados | ⬜ |
+| 19 | Ocorrências: lista aparece (apenas visualização) | ⬜ |
+| 20 | Toast aparece ao salvar perfil | ⬜ |
 
 ---
 
@@ -113,10 +123,10 @@
 ## 📊 RESULTADO
 
 ```
-Total de Testes: 50
-Passaram: ___ / 50
-Falharam: ___ / 50
-N/A: ___ / 50
+Total de Testes: 51
+Passaram: ___ / 51
+Falharam: ___ / 51
+N/A: ___ / 51
 
 % Concluído: ___%
 

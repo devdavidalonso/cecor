@@ -2,6 +2,14 @@
 
 Sistema de gestão educacional para o CECOR (Lar do Alvorecer), projetado para administrar alunos, cursos, matrículas e frequências de forma integrada e segura.
 
+## Status atual (22/02/2026)
+
+1. Homologacao local validada para os perfis `admin`, `professor` e `aluno`.
+2. RBAC funcional no frontend e backend para rotas criticas.
+3. Listagens de `students` e `teachers` operacionais no painel admin.
+4. Seed local implementado para testes repetiveis.
+5. Documento oficial de progresso: `docs/STATUS_PROGRESSO_2026-02-22.md`.
+
 ## 🚀 Funcionalidades do MVP
 
 O sistema está dividido em módulos funcionais acessíveis conforme o perfil do usuário:

@@ -4,6 +4,26 @@
 **Data:** 21/02/2026  
 **Objetivo:** Validar funcionalidades e UI/UX do sistema
 
+## Atualizacao de progresso - 22/02/2026
+
+Concluido nesta rodada:
+1. Preflight API aprovado (`quick_api_test.sh`).
+2. Smoke RBAC aprovado (`smoke_rbac_keycloak.sh`).
+3. Validacao manual de perfis:
+   - `admin` com acesso a listas de alunos e professores.
+   - `professor` sem acesso administrativo indevido.
+   - `aluno` com portal proprio.
+4. Correcao de erros que bloqueavam teste:
+   - Proxy frontend para backend local.
+   - Schema legado (`students.special_needs`).
+   - Navegacao/guards por papel.
+   - Asset `icon-144x144.png`.
+
+Proximo ciclo recomendado:
+1. Expandir massa de dados de seed (matriculas, cursos, presencas).
+2. Rodar regressao manual com checklist completo por perfil.
+3. Converter os cenarios mais criticos em testes automatizados de regressao.
+
 ---
 
 ## 📊 RESUMO DOS TESTES

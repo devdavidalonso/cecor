@@ -90,4 +90,21 @@ export class AuthService {
     
     return roles.some(role => user.roles.includes(role));
   }
+
+  getDefaultRouteByRole(): string {
+    const user = this.getCurrentUser();
+    if (!user) return '/auth/login';
+
+    if (this.hasAnyRole(['admin', 'administrador', 'gestor'])) {
+      return '/dashboard';
+    }
+    if (this.hasAnyRole(['professor'])) {
+      return '/teacher/dashboard';
+    }
+    if (this.hasAnyRole(['aluno', 'responsavel', 'responsável'])) {
+      return '/student/dashboard';
+    }
+
+    return '/dashboard';
+  }
 }

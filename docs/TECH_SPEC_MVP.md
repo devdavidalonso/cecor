@@ -3,6 +3,20 @@
 **Versão:** 1.0  
 **Arquitetura Atual**: Monólito Modular (Modular Monolith)
 
+## Atualizacao de implementacao - 22/02/2026
+
+Estado atual validado em homologacao local:
+1. Backend em monolito modular mantido como baseline da V1.
+2. Keycloak como fonte de autenticacao e papeis em uso real.
+3. Frontend com guards por papel e redirects por perfil apos login.
+4. Ambiente hibrido oficial para desenvolvimento:
+   - app local (`go run` + `npm start`)
+   - infra em Docker (`postgres`, `mongo`, `redis`, `rabbitmq`)
+5. Seed local idempotente disponivel via `make dev-seed` para popular `teachers` e `students`.
+6. Compatibilidade de schema aplicada para bases legadas de `students`.
+
+Referencia de progresso consolidado: `docs/STATUS_PROGRESSO_2026-02-22.md`.
+
 ---
 
 ## 1. Visão Arquitetural MVP

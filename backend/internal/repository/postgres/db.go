@@ -62,6 +62,12 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 
 // MigrateDB performs database migrations
 func MigrateDB(db *gorm.DB) error {
+	// Compatibilidade com bases antigas/incompletas.
+	// Garante enum e colunas de Student antes do AutoMigrate.
+	if err := ensureStudentSchemaCompatibility(db); err != nil {
+		log.Printf("Warning: error ensuring student schema compatibility: %v", err)
+	}
+
 	// Lista de todos os modelos para migração
 	models := []interface{}{
 		// User related models
@@ -117,6 +123,43 @@ func MigrateDB(db *gorm.DB) error {
 			log.Printf("Warning: error migrating %T: %v", model, err)
 			// Continua com o próximo modelo, não interrompe a migração
 		}
+	}
+
+	return nil
+}
+
+func ensureStudentSchemaCompatibility(db *gorm.DB) error {
+	// Ensure enum exists for student status
+	if err := db.Exec(`
+		DO $$
+		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'student_status') THEN
+				CREATE TYPE student_status AS ENUM ('active', 'inactive', 'suspended');
+			END IF;
+		END
+		$$;
+	`).Error; err != nil {
+		return err
+	}
+
+	// If students table already exists from legacy schema, add missing columns safely.
+	if err := db.Exec(`
+		DO $$
+		BEGIN
+			IF EXISTS (
+				SELECT 1
+				FROM information_schema.tables
+				WHERE table_schema = 'public' AND table_name = 'students'
+			) THEN
+				ALTER TABLE students ADD COLUMN IF NOT EXISTS special_needs text;
+				ALTER TABLE students ADD COLUMN IF NOT EXISTS medical_info text;
+				ALTER TABLE students ADD COLUMN IF NOT EXISTS social_media jsonb;
+				ALTER TABLE students ADD COLUMN IF NOT EXISTS notes text;
+			END IF;
+		END
+		$$;
+	`).Error; err != nil {
+		return err
 	}
 
 	return nil

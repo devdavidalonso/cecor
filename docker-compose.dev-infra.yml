@@ -1,0 +1,62 @@
+# CECOR - Infra local para desenvolvimento
+# Objetivo: rodar apenas dependências (DB/cache/mensageria) via Docker.
+# Backend e Frontend devem rodar localmente (go run / npm start).
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: cecor-dev-postgres
+    environment:
+      POSTGRES_USER: cecor
+      POSTGRES_PASSWORD: cecor123
+      POSTGRES_DB: cecor_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - dev-postgres-data:/var/lib/postgresql/data
+      - ./backend/scripts/postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cecor -d cecor_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongodb:
+    image: mongo:7.0
+    container_name: cecor-dev-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: cecor
+    ports:
+      - "27017:27017"
+    volumes:
+      - dev-mongo-data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: cecor-dev-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - dev-redis-data:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: cecor-dev-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - dev-rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  dev-postgres-data:
+  dev-mongo-data:
+  dev-redis-data:
+  dev-rabbitmq-data:

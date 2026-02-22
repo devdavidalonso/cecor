@@ -28,7 +28,7 @@ import { AuthService } from '../../../core/services/auth.service';
           <h1>Acesso Negado</h1>
           <p>Você não tem permissão para acessar esta página.</p>
           <p class="user-info" *ngIf="authService.currentUser$ | async as user">
-            Olá, <strong>{{ user.name }}</strong>. Seu perfil atual é <strong>{{ user.profile }}</strong>,
+            Olá, <strong>{{ user.name }}</strong>. Seus papéis atuais são <strong>{{ formatRoles(user.roles) }}</strong>,
             o que não permite acesso a este recurso.
           </p>
           <div class="actions">
@@ -106,6 +106,11 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class AcessoNegadoComponent {
   constructor(public authService: AuthService) {}
+
+  formatRoles(roles?: string[]): string {
+    if (!roles || roles.length === 0) return 'indefinido';
+    return roles.join(', ');
+  }
   
   logout(): void {
     this.authService.logout();
